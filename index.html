@@ -1,13 +1,521 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CommishHub - Fantasy Football Tools for Commissioners</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Commish Hub — Free Fantasy Football Commissioner Tools</title>
+  <meta name="description" content="Free tools for fantasy football commissioners. Draft order randomizer, trash talk generator, punishment wheel, and more. Built for casual leagues and dynasty players." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:      #F5F0E8;
+      --gold:    #8B6914;
+      --gold-lt: #F0D080;
+      --sage:    #4A7C59;
+      --brown:   #2C1A0E;
+      --card:    #FFFFFF;
+      --text:    #1A1A1A;
+      --muted:   #6B5D4C;
+      --border:  rgba(139,105,20,.13);
+      --max:     1200px;
+      --r:       10px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--brown); height: 68px;
+      display: flex; align-items: center;
+      box-shadow: 0 2px 20px rgba(0,0,0,.32);
+    }
+    .nav-inner {
+      width: 100%; max-width: var(--max);
+      margin: 0 auto; padding: 0 28px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem; font-weight: 900;
+      color: var(--gold-lt); letter-spacing: -0.01em;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .logo span { color: #fff; }
+    .nav-links {
+      list-style: none; display: flex; align-items: center;
+      gap: 2px; flex: 1; justify-content: center;
+    }
+    .nav-links > li { position: relative; }
+    .nav-links > li > a,
+    .nav-links > li > button {
+      background: none; border: none; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .88rem; font-weight: 500;
+      color: rgba(255,255,255,.8); padding: 8px 14px;
+      border-radius: 6px; display: flex; align-items: center; gap: 5px;
+      transition: color .15s, background .15s;
+    }
+    .nav-links > li > a:hover,
+    .nav-links > li > button:hover { color: #fff; background: rgba(255,255,255,.09); }
+    .chevron { font-size: .6rem; transition: transform .2s; display: inline-block; }
+    .nav-links li:hover .chevron { transform: rotate(180deg); }
+    .drop {
+      display: none; position: absolute;
+      top: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 6px; min-width: 215px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.13);
+    }
+    .nav-links li:hover .drop { display: block; }
+    .drop a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 6px;
+      font-size: .87rem; color: var(--text);
+      transition: background .12s;
+    }
+    .drop a:hover { background: var(--bg); }
+    .di { font-size: 1rem; }
+    .nav-cta {
+      margin-left: auto; flex-shrink: 0;
+      background: var(--gold); color: #fff;
+      font-size: .87rem; font-weight: 600;
+      padding: 9px 20px; border-radius: 7px;
+      transition: background .15s, transform .12s;
+      display: inline-block;
+    }
+    .nav-cta:hover { background: #a07820; transform: translateY(-1px); }
+
+    /* HERO */
+    .hero {
+      max-width: var(--max); margin: 0 auto;
+      padding: 88px 28px 72px; text-align: center;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 5.5vw, 3.8rem);
+      font-weight: 900; line-height: 1.1;
+      letter-spacing: -0.025em; color: var(--brown);
+      max-width: 780px; margin: 0 auto 20px;
+    }
+    .hero-sub {
+      font-size: 1.1rem; color: var(--muted);
+      max-width: 560px; margin: 0 auto 36px; line-height: 1.7;
+    }
+    .hero-actions {
+      display: flex; justify-content: center;
+      gap: 14px; flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: var(--gold); color: #fff;
+      font-weight: 600; font-size: .95rem;
+      padding: 14px 30px; border-radius: var(--r);
+      border: none; cursor: pointer;
+      box-shadow: 0 2px 10px rgba(139,105,20,.28);
+      transition: background .15s, transform .12s, box-shadow .15s;
+      display: inline-block;
+    }
+    .btn-primary:hover { background: #a07820; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,105,20,.32); }
+    .btn-ghost {
+      background: transparent; color: var(--brown);
+      font-weight: 500; font-size: .95rem;
+      padding: 14px 26px; border-radius: var(--r);
+      border: 1.5px solid rgba(44,26,14,.22); cursor: pointer;
+      transition: border-color .15s, background .15s;
+      display: inline-block;
+    }
+    .btn-ghost:hover { border-color: var(--gold); background: rgba(139,105,20,.05); }
+
+    /* UTILITY */
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 28px; }
+    .section-eyebrow {
+      font-size: .75rem; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 10px;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+      font-weight: 900; line-height: 1.15;
+      letter-spacing: -0.02em; color: var(--brown); margin-bottom: 14px;
+    }
+    .section-sub { font-size: 1rem; color: var(--muted); line-height: 1.7; }
+    .section-hd { margin-bottom: 44px; }
+    hr.rule { border: none; border-top: 1px solid var(--border); max-width: var(--max); margin: 0 auto; }
+
+    /* TOOLS */
+    .tools-section { padding: 72px 28px; }
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+      gap: 20px;
+    }
+    .tool-card {
+      background: var(--card); border-radius: 12px;
+      padding: 28px 24px; border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      display: flex; flex-direction: column; gap: 12px;
+      transition: transform .2s, box-shadow .2s;
+      cursor: default;
+    }
+    .tool-card.live { cursor: pointer; }
+    .tool-card.live:hover { transform: translateY(-4px); box-shadow: 0 10px 32px rgba(0,0,0,.1); }
+    .tool-icon { font-size: 1.7rem; line-height: 1; }
+    .badge {
+      display: inline-flex; align-items: center;
+      font-size: .68rem; font-weight: 700;
+      letter-spacing: .07em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 100px; width: fit-content;
+    }
+    .badge-gold { background: var(--gold-lt); color: #6b4e08; }
+    .badge-soon { background: #ece8e0; color: #7a6a58; }
+    .tool-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem; font-weight: 700; color: var(--brown);
+    }
+    .tool-card p { font-size: .88rem; color: var(--muted); line-height: 1.6; flex: 1; }
+    .tool-arrow {
+      font-size: .85rem; font-weight: 600; color: var(--gold);
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: gap .15s;
+    }
+    .tool-card.live:hover .tool-arrow { gap: 10px; }
+
+    /* DYNASTY */
+    .dynasty-section { padding: 80px 28px; background: var(--brown); }
+    .dynasty-inner {
+      max-width: var(--max); margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 400px;
+      gap: 64px; align-items: center;
+    }
+    .dynasty-section .section-eyebrow { color: rgba(240,208,128,.5); }
+    .dynasty-section .section-title { color: var(--gold-lt); }
+    .dynasty-body { color: rgba(255,255,255,.62); font-size: 1rem; line-height: 1.75; margin-bottom: 20px; }
+    .dynasty-closer { font-size: .9rem; color: rgba(255,255,255,.35); font-style: italic; }
+
+    /* EMAIL CAPTURE */
+    .email-box {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px; padding: 32px 28px;
+    }
+    .email-box h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem; color: #fff; margin-bottom: 8px;
+    }
+    .email-box > p { font-size: .88rem; color: rgba(255,255,255,.5); margin-bottom: 20px; line-height: 1.6; }
+    .email-row { display: flex; flex-direction: column; gap: 10px; }
+    .email-row input {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 7px; padding: 11px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem; color: #fff; outline: none;
+      transition: border-color .15s;
+    }
+    .email-row input::placeholder { color: rgba(255,255,255,.35); }
+    .email-row input:focus { border-color: var(--gold-lt); }
+    .btn-capture {
+      background: var(--gold); color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600; font-size: .9rem;
+      padding: 12px 20px; border-radius: 7px;
+      border: none; cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-capture:hover { background: #a07820; }
+    .email-note { font-size: .73rem; color: rgba(255,255,255,.25); margin-top: 10px; text-align: center; }
+    .email-success {
+      display: none; text-align: center;
+      padding: 16px 0 4px; color: #a0e0b0;
+      font-size: .9rem; font-weight: 500;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--brown);
+      border-top: 1px solid rgba(255,255,255,.07);
+      padding: 52px 28px 28px;
+      color: rgba(255,255,255,.45);
+    }
+    .footer-inner { max-width: var(--max); margin: 0 auto; }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1fr;
+      gap: 40px; margin-bottom: 44px;
+    }
+    .footer-brand .logo { display: block; margin-bottom: 12px; }
+    .footer-brand p { font-size: .84rem; line-height: 1.65; max-width: 230px; }
+    .footer-col h4 {
+      font-size: .72rem; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(255,255,255,.28); margin-bottom: 14px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+    .footer-col a { font-size: .84rem; color: rgba(255,255,255,.45); transition: color .12s; }
+    .footer-col a:hover { color: var(--gold-lt); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.07);
+      padding-top: 20px; display: flex;
+      justify-content: space-between; flex-wrap: wrap;
+      gap: 12px; font-size: .78rem;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 860px) {
+      .dynasty-inner { grid-template-columns: 1fr; gap: 40px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .hero { padding: 64px 20px 52px; }
+    }
+
+    /* FADE IN */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fu { opacity: 0; animation: fadeUp .55s ease forwards; }
+    .fu:nth-child(1) { animation-delay: .04s; }
+    .fu:nth-child(2) { animation-delay: .12s; }
+    .fu:nth-child(3) { animation-delay: .20s; }
+  </style>
 </head>
 <body>
-    <h1>CommishHub</h1>
-    <p>Fantasy football tools for commissioners, casual leagues, and dynasty players.</p>
-    <p>Coming soon — tools, resources, and a home for every commissioner.</p>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="/">Commish <span>Hub</span></a>
+
+    <ul class="nav-links">
+      <li>
+        <button>Tools <span class="chevron">▾</span></button>
+        <div class="drop">
+          <a href="/trash-talk"><span class="di">🗣️</span> AI Trash Talk Generator</a>
+          <a href="/draft-order"><span class="di">🎲</span> Draft Order Randomizer</a>
+          <a href="/punishment-wheel"><span class="di">🎡</span> Loser Punishment Wheel</a>
+          <a href="/nickname-generator"><span class="di">🏷️</span> Player Nickname Generator</a>
+        </div>
+      </li>
+      <li>
+        <button>Commissioner <span class="chevron">▾</span></button>
+        <div class="drop">
+          <a href="/new-commissioner"><span class="di">📋</span> New Commissioner Wizard</a>
+          <a href="/rules-generator"><span class="di">📜</span> League Rules Generator</a>
+          <a href="/ruling-assistant"><span class="di">⚖️</span> AI Ruling Assistant</a>
+          <a href="/platform-comparison"><span class="di">🔍</span> Platform Comparison</a>
+        </div>
+      </li>
+      <li>
+        <button>Dynasty <span class="chevron">▾</span></button>
+        <div class="drop">
+          <a href="/dynasty-finder"><span class="di">🏆</span> Dynasty League Finder</a>
+          <a href="/orphan-matchmaker"><span class="di">🤝</span> Orphan Team Matchmaker</a>
+          <a href="/small-league-formats"><span class="di">📐</span> Small League Formats</a>
+        </div>
+      </li>
+      <li><a href="/blog">Blog</a></li>
+    </ul>
+
+    <a class="nav-cta" href="#find-league">Find a League →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <h1 class="fu">Free Fantasy Football Tools to Run, Build, and Enjoy Your League</h1>
+  <p class="hero-sub fu">Tools built for commissioners who do all the work, and the managers who show up on draft day.</p>
+  <div class="hero-actions fu">
+    <a class="btn-primary" href="#tools">Browse the Toolkit</a>
+    <a class="btn-ghost" href="#find-league">Find a League</a>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- TOOLS -->
+<section class="tools-section" id="tools">
+  <div class="wrap">
+    <div class="section-hd">
+      <p class="section-eyebrow">The Toolkit</p>
+      <h2 class="section-title">Start here.</h2>
+      <p class="section-sub">The tools your league actually needs. No login, no paywall, no upsell.</p>
+    </div>
+
+    <div class="tools-grid">
+
+      <div class="tool-card live" onclick="window.location='/trash-talk'">
+        <div class="tool-icon">🗣️</div>
+        <span class="badge badge-gold">Live Now</span>
+        <h3>AI Trash Talk Generator</h3>
+        <p>Placeholder — real copy coming after tool is designed.</p>
+        <span class="tool-arrow">Try it →</span>
+      </div>
+
+      <div class="tool-card live" onclick="window.location='/draft-order'">
+        <div class="tool-icon">🎲</div>
+        <span class="badge badge-gold">Live Now</span>
+        <h3>Draft Order Randomizer</h3>
+        <p>Placeholder — real copy coming after tool is designed.</p>
+        <span class="tool-arrow">Randomize →</span>
+      </div>
+
+      <div class="tool-card live" onclick="window.location='/punishment-wheel'">
+        <div class="tool-icon">🎡</div>
+        <span class="badge badge-gold">Live Now</span>
+        <h3>Loser Punishment Wheel</h3>
+        <p>Placeholder — real copy coming after tool is designed.</p>
+        <span class="tool-arrow">Spin it →</span>
+      </div>
+
+      <div class="tool-card live" onclick="window.location='/nickname-generator'">
+        <div class="tool-icon">🏷️</div>
+        <span class="badge badge-gold">Live Now</span>
+        <h3>Player Nickname Generator</h3>
+        <p>Placeholder — real copy coming after tool is designed.</p>
+        <span class="tool-arrow">Name 'em →</span>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-icon">📋</div>
+        <span class="badge badge-soon">Coming Soon</span>
+        <h3>New Commissioner Wizard</h3>
+        <p>Placeholder — real copy coming after tool is designed.</p>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-icon">📜</div>
+        <span class="badge badge-soon">Coming Soon</span>
+        <h3>League Rules Generator</h3>
+        <p>Placeholder — real copy coming after tool is designed.</p>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-icon">⚖️</div>
+        <span class="badge badge-soon">Coming Soon</span>
+        <h3>AI Commissioner Ruling Assistant</h3>
+        <p>Placeholder — real copy coming after tool is designed.</p>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-icon">🔍</div>
+        <span class="badge badge-soon">Coming Soon</span>
+        <h3>Platform Comparison Tool</h3>
+        <p>Placeholder — real copy coming after tool is designed.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- DYNASTY TEASER -->
+<section class="dynasty-section" id="find-league">
+  <div class="dynasty-inner">
+
+    <div>
+      <p class="section-eyebrow">Dynasty</p>
+      <h2 class="section-title">Dynasty leagues are a 10-year commitment. Finding one shouldn't take that long.</h2>
+      <p class="dynasty-body">Finding an open dynasty league means digging through Reddit threads and hoping for the best. We're fixing that.</p>
+      <p class="dynasty-closer">No forum posts required.</p>
+    </div>
+
+    <div class="email-box">
+      <h3>Keep me posted</h3>
+      <p>We'll let you know when the Dynasty League Finder goes live. No spam, no weekly newsletters about your waiver wire.</p>
+      <div id="emailForm">
+        <div class="email-row">
+          <input type="email" id="emailInput" placeholder="your@email.com" />
+          <button class="btn-capture" onclick="handleEmail()">Notify me when it's ready</button>
+        </div>
+        <p class="email-note">Your email is stored locally in your browser until we set up a real list.</p>
+      </div>
+      <div class="email-success" id="emailSuccess">✓ You're on the list. We'll be in touch.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="logo" href="/">Commish <span>Hub</span></a>
+        <p>Free tools for fantasy football commissioners and the leagues they keep running against their better judgment.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Tools</h4>
+        <ul>
+          <li><a href="/trash-talk">Trash Talk Generator</a></li>
+          <li><a href="/draft-order">Draft Order Randomizer</a></li>
+          <li><a href="/punishment-wheel">Punishment Wheel</a></li>
+          <li><a href="/nickname-generator">Nickname Generator</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Commissioner</h4>
+        <ul>
+          <li><a href="/new-commissioner">New Commissioner Wizard</a></li>
+          <li><a href="/rules-generator">Rules Generator</a></li>
+          <li><a href="/ruling-assistant">Ruling Assistant</a></li>
+          <li><a href="/platform-comparison">Platform Comparison</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Dynasty</h4>
+        <ul>
+          <li><a href="/dynasty-finder">League Finder</a></li>
+          <li><a href="/orphan-matchmaker">Orphan Matchmaker</a></li>
+          <li><a href="/small-league-formats">Small League Formats</a></li>
+          <li><a href="/blog">Blog</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Commish Hub. All rights reserved.</span>
+      <span>Built for the league, not the algorithm.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function handleEmail() {
+    const input = document.getElementById('emailInput');
+    const email = input.value.trim();
+    if (!email || !email.includes('@')) {
+      input.style.borderColor = '#c0392b';
+      setTimeout(() => { input.style.borderColor = ''; }, 1400);
+      return;
+    }
+    const list = JSON.parse(localStorage.getItem('commishhub_emails') || '[]');
+    if (!list.includes(email)) {
+      list.push(email);
+      localStorage.setItem('commishhub_emails', JSON.stringify(list));
+    }
+    document.getElementById('emailForm').style.display = 'none';
+    document.getElementById('emailSuccess').style.display = 'block';
+  }
+  document.getElementById('emailInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleEmail();
+  });
+</script>
+
 </body>
 </html>
