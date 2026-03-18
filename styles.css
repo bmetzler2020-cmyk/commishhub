@@ -1,0 +1,415 @@
+/* ============================================================
+   COMMISH HUB — styles.css
+   Shared across every page on the site.
+   Edit this file once, every page updates automatically.
+   ============================================================ */
+
+
+/* ── 1. DESIGN TOKENS ───────────────────────────────────────
+   These are your brand colors, fonts, and spacing values.
+   Change a value here and it updates everywhere it's used.
+   ---------------------------------------------------------- */
+:root {
+  --bg:         #F5F0E8;   /* warm off-white page background */
+  --gold:       #8B6914;   /* primary gold — buttons, accents */
+  --gold-lt:    #F0D080;   /* light gold — badges only */
+  --sage:       #4A7C59;   /* sage green — secondary accents */
+  --brown:      #2C1A0E;   /* dark brown — nav and footer */
+  --brown-dark: #1a0e06;   /* slightly darker — footer specifically */
+  --card:       #FFFFFF;   /* card/surface white */
+  --text:       #1A1A1A;   /* near-black body text */
+  --muted:      #6B5D4C;   /* muted brown — secondary text */
+  --border:     rgba(139,105,20,.13); /* subtle gold-tinted border */
+  --max:        1200px;    /* max page width */
+  --r:          10px;      /* standard border radius */
+}
+
+
+/* ── 2. RESET ───────────────────────────────────────────────
+   Clears browser default styles for consistency.
+   ---------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+
+
+/* ── 3. NAV ─────────────────────────────────────────────────
+   Styles for the top navigation bar (loaded from nav.html).
+   ---------------------------------------------------------- */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--brown); height: 68px;
+  display: flex; align-items: center;
+  box-shadow: 0 2px 20px rgba(0,0,0,.32);
+}
+.nav-inner {
+  width: 100%; max-width: var(--max);
+  margin: 0 auto; padding: 0 28px;
+  display: flex; align-items: center; gap: 8px;
+}
+.logo {
+  font-family: 'Lora', serif;
+  font-size: 1.35rem; font-weight: 700;
+  color: var(--gold-lt); letter-spacing: -0.01em;
+  white-space: nowrap; flex-shrink: 0;
+}
+.logo span { color: #fff; }
+.nav-links {
+  list-style: none; display: flex; align-items: center;
+  gap: 2px; flex: 1; justify-content: center;
+}
+.nav-links > li { position: relative; }
+.nav-links > li > a,
+.nav-links > li > button {
+  background: none; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .88rem; font-weight: 500;
+  color: rgba(255,255,255,.8); padding: 8px 14px;
+  border-radius: 6px; display: flex; align-items: center; gap: 5px;
+  transition: color .15s, background .15s;
+}
+.nav-links > li > a:hover,
+.nav-links > li > button:hover { color: #fff; background: rgba(255,255,255,.09); }
+.chevron { font-size: .6rem; transition: transform .2s; display: inline-block; }
+.nav-links li:hover .chevron { transform: rotate(180deg); }
+.drop {
+  display: none; position: absolute;
+  top: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 6px; min-width: 215px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.13);
+}
+.nav-links li:hover .drop { display: block; }
+.drop a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 6px;
+  font-size: .87rem; color: var(--text);
+  transition: background .12s;
+}
+.drop a:hover { background: var(--bg); }
+.drop .di { font-size: 1rem; }
+.nav-cta {
+  margin-left: auto; flex-shrink: 0;
+  background: var(--gold); color: #fff;
+  font-size: .87rem; font-weight: 600;
+  padding: 9px 20px; border-radius: 7px;
+  transition: background .15s, transform .12s;
+  display: inline-block;
+}
+.nav-cta:hover { background: #a07820; transform: translateY(-1px); }
+
+
+/* ── 4. FOOTER ──────────────────────────────────────────────
+   Styles for the footer (loaded from footer.html).
+   ---------------------------------------------------------- */
+footer {
+  background: var(--brown);
+  border-top: 1px solid rgba(255,255,255,.07);
+  padding: 52px 28px 28px;
+  color: rgba(255,255,255,.45);
+}
+.footer-inner { max-width: var(--max); margin: 0 auto; }
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 40px; margin-bottom: 44px;
+}
+.footer-brand .logo { display: block; margin-bottom: 12px; }
+.footer-brand p { font-size: .84rem; line-height: 1.65; max-width: 230px; }
+.footer-col h4 {
+  font-size: .72rem; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(255,255,255,.28); margin-bottom: 14px;
+}
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.footer-col a { font-size: .84rem; color: rgba(255,255,255,.45); transition: color .12s; }
+.footer-col a:hover { color: var(--gold-lt); }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,.07);
+  padding-top: 20px; display: flex;
+  justify-content: space-between; flex-wrap: wrap;
+  gap: 12px; font-size: .78rem;
+}
+
+
+/* ── 5. BUTTONS ─────────────────────────────────────────────
+   Reusable button styles used across all pages.
+   ---------------------------------------------------------- */
+.btn-primary {
+  background: var(--gold); color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600; font-size: .95rem;
+  padding: 14px 30px; border-radius: var(--r);
+  border: none; cursor: pointer;
+  box-shadow: 0 2px 10px rgba(139,105,20,.28);
+  transition: background .15s, transform .12s, box-shadow .15s;
+  display: inline-block;
+}
+.btn-primary:hover { background: #a07820; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,105,20,.32); }
+
+.btn-ghost {
+  background: transparent; color: var(--brown);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500; font-size: .95rem;
+  padding: 14px 26px; border-radius: var(--r);
+  border: 1.5px solid rgba(44,26,14,.22); cursor: pointer;
+  transition: border-color .15s, background .15s;
+  display: inline-block;
+}
+.btn-ghost:hover { border-color: var(--gold); background: rgba(139,105,20,.05); }
+
+.btn-secondary {
+  background: var(--sage); color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600; font-size: .95rem;
+  padding: 14px 30px; border-radius: var(--r);
+  border: none; cursor: pointer;
+  transition: background .15s, transform .12s;
+  display: inline-block;
+}
+.btn-secondary:hover { background: #3d6b4a; transform: translateY(-2px); }
+
+
+/* ── 6. BADGES ──────────────────────────────────────────────
+   Small label pills used on tool cards and tool pages.
+   ---------------------------------------------------------- */
+.badge {
+  display: inline-flex; align-items: center;
+  font-size: .68rem; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 100px; width: fit-content;
+}
+.badge-gold { background: var(--gold-lt); color: #6b4e08; }
+.badge-sage { background: #d5ead9; color: #2e5b3b; }
+.badge-soon { background: #ece8e0; color: #7a6a58; }
+
+
+/* ── 7. TYPOGRAPHY UTILITIES ────────────────────────────────
+   Reusable text styles for section headers and eyebrows.
+   ---------------------------------------------------------- */
+.section-eyebrow {
+  font-size: .75rem; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 10px;
+}
+.section-title {
+  font-family: 'Lora', serif;
+  font-size: clamp(1.75rem, 3.5vw, 2.4rem);
+  font-weight: 700; line-height: 1.2;
+  letter-spacing: -0.01em; color: var(--brown); margin-bottom: 14px;
+}
+.section-sub {
+  font-size: 1rem; color: var(--muted); line-height: 1.7;
+}
+.section-hd { margin-bottom: 44px; }
+
+
+/* ── 8. LAYOUT UTILITIES ────────────────────────────────────
+   Common layout wrappers and dividers.
+   ---------------------------------------------------------- */
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 28px; }
+
+hr.rule {
+  border: none; border-top: 1px solid var(--border);
+  max-width: var(--max); margin: 0 auto;
+}
+
+.section-divider {
+  height: 6px;
+  background: linear-gradient(90deg, var(--brown) 0%, #3d2512 50%, var(--brown) 100%);
+  border-top: 1px solid rgba(255,255,255,.06);
+  border-bottom: 1px solid rgba(0,0,0,.25);
+}
+
+
+/* ── 9. TOOL PAGE SHELL ─────────────────────────────────────
+   The consistent outer structure every tool page shares.
+   The interior (the actual tool) is unique per page.
+   ---------------------------------------------------------- */
+
+/* Gold rule under the nav */
+.hero-rule {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(139,105,20,.25) 30%, rgba(240,208,128,.4) 50%, rgba(139,105,20,.25) 70%, transparent);
+}
+
+/* Tool page hero — the top section with tool name and description */
+.tool-hero {
+  position: relative; overflow: hidden;
+}
+.tool-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  pointer-events: none; z-index: 0;
+}
+.tool-hero::after {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%; transform: translateX(-50%);
+  width: 700px; height: 400px;
+  background: radial-gradient(ellipse at center, rgba(139,105,20,.07) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+.tool-hero-inner {
+  position: relative; z-index: 1;
+  max-width: var(--max); margin: 0 auto;
+  padding: 56px 28px 48px;
+}
+.tool-breadcrumb {
+  font-size: .8rem; color: var(--muted);
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 6px;
+}
+.tool-breadcrumb a { color: var(--gold); transition: opacity .12s; }
+.tool-breadcrumb a:hover { opacity: .75; }
+.tool-hero h1 {
+  font-family: 'Lora', serif;
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-weight: 700; line-height: 1.15;
+  letter-spacing: -0.015em; color: var(--brown);
+  max-width: 680px; margin-bottom: 14px;
+}
+.tool-hero p {
+  font-size: 1.05rem; color: var(--muted);
+  max-width: 560px; line-height: 1.7;
+}
+
+/* Tool body — where the actual tool lives */
+.tool-body {
+  max-width: var(--max); margin: 0 auto;
+  padding: 56px 28px 72px;
+}
+
+/* Tool card — the main interactive area */
+.tool-card-main {
+  background: var(--card);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,.07);
+  padding: 40px;
+  max-width: 760px;
+}
+
+/* Related tools strip at the bottom of every tool page */
+.related-tools {
+  background: var(--brown);
+  padding: 56px 28px;
+}
+.related-tools .section-eyebrow { color: rgba(240,208,128,.5); }
+.related-tools .section-title { color: var(--gold-lt); font-size: 1.5rem; margin-bottom: 28px; }
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  max-width: var(--max); margin: 0 auto;
+}
+.related-card {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px; padding: 20px;
+  transition: background .15s, transform .2s;
+  cursor: pointer;
+}
+.related-card:hover { background: rgba(255,255,255,.1); transform: translateY(-3px); }
+.related-card .tool-icon {
+  font-size: 1.4rem; margin-bottom: 10px;
+}
+.related-card h3 {
+  font-family: 'Lora', serif;
+  font-size: 1rem; color: #fff; margin-bottom: 6px;
+}
+.related-card p { font-size: .82rem; color: rgba(255,255,255,.5); line-height: 1.5; }
+
+
+/* ── 10. FORM ELEMENTS ──────────────────────────────────────
+   Shared input, textarea, select styles for tool forms.
+   ---------------------------------------------------------- */
+.field-label {
+  display: block;
+  font-size: .85rem; font-weight: 600;
+  color: var(--text); margin-bottom: 7px;
+}
+.field-hint {
+  font-size: .78rem; color: var(--muted);
+  margin-bottom: 7px; display: block;
+}
+.input,
+.textarea,
+.select {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .92rem; color: var(--text);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.input:focus,
+.textarea:focus,
+.select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(139,105,20,.1);
+}
+.textarea { resize: vertical; min-height: 100px; }
+
+
+/* ── 11. TOOL OUTPUT AREA ───────────────────────────────────
+   The styled box where AI-generated results appear.
+   ---------------------------------------------------------- */
+.output-box {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-left: 4px solid var(--gold);
+  border-radius: 0 10px 10px 0;
+  padding: 20px 24px;
+  min-height: 80px;
+  font-size: .95rem; line-height: 1.7;
+  color: var(--text);
+}
+.output-box.loading {
+  color: var(--muted); font-style: italic;
+}
+.output-box.empty {
+  color: var(--muted); font-style: italic;
+}
+
+
+/* ── 12. ANIMATIONS ─────────────────────────────────────────
+   Shared entrance animations used on page load.
+   ---------------------------------------------------------- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fu { opacity: 0; animation: fadeUp .55s ease forwards; }
+.fu:nth-child(1) { animation-delay: .04s; }
+.fu:nth-child(2) { animation-delay: .12s; }
+.fu:nth-child(3) { animation-delay: .20s; }
+.fu:nth-child(4) { animation-delay: .28s; }
+
+
+/* ── 13. RESPONSIVE ─────────────────────────────────────────
+   Mobile breakpoints. Applies to all pages.
+   ---------------------------------------------------------- */
+@media (max-width: 860px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .tool-card-main { padding: 28px 20px; }
+}
+@media (max-width: 600px) {
+  .nav-links { display: none; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .tool-hero-inner { padding: 40px 20px 36px; }
+  .tool-body { padding: 36px 20px 52px; }
+}

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CHANGE THIS: Page title — include the tool name and "Commish Hub" -->
+  <title>Tool Name — Commish Hub</title>
+
+  <!-- CHANGE THIS: Meta description — 150-160 characters, include your target keyword -->
+  <meta name="description" content="One sentence describing what this tool does and who it's for. Include the primary keyword naturally." />
+
+  <!-- Fonts — same on every page, do not change -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+
+  <!-- Shared styles — same on every page, do not change the path -->
+  <link rel="stylesheet" href="/styles.css" />
+
+  <!-- OPTIONAL: Tool-specific styles only if you need them.
+       Keep this empty unless the tool truly needs something
+       that doesn't belong in styles.css. -->
+  <style>
+    /* Tool-specific styles go here if needed */
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       NAV — loaded automatically from nav.html
+       Do not edit this block. Edit nav.html instead.
+  ════════════════════════════════════════ -->
+  <div id="nav-placeholder"></div>
+  <div class="hero-rule"></div>
+
+
+  <!-- ═══════════════════════════════════════
+       TOOL HERO — the top section of every tool page
+       CHANGE: h1 text, paragraph text, badge label
+       KEEP:   the structure, classes, and breadcrumb format
+  ════════════════════════════════════════ -->
+  <section class="tool-hero">
+    <div class="tool-hero-inner">
+
+      <!-- Breadcrumb: always "Home > Tools > Tool Name" -->
+      <div class="tool-breadcrumb">
+        <a href="/">Home</a> › <a href="/#tools">Tools</a> › Tool Name
+      </div>
+
+      <!-- CHANGE: badge text, h1, and description paragraph -->
+      <span class="badge badge-gold" style="margin-bottom:14px;">Free Tool</span>
+      <h1 class="fu">Tool Name Goes Here</h1>
+      <p class="fu">One or two sentences describing what this tool does. Keep it specific and useful — not marketing language.</p>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════
+       TOOL BODY — the interactive tool itself
+       CHANGE: everything inside .tool-card-main
+       KEEP:   the .tool-body and .tool-card-main wrappers
+  ════════════════════════════════════════ -->
+  <main class="tool-body">
+    <div class="tool-card-main">
+
+      <!-- THE TOOL GOES HERE -->
+      <!-- This is the only section that changes significantly between tools. -->
+      <!-- Example structure for a form-based tool: -->
+
+      <!-- Input fields -->
+      <div style="margin-bottom: 24px;">
+        <label class="field-label" for="example-input">Field Label</label>
+        <span class="field-hint">Optional hint text explaining what to enter.</span>
+        <input class="input" type="text" id="example-input" placeholder="Placeholder text..." />
+      </div>
+
+      <!-- Submit button -->
+      <button class="btn-primary" onclick="runTool()">Generate →</button>
+
+      <!-- Output area — hidden until results exist -->
+      <div style="margin-top: 28px; display: none;" id="output-wrapper">
+        <div class="output-box" id="output-box"></div>
+        <div style="margin-top: 12px; display: flex; gap: 10px;">
+          <button class="btn-ghost" onclick="runTool()">↻ Try again</button>
+          <!-- OPTIONAL: copy button, share button, etc. -->
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+
+  <!-- ═══════════════════════════════════════
+       RELATED TOOLS — shown at the bottom of every tool page
+       CHANGE: the three related tool cards below
+       KEEP:   the .related-tools and .related-grid structure
+  ════════════════════════════════════════ -->
+  <section class="related-tools">
+    <div class="wrap">
+      <p class="section-eyebrow">More Tools</p>
+      <h2 class="section-title">Keep the league running.</h2>
+      <div class="related-grid">
+
+        <!-- CHANGE: icon, href, name, and description for each card -->
+        <a href="/draft-order-randomizer/" class="related-card">
+          <div class="tool-icon">🎲</div>
+          <h3>Draft Order Randomizer</h3>
+          <p>Animated reveal. No arguments.</p>
+        </a>
+
+        <a href="/punishment-wheel/" class="related-card">
+          <div class="tool-icon">🎡</div>
+          <h3>Loser Punishment Wheel</h3>
+          <p>Make finishing last mean something.</p>
+        </a>
+
+        <a href="/player-nickname-generator/" class="related-card">
+          <div class="tool-icon">🏷️</div>
+          <h3>Player Nickname Generator</h3>
+          <p>Names that stick all season.</p>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════
+       FOOTER — loaded automatically from footer.html
+       Do not edit this block. Edit footer.html instead.
+  ════════════════════════════════════════ -->
+  <div id="footer-placeholder"></div>
+
+
+  <!-- ═══════════════════════════════════════
+       INCLUDES — loads nav.html and footer.html
+       Do not change this script.
+  ════════════════════════════════════════ -->
+  <script>
+    async function loadInclude(id, file) {
+      try {
+        const res = await fetch(file);
+        if (!res.ok) throw new Error('Failed to load ' + file);
+        const html = await res.text();
+        document.getElementById(id).innerHTML = html;
+      } catch (e) {
+        console.warn('Include failed:', e);
+      }
+    }
+    loadInclude('nav-placeholder', '/nav.html');
+    loadInclude('footer-placeholder', '/footer.html');
+  </script>
+
+  <!-- CHANGE: Replace this with the actual tool JavaScript -->
+  <script>
+    function runTool() {
+      // Your tool logic goes here.
+      // Show the output wrapper once results are ready:
+      // document.getElementById('output-wrapper').style.display = 'block';
+      // document.getElementById('output-box').textContent = result;
+    }
+  </script>
+
+</body>
+</html>
