@@ -1,50 +1,56 @@
 // netlify/functions/generate.js
 //
-// This function sits between your page and the Anthropic API.
-// Your page calls /.netlify/functions/generate
-// This function calls Anthropic using the secret API key
-// The key never touches the browser.
+// Proxies requests from the browser to the Anthropic API.
+// The API key never touches the browser — it lives only here
+// as a Netlify environment variable.
 
 exports.handler = async function(event) {
 
-  // Only allow POST requests
+  // Only allow POST
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method not allowed' };
   }
 
-  // Make sure the API key is set in Netlify environment variables
+  // Check API key is configured
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'API key not configured' })
+      body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not set in environment variables' })
     };
   }
 
-  // Parse the request body sent from the tool page
+  // Parse request body
   let payload;
   try {
     payload = JSON.parse(event.body);
   } catch (e) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'Invalid request body' })
+      body: JSON.stringify({ error: 'Invalid JSON in request body' })
     };
   }
 
-  // Forward the request to Anthropic
+  // Forward to Anthropic
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
+        'anthropic-version': '2023-06-01',
+        // Required for web_search tool
+        'anthropic-beta': 'web-search-2025-03-05'
       },
       body: JSON.stringify(payload)
     });
 
     const data = await response.json();
+
+    // Log errors to Netlify function logs for debugging (not visible to browser)
+    if (!response.ok) {
+      console.error('Anthropic API error:', response.status, JSON.stringify(data));
+    }
 
     return {
       statusCode: response.status,
@@ -53,9 +59,10 @@ exports.handler = async function(event) {
     };
 
   } catch (err) {
+    console.error('Function error:', err.message);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'API request failed', detail: err.message })
+      body: JSON.stringify({ error: 'Function failed', detail: err.message })
     };
   }
 };
