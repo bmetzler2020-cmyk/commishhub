@@ -21,7 +21,7 @@
     }
     .tone-btn {
       flex: 1;
-      min-width: 90px;
+      min-width: 110px;
       padding: 10px 16px;
       border-radius: 8px;
       border: 1.5px solid var(--border);
@@ -75,7 +75,7 @@
       100% { content: '...'; }
     }
 
-    /* ── Results section ── */
+    /* ── Result section — single card ── */
     .results-section {
       display: none;
       margin-top: 32px;
@@ -83,55 +83,38 @@
       padding-top: 28px;
     }
     .results-section.visible { display: block; }
-    .results-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 20px;
-    }
     .result-card {
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .result-tone-label {
-      font-size: .68rem;
-      font-weight: 700;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-      background: var(--gold-lt);
-      color: #6b4e08;
-      padding: 3px 9px;
-      border-radius: 100px;
-      width: fit-content;
+      border-left: 4px solid var(--gold);
+      border-radius: 0 10px 10px 0;
+      padding: 24px;
+      margin-bottom: 20px;
     }
     .result-text {
-      font-size: .92rem;
-      line-height: 1.65;
+      font-size: 1rem;
+      line-height: 1.7;
       color: var(--text);
-      flex: 1;
+    }
+    .result-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
     }
     .copy-btn {
       background: transparent;
       border: 1.5px solid var(--border);
       border-radius: 7px;
-      padding: 8px 14px;
+      padding: 8px 16px;
       font-family: 'DM Sans', sans-serif;
-      font-size: .8rem;
+      font-size: .82rem;
       font-weight: 600;
       color: var(--muted);
       cursor: pointer;
       transition: border-color .15s, color .15s, background .15s;
-      text-align: center;
     }
-    .copy-btn:hover {
-      border-color: var(--gold);
-      color: var(--gold);
-    }
+    .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
     .copy-btn.copied {
       border-color: var(--sage);
       color: var(--sage);
@@ -139,9 +122,7 @@
     }
 
     /* ── More tools section ── */
-    .more-tools {
-      padding: 72px 28px;
-    }
+    .more-tools { padding: 72px 28px; }
     .more-tools-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -160,13 +141,8 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      transition: transform .2s, box-shadow .2s, border-color .2s;
-      cursor: pointer;
-    }
-    .more-tool-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 28px rgba(0,0,0,.09);
-      border-color: rgba(139,105,20,.28);
+      cursor: default;  /* not clickable — coming soon */
+      opacity: .85;
     }
     .more-tool-card .tool-icon {
       width: 40px; height: 40px;
@@ -186,33 +162,20 @@
       font-size: .85rem;
       color: var(--muted);
       line-height: 1.55;
+      flex: 1;
     }
-    .more-tool-arrow {
-      font-size: .82rem;
-      font-weight: 600;
-      color: var(--gold);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: auto;
-      transition: gap .15s;
-    }
-    .more-tool-card:hover .more-tool-arrow { gap: 10px; }
 
     /* ── Small print ── */
     .small-print {
       text-align: center;
       font-size: .75rem;
       color: var(--muted);
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
+      margin-top: 4px;
     }
 
     /* ── Responsive ── */
     @media (max-width: 700px) {
       .form-row { grid-template-columns: 1fr; }
-      .results-grid { grid-template-columns: 1fr; }
       .more-tools-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -255,9 +218,9 @@
       <div class="form-field-full">
         <label class="field-label">Tone</label>
         <div class="tone-group">
-          <button class="tone-btn active" data-tone="Mild" onclick="setTone(this)">😏 Mild</button>
-          <button class="tone-btn" data-tone="Savage" onclick="setTone(this)">🔥 Savage</button>
-          <button class="tone-btn" data-tone="Unhinged" onclick="setTone(this)">💀 Unhinged</button>
+          <button class="tone-btn active" data-tone="Friendly Fire" onclick="setTone(this)">😏 Friendly Fire</button>
+          <button class="tone-btn" data-tone="Talking Trash" onclick="setTone(this)">🗑️ Talking Trash</button>
+          <button class="tone-btn" data-tone="Nuclear Option" onclick="setTone(this)">💀 Nuclear Option</button>
         </div>
       </div>
 
@@ -280,13 +243,14 @@
         <span id="loading-text">Consulting the injury report</span><span class="loading-dots"></span>
       </div>
 
-      <!-- Results -->
+      <!-- Result — single card -->
       <div class="results-section" id="results">
-        <div class="results-grid" id="results-grid">
-          <!-- Cards injected by JS -->
-        </div>
-        <div style="text-align:center;">
-          <button class="btn-ghost" onclick="generateTrashTalk()" style="margin: 0 auto;">↻ Generate 3 More</button>
+        <div class="result-card">
+          <p class="result-text" id="result-text"></p>
+          <div class="result-actions">
+            <button class="copy-btn" id="copy-btn" onclick="copyResult()">Copy →</button>
+            <button class="btn-ghost" onclick="generateTrashTalk()" style="padding:8px 16px; font-size:.82rem;">↻ Try Again</button>
+          </div>
         </div>
         <p class="small-print">Results are AI-generated. CommishHub is not responsible for damaged friendships.</p>
       </div>
@@ -302,26 +266,26 @@
     </div>
     <div class="more-tools-grid wrap">
 
-      <a href="/draft-order-randomizer/" class="more-tool-card">
+      <div class="more-tool-card">
         <div class="tool-icon">🎲</div>
+        <span class="badge badge-soon">Coming Soon</span>
         <h3>Draft Order Randomizer</h3>
         <p>Animated reveal. No arguments about the coin flip.</p>
-        <span class="more-tool-arrow">Try it →</span>
-      </a>
+      </div>
 
-      <a href="/punishment-wheel/" class="more-tool-card">
+      <div class="more-tool-card">
         <div class="tool-icon">🎡</div>
+        <span class="badge badge-soon">Coming Soon</span>
         <h3>Loser Punishment Wheel</h3>
         <p>Make finishing last mean something.</p>
-        <span class="more-tool-arrow">Spin it →</span>
-      </a>
+      </div>
 
-      <a href="/player-nickname-generator/" class="more-tool-card">
+      <div class="more-tool-card">
         <div class="tool-icon">🏷️</div>
+        <span class="badge badge-soon">Coming Soon</span>
         <h3>Player Nickname Generator</h3>
         <p>Names that stick all season long.</p>
-        <span class="more-tool-arrow">Name 'em →</span>
-      </a>
+      </div>
 
     </div>
   </section>
@@ -347,8 +311,7 @@
 
   <!-- TOOL LOGIC -->
   <script>
-    // ── State ──────────────────────────────────────────────
-    let selectedTone = 'Mild';
+    let selectedTone = 'Friendly Fire';
 
     const loadingMessages = [
       'Consulting the injury report',
@@ -375,7 +338,6 @@
       document.getElementById('results').classList.remove('visible');
       document.getElementById('generate-btn').disabled = true;
       document.getElementById('generate-btn').style.opacity = '.6';
-
       loadingInterval = setInterval(() => {
         i = (i + 1) % loadingMessages.length;
         el.textContent = loadingMessages[i];
@@ -389,50 +351,17 @@
       document.getElementById('generate-btn').style.opacity = '1';
     }
 
-    // ── Parse numbered response into 3 lines ──────────────
-    function parseResults(text) {
-      // Split on lines starting with 1. 2. 3. — handles varied formatting
-      const lines = text
-        .split(/\n/)
-        .map(l => l.trim())
-        .filter(l => /^[123][.)]\s/.test(l))
-        .map(l => l.replace(/^[123][.)]\s*/, '').trim());
-
-      // Fallback: if parsing fails, split into thirds
-      if (lines.length < 3) {
-        const chunks = text.trim().split(/\n\n+/);
-        while (chunks.length < 3) chunks.push(text.trim());
-        return chunks.slice(0, 3).map(c => c.replace(/^[123][.)]\s*/, '').trim());
-      }
-      return lines.slice(0, 3);
-    }
-
-    // ── Render result cards ────────────────────────────────
-    const resultLabels = ['Stat Attack', 'Reputation Check', 'Situational'];
-
-    function renderResults(lines) {
-      const grid = document.getElementById('results-grid');
-      grid.innerHTML = '';
-      lines.forEach((text, i) => {
-        const card = document.createElement('div');
-        card.className = 'result-card';
-        card.innerHTML = `
-          <span class="result-tone-label">${resultLabels[i] || 'Variation ' + (i+1)}</span>
-          <p class="result-text">${escapeHtml(text)}</p>
-          <button class="copy-btn" onclick="copyResult(this, ${JSON.stringify(text)})">Copy →</button>
-        `;
-        grid.appendChild(card);
-      });
+    // ── Render single result ───────────────────────────────
+    function renderResult(text) {
+      document.getElementById('result-text').textContent = text;
       document.getElementById('results').classList.add('visible');
       document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    function escapeHtml(str) {
-      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
     // ── Copy to clipboard ──────────────────────────────────
-    function copyResult(btn, text) {
+    function copyResult() {
+      const text = document.getElementById('result-text').textContent;
+      const btn = document.getElementById('copy-btn');
       navigator.clipboard.writeText(text).then(() => {
         btn.textContent = '✓ Copied!';
         btn.classList.add('copied');
@@ -450,18 +379,10 @@
       const context = document.getElementById('context').value.trim();
 
       if (!opponent || !player) {
-        // Shake empty fields
         if (!opponent) shakeField('opponent');
         if (!player) shakeField('player');
         return;
       }
-
-      const leagueContext = {
-        opponent,
-        player,
-        tone: selectedTone,
-        extraContext: context || null
-      };
 
       startLoading();
 
@@ -471,15 +392,34 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: 'claude-sonnet-4-20250514',
-            max_tokens: 1000,
+            max_tokens: 400,
             tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-            system: `You are a fantasy football trash talk generator with deep knowledge of NFL player reputations, fantasy football culture, memes, and current events. You know about notorious fantasy busts, player controversies, historical draft disasters, and running jokes in the fantasy football community. Before generating trash talk, use web search to find any relevant current news, injury history, or public sentiment about the player mentioned. Generate trash talk that feels specific, culturally aware, and genuinely funny — not generic. The tone should match the selected level: Mild is light teasing, Savage is pointed and specific, Unhinged is chaotic and absurd. Avoid anything racist, genuinely harmful, or targeting real personal information beyond public player reputation. Keep it in the culture of fantasy football banter — the kind of thing that gets screenshotted and shared in a group chat. Generate exactly 3 distinct variations. Make each one feel different — aim for one stat-based, one player-reputation-based, one situational. Return only the 3 trash talk lines, numbered 1, 2, 3, with no extra commentary.`,
+            system: `You are the most experienced fantasy football player in any given league. Your trash talk is dry, specific, and self-aware — it earns its laughs through observation and precision, not volume or shock phrases. You sound like someone who has been playing fantasy football for 15 years and has seen every draft mistake, every blown lead, and every desperate waiver wire add. You never announce that you are being funny. The humor comes from the punchline itself. You never use exclamation points — they undercut the delivery.
+
+The user will specify a tone level:
+- Friendly Fire: Light, good-natured ribbing. The kind of thing you say to a friend you like. Specific and pointed but nobody's feelings actually get hurt. Stays clean.
+- Talking Trash: No mercy on the football decisions. Go after the draft picks, the lineup choices, the bad trades, the players they trusted. Pointed and specific but stays focused on the football.
+- Nuclear Option: This is where the gloves come off. Everything is fair game — the football, the player's known reputation and controversies, the opponent's judgment, their life choices that led them to this exact moment of losing. Be genuinely mean if the context earns it. One brutal, perfectly placed line is worth more than five loud ones. The humor comes from the specificity and accuracy of the punchline — not from stacking slurs or cheap shots. Never go racist, sexist, or attack things genuinely outside someone's control. But within those limits, do not hold back. If the player involved has baggage — public controversies, known disasters, a reputation the entire internet agrees on — use it. That is the material.
+
+Before generating, use web search to find any relevant current context about the player mentioned — recent news, known controversies, fantasy reputation, public perception, anything the fantasy football community has strong opinions about. Let that research inform the punch line directly.
+
+Generate exactly one trash talk response. 1-3 sentences maximum. Short, punchy, specific. Never write a paragraph. The best trash talk is calm and precise.`,
             messages: [{
               role: 'user',
-              content: `Generate fantasy football trash talk with these details:\nOpponent: ${leagueContext.opponent}\nKey player: ${leagueContext.player}\nTone: ${leagueContext.tone}\nExtra context: ${leagueContext.extraContext || 'none'}`
+              content: `Generate fantasy football trash talk with these details:\nOpponent: ${opponent}\nKey player: ${player}\nTone: ${selectedTone}\nExtra context: ${context || 'none'}`
             }]
           })
         });
+
+        // Handle rate limit
+        if (response.status === 429) {
+          stopLoading();
+          renderResult("You've been talking too much trash. Come back in an hour.");
+          document.getElementById('result-text').style.color = 'var(--muted)';
+          document.getElementById('result-text').style.textAlign = 'center';
+          document.getElementById('result-text').style.fontStyle = 'italic';
+          return;
+        }
 
         if (!response.ok) {
           throw new Error('API error: ' + response.status);
@@ -487,7 +427,7 @@
 
         const data = await response.json();
 
-        // Extract text from response — handle tool_use blocks by finding the final text block
+        // Find the final text block — skip tool_use blocks
         const textBlock = data.content
           .filter(block => block.type === 'text')
           .pop();
@@ -496,18 +436,21 @@
           throw new Error('No text in response');
         }
 
-        const lines = parseResults(textBlock.text);
         stopLoading();
-        renderResults(lines);
+        // Reset any rate limit styling from a previous request
+        const resultEl = document.getElementById('result-text');
+        resultEl.style.color = '';
+        resultEl.style.textAlign = '';
+        resultEl.style.fontStyle = '';
+        renderResult(textBlock.text.trim());
 
       } catch (err) {
         stopLoading();
         console.error('Trash talk generation failed:', err);
-        renderResults([
-          'The API fumbled this one. Try again.',
-          'Something went wrong — refresh and run it back.',
-          'Error on the field. Commissioner is reviewing.'
-        ]);
+        renderResult('Something went wrong on our end. Refresh and run it back.');
+        document.getElementById('result-text').style.color = 'var(--muted)';
+        document.getElementById('result-text').style.fontStyle = 'italic';
+        document.getElementById('result-text').style.textAlign = 'center';
       }
     }
 
