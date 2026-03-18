@@ -111,7 +111,7 @@ nav {
    Styles for the footer (loaded from footer.html).
    ---------------------------------------------------------- */
 footer {
-  background: var(--brown);
+  background: var(--brown);   /* matches nav — intentional bookend */
   border-top: 1px solid rgba(255,255,255,.07);
   padding: 52px 28px 28px;
   color: rgba(255,255,255,.45);
@@ -400,7 +400,74 @@ hr.rule {
 .fu:nth-child(4) { animation-delay: .28s; }
 
 
-/* ── 13. RESPONSIVE ─────────────────────────────────────────
+/* ── 13. HAMBURGER MENU ─────────────────────────────────────
+   Mobile nav — hidden on desktop, shown on mobile.
+   Toggled by clicking the hamburger button in nav.html.
+   ---------------------------------------------------------- */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  margin-left: auto;
+}
+.hamburger span {
+  display: block;
+  width: 22px; height: 2px;
+  background: rgba(255,255,255,.85);
+  border-radius: 2px;
+  transition: transform .2s, opacity .2s;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-nav {
+  display: none;
+  position: fixed;
+  top: 68px; left: 0; right: 0;
+  background: var(--brown);
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding: 12px 0 20px;
+  z-index: 199;
+  box-shadow: 0 8px 24px rgba(0,0,0,.3);
+}
+.mobile-nav.open { display: block; }
+.mobile-nav a {
+  display: block;
+  padding: 11px 28px;
+  font-size: .95rem;
+  font-weight: 500;
+  color: rgba(255,255,255,.8);
+  transition: color .12s, background .12s;
+}
+.mobile-nav a:hover { color: #fff; background: rgba(255,255,255,.06); }
+.mobile-nav .mobile-section-label {
+  padding: 16px 28px 6px;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.28);
+}
+.mobile-nav .mobile-cta {
+  display: block;
+  margin: 16px 28px 0;
+  background: var(--gold);
+  color: #fff;
+  text-align: center;
+  padding: 12px;
+  border-radius: 7px;
+  font-weight: 600;
+  font-size: .92rem;
+}
+
+
+/* ── 14. RESPONSIVE ─────────────────────────────────────────
    Mobile breakpoints. Applies to all pages.
    ---------------------------------------------------------- */
 @media (max-width: 860px) {
@@ -409,6 +476,8 @@ hr.rule {
 }
 @media (max-width: 600px) {
   .nav-links { display: none; }
+  .nav-cta { display: none; }
+  .hamburger { display: flex; }
   .footer-grid { grid-template-columns: 1fr; }
   .tool-hero-inner { padding: 40px 20px 36px; }
   .tool-body { padding: 36px 20px 52px; }
