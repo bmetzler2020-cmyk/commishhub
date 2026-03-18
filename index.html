@@ -8,7 +8,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
 
   <style>
     :root {
@@ -35,7 +35,7 @@
     }
     a { color: inherit; text-decoration: none; }
 
-    /* NAV */
+    /* ── NAV ── */
     nav {
       position: sticky; top: 0; z-index: 200;
       background: var(--brown); height: 68px;
@@ -48,8 +48,8 @@
       display: flex; align-items: center; gap: 8px;
     }
     .logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.35rem; font-weight: 900;
+      font-family: 'Lora', serif;
+      font-size: 1.35rem; font-weight: 700;
       color: var(--gold-lt); letter-spacing: -0.01em;
       white-space: nowrap; flex-shrink: 0;
     }
@@ -98,21 +98,51 @@
     }
     .nav-cta:hover { background: #a07820; transform: translateY(-1px); }
 
-    /* HERO */
+    /* ── HERO ── */
     .hero {
+      position: relative;
+      overflow: hidden;
+      max-width: 100%;
+    }
+    /* Subtle warm grain texture via SVG noise overlay */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* Soft radial glow behind the headline */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%; transform: translateX(-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(ellipse at center, rgba(139,105,20,.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-inner {
+      position: relative; z-index: 1;
       max-width: var(--max); margin: 0 auto;
-      padding: 88px 28px 72px; text-align: center;
+      padding: 92px 28px 76px; text-align: center;
+    }
+    /* Thin gold rule under nav */
+    .hero-rule {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(139,105,20,.25) 30%, rgba(240,208,128,.4) 50%, rgba(139,105,20,.25) 70%, transparent);
     }
     .hero h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(2.4rem, 5.5vw, 3.8rem);
-      font-weight: 900; line-height: 1.1;
-      letter-spacing: -0.025em; color: var(--brown);
-      max-width: 780px; margin: 0 auto 20px;
+      font-family: 'Lora', serif;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 700; line-height: 1.15;
+      letter-spacing: -0.015em; color: var(--brown);
+      max-width: 760px; margin: 0 auto 20px;
     }
     .hero-sub {
       font-size: 1.1rem; color: var(--muted);
-      max-width: 560px; margin: 0 auto 36px; line-height: 1.7;
+      max-width: 540px; margin: 0 auto 36px; line-height: 1.75;
     }
     .hero-actions {
       display: flex; justify-content: center;
@@ -138,7 +168,7 @@
     }
     .btn-ghost:hover { border-color: var(--gold); background: rgba(139,105,20,.05); }
 
-    /* UTILITY */
+    /* ── UTILITY ── */
     .wrap { max-width: var(--max); margin: 0 auto; padding: 0 28px; }
     .section-eyebrow {
       font-size: .75rem; font-weight: 600;
@@ -146,16 +176,16 @@
       color: var(--gold); margin-bottom: 10px;
     }
     .section-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
-      font-weight: 900; line-height: 1.15;
-      letter-spacing: -0.02em; color: var(--brown); margin-bottom: 14px;
+      font-family: 'Lora', serif;
+      font-size: clamp(1.75rem, 3.5vw, 2.4rem);
+      font-weight: 700; line-height: 1.2;
+      letter-spacing: -0.01em; color: var(--brown); margin-bottom: 14px;
     }
     .section-sub { font-size: 1rem; color: var(--muted); line-height: 1.7; }
     .section-hd { margin-bottom: 44px; }
     hr.rule { border: none; border-top: 1px solid var(--border); max-width: var(--max); margin: 0 auto; }
 
-    /* TOOLS */
+    /* ── TOOLS ── */
     .tools-section { padding: 72px 28px; }
     .tools-grid {
       display: grid;
@@ -167,12 +197,29 @@
       padding: 28px 24px; border: 1px solid var(--border);
       box-shadow: 0 2px 8px rgba(0,0,0,.05);
       display: flex; flex-direction: column; gap: 12px;
-      transition: transform .2s, box-shadow .2s;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
       cursor: default;
     }
     .tool-card.live { cursor: pointer; }
-    .tool-card.live:hover { transform: translateY(-4px); box-shadow: 0 10px 32px rgba(0,0,0,.1); }
-    .tool-icon { font-size: 1.7rem; line-height: 1; }
+    .tool-card.live:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 32px rgba(0,0,0,.1);
+      border-color: rgba(139,105,20,.28);
+    }
+    /* Icon as styled glyph rather than raw emoji */
+    .tool-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; line-height: 1;
+      background: rgba(139,105,20,.08);
+      border: 1px solid rgba(139,105,20,.12);
+      flex-shrink: 0;
+    }
+    .tool-icon.sage-icon {
+      background: rgba(74,124,89,.08);
+      border-color: rgba(74,124,89,.15);
+    }
     .badge {
       display: inline-flex; align-items: center;
       font-size: .68rem; font-weight: 700;
@@ -182,8 +229,8 @@
     .badge-gold { background: var(--gold-lt); color: #6b4e08; }
     .badge-soon { background: #ece8e0; color: #7a6a58; }
     .tool-card h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.15rem; font-weight: 700; color: var(--brown);
+      font-family: 'Lora', serif;
+      font-size: 1.1rem; font-weight: 700; color: var(--brown);
     }
     .tool-card p { font-size: .88rem; color: var(--muted); line-height: 1.6; flex: 1; }
     .tool-arrow {
@@ -193,7 +240,7 @@
     }
     .tool-card.live:hover .tool-arrow { gap: 10px; }
 
-    /* DYNASTY */
+    /* ── DYNASTY ── */
     .dynasty-section { padding: 80px 28px; background: var(--brown); }
     .dynasty-inner {
       max-width: var(--max); margin: 0 auto;
@@ -205,15 +252,15 @@
     .dynasty-body { color: rgba(255,255,255,.62); font-size: 1rem; line-height: 1.75; margin-bottom: 20px; }
     .dynasty-closer { font-size: .9rem; color: rgba(255,255,255,.35); font-style: italic; }
 
-    /* EMAIL CAPTURE */
+    /* email capture */
     .email-box {
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.12);
       border-radius: 12px; padding: 32px 28px;
     }
     .email-box h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.25rem; color: #fff; margin-bottom: 8px;
+      font-family: 'Lora', serif;
+      font-size: 1.2rem; color: #fff; margin-bottom: 8px;
     }
     .email-box > p { font-size: .88rem; color: rgba(255,255,255,.5); margin-bottom: 20px; line-height: 1.6; }
     .email-row { display: flex; flex-direction: column; gap: 10px; }
@@ -236,17 +283,23 @@
       transition: background .15s;
     }
     .btn-capture:hover { background: #a07820; }
-    .email-note { font-size: .73rem; color: rgba(255,255,255,.25); margin-top: 10px; text-align: center; }
     .email-success {
       display: none; text-align: center;
       padding: 16px 0 4px; color: #a0e0b0;
       font-size: .9rem; font-weight: 500;
     }
 
-    /* FOOTER */
+    /* ── DIVIDER between dynasty and footer ── */
+    .section-divider {
+      height: 6px;
+      background: linear-gradient(90deg, var(--brown) 0%, #3d2512 50%, var(--brown) 100%);
+      border-top: 1px solid rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(0,0,0,.25);
+    }
+
+    /* ── FOOTER ── */
     footer {
-      background: var(--brown);
-      border-top: 1px solid rgba(255,255,255,.07);
+      background: #1a0e06;
       padding: 52px 28px 28px;
       color: rgba(255,255,255,.45);
     }
@@ -273,7 +326,7 @@
       gap: 12px; font-size: .78rem;
     }
 
-    /* RESPONSIVE */
+    /* ── RESPONSIVE ── */
     @media (max-width: 860px) {
       .dynasty-inner { grid-template-columns: 1fr; gap: 40px; }
       .footer-grid { grid-template-columns: 1fr 1fr; }
@@ -281,10 +334,9 @@
     @media (max-width: 600px) {
       .nav-links { display: none; }
       .footer-grid { grid-template-columns: 1fr; }
-      .hero { padding: 64px 20px 52px; }
     }
 
-    /* FADE IN */
+    /* ── FADE IN ── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(18px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -301,7 +353,6 @@
 <nav>
   <div class="nav-inner">
     <a class="logo" href="/">Commish <span>Hub</span></a>
-
     <ul class="nav-links">
       <li>
         <button>Tools <span class="chevron">▾</span></button>
@@ -331,18 +382,22 @@
       </li>
       <li><a href="/blog">Blog</a></li>
     </ul>
-
     <a class="nav-cta" href="#find-league">Find a League →</a>
   </div>
 </nav>
 
+<!-- Thin gold rule separating nav from hero -->
+<div class="hero-rule"></div>
+
 <!-- HERO -->
 <section class="hero">
-  <h1 class="fu">Free Fantasy Football Tools to Run, Build, and Enjoy Your League</h1>
-  <p class="hero-sub fu">Tools built for commissioners who do all the work, and the managers who show up on draft day.</p>
-  <div class="hero-actions fu">
-    <a class="btn-primary" href="#tools">Browse the Toolkit</a>
-    <a class="btn-ghost" href="#find-league">Find a League</a>
+  <div class="hero-inner">
+    <h1 class="fu">Free Fantasy Football Tools to Run, Build, and Enjoy Your League</h1>
+    <p class="hero-sub fu">Tools built for commissioners who do all the work, and the managers who show up on draft day.</p>
+    <div class="hero-actions fu">
+      <a class="btn-primary" href="#tools">Browse the Toolkit</a>
+      <a class="btn-ghost" href="#find-league">Find a League</a>
+    </div>
   </div>
 </section>
 
@@ -353,7 +408,7 @@
   <div class="wrap">
     <div class="section-hd">
       <p class="section-eyebrow">The Toolkit</p>
-      <h2 class="section-title">Start here.</h2>
+      <h2 class="section-title">No rankings. No projections. Everything else.</h2>
       <p class="section-sub">The tools your league actually needs. No login, no paywall, no upsell.</p>
     </div>
 
@@ -392,28 +447,28 @@
       </div>
 
       <div class="tool-card">
-        <div class="tool-icon">📋</div>
+        <div class="tool-icon sage-icon">📋</div>
         <span class="badge badge-soon">Coming Soon</span>
         <h3>New Commissioner Wizard</h3>
         <p>Placeholder — real copy coming after tool is designed.</p>
       </div>
 
       <div class="tool-card">
-        <div class="tool-icon">📜</div>
+        <div class="tool-icon sage-icon">📜</div>
         <span class="badge badge-soon">Coming Soon</span>
         <h3>League Rules Generator</h3>
         <p>Placeholder — real copy coming after tool is designed.</p>
       </div>
 
       <div class="tool-card">
-        <div class="tool-icon">⚖️</div>
+        <div class="tool-icon sage-icon">⚖️</div>
         <span class="badge badge-soon">Coming Soon</span>
         <h3>AI Commissioner Ruling Assistant</h3>
         <p>Placeholder — real copy coming after tool is designed.</p>
       </div>
 
       <div class="tool-card">
-        <div class="tool-icon">🔍</div>
+        <div class="tool-icon sage-icon">🔍</div>
         <span class="badge badge-soon">Coming Soon</span>
         <h3>Platform Comparison Tool</h3>
         <p>Placeholder — real copy coming after tool is designed.</p>
@@ -428,14 +483,12 @@
 <!-- DYNASTY TEASER -->
 <section class="dynasty-section" id="find-league">
   <div class="dynasty-inner">
-
     <div>
       <p class="section-eyebrow">Dynasty</p>
-      <h2 class="section-title">Dynasty leagues are a 10-year commitment. Finding one shouldn't take that long.</h2>
+      <h2 class="section-title">Dynasty leagues are a long-term commitment — finding one shouldn't be.</h2>
       <p class="dynasty-body">Finding an open dynasty league means digging through Reddit threads and hoping for the best. We're fixing that.</p>
       <p class="dynasty-closer">No forum posts required.</p>
     </div>
-
     <div class="email-box">
       <h3>Keep me posted</h3>
       <p>We'll let you know when the Dynasty League Finder goes live. No spam, no weekly newsletters about your waiver wire.</p>
@@ -444,13 +497,14 @@
           <input type="email" id="emailInput" placeholder="your@email.com" />
           <button class="btn-capture" onclick="handleEmail()">Notify me when it's ready</button>
         </div>
-        <p class="email-note">Your email is stored locally in your browser until we set up a real list.</p>
       </div>
       <div class="email-success" id="emailSuccess">✓ You're on the list. We'll be in touch.</div>
     </div>
-
   </div>
 </section>
+
+<!-- Visual break between dynasty and footer -->
+<div class="section-divider"></div>
 
 <!-- FOOTER -->
 <footer>
