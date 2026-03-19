@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://commishhub.com/sitemap.xml

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page Not Found — Commish Hub</title>
+  <meta name="robots" content="noindex" />
+
+  <link rel="icon" type="image/x-icon" href="/icons/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+
+  <style>
+    .error-section {
+      min-height: calc(100vh - 68px - 200px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 28px;
+      text-align: center;
+    }
+    .error-inner { max-width: 540px; }
+    .error-eyebrow {
+      font-size: .75rem; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 16px;
+    }
+    .error-h1 {
+      font-family: 'Lora', serif;
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      font-weight: 700; line-height: 1.15;
+      letter-spacing: -0.015em; color: var(--brown);
+      margin-bottom: 16px;
+    }
+    .error-sub {
+      font-size: 1.05rem; color: var(--muted);
+      line-height: 1.7; margin-bottom: 36px;
+    }
+    .error-actions {
+      display: flex; justify-content: center;
+      gap: 14px; flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- NAV — hardcoded for SEO (no JS fetch dependency) -->
+  <nav role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a class="logo" href="/">Commish <span>Hub</span></a>
+      <ul class="nav-links">
+        <li>
+          <button aria-haspopup="true">Tools <span class="chevron" aria-hidden="true">▾</span></button>
+          <div class="drop">
+            <a href="/trash-talk-generator/"><span class="di" aria-hidden="true">🗣️</span> AI Trash Talk Generator</a>
+            <a href="/draft-order-randomizer/"><span class="di" aria-hidden="true">🎲</span> Draft Order Randomizer</a>
+            <a href="/punishment-wheel/"><span class="di" aria-hidden="true">🎡</span> Loser Punishment Wheel</a>
+            <a href="/player-nickname-generator/"><span class="di" aria-hidden="true">🏷️</span> Player Nickname Generator</a>
+          </div>
+        </li>
+        <li>
+          <button aria-haspopup="true">Commissioner <span class="chevron" aria-hidden="true">▾</span></button>
+          <div class="drop">
+            <a href="/new-commissioner-guide/"><span class="di" aria-hidden="true">📋</span> New Commissioner Wizard</a>
+            <a href="/league-rules-generator/"><span class="di" aria-hidden="true">📜</span> League Rules Generator</a>
+            <a href="/commissioner-ruling-assistant/"><span class="di" aria-hidden="true">⚖️</span> AI Ruling Assistant</a>
+            <a href="/fantasy-football-platform-comparison/"><span class="di" aria-hidden="true">🔍</span> Platform Comparison</a>
+          </div>
+        </li>
+        <li>
+          <button aria-haspopup="true">Dynasty <span class="chevron" aria-hidden="true">▾</span></button>
+          <div class="drop">
+            <a href="/dynasty-league-finder/"><span class="di" aria-hidden="true">🏆</span> Dynasty League Finder</a>
+            <a href="/orphan-team-matchmaker/"><span class="di" aria-hidden="true">🤝</span> Orphan Team Matchmaker</a>
+            <a href="/small-league-dynasty-formats/"><span class="di" aria-hidden="true">📐</span> Small League Formats</a>
+          </div>
+        </li>
+        <li><a href="/blog/">Blog</a></li>
+      </ul>
+      <a class="nav-cta" href="/#find-league">Find a League →</a>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="mobile-nav" id="mobile-nav">
+    <div class="mobile-section-label">Tools</div>
+    <a href="/trash-talk-generator/">🗣️ AI Trash Talk Generator</a>
+    <a href="/draft-order-randomizer/">🎲 Draft Order Randomizer</a>
+    <a href="/punishment-wheel/">🎡 Loser Punishment Wheel</a>
+    <a href="/player-nickname-generator/">🏷️ Player Nickname Generator</a>
+    <div class="mobile-section-label">Commissioner</div>
+    <a href="/new-commissioner-guide/">📋 New Commissioner Wizard</a>
+    <a href="/league-rules-generator/">📜 League Rules Generator</a>
+    <a href="/commissioner-ruling-assistant/">⚖️ AI Ruling Assistant</a>
+    <a href="/fantasy-football-platform-comparison/">🔍 Platform Comparison</a>
+    <div class="mobile-section-label">Dynasty</div>
+    <a href="/dynasty-league-finder/">🏆 Dynasty League Finder</a>
+    <a href="/orphan-team-matchmaker/">🤝 Orphan Team Matchmaker</a>
+    <a href="/small-league-dynasty-formats/">📐 Small League Formats</a>
+    <div class="mobile-section-label">More</div>
+    <a href="/blog/">Blog</a>
+    <a class="mobile-cta" href="/#find-league">Find a League →</a>
+  </div>
+  <div class="hero-rule"></div>
+
+  <main id="main-content">
+    <section class="error-section">
+      <div class="error-inner">
+        <p class="error-eyebrow">Error 404</p>
+        <h1 class="error-h1">This page finished last.</h1>
+        <p class="error-sub">It got cut from the roster. Happens to the best of them.</p>
+        <div class="error-actions">
+          <a href="/" class="btn-primary">Back to Homepage</a>
+          <a href="/#tools" class="btn-ghost">Browse the Toolkit</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER — hardcoded for SEO -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="logo" href="/">Commish <span>Hub</span></a>
+          <p>Free tools for fantasy football commissioners and the leagues they keep running against their better judgment.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Tools</h4>
+          <ul>
+            <li><a href="/trash-talk-generator/">Trash Talk Generator</a></li>
+            <li><a href="/draft-order-randomizer/">Draft Order Randomizer</a></li>
+            <li><a href="/punishment-wheel/">Punishment Wheel</a></li>
+            <li><a href="/player-nickname-generator/">Nickname Generator</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Commissioner</h4>
+          <ul>
+            <li><a href="/new-commissioner-guide/">New Commissioner Wizard</a></li>
+            <li><a href="/league-rules-generator/">Rules Generator</a></li>
+            <li><a href="/commissioner-ruling-assistant/">Ruling Assistant</a></li>
+            <li><a href="/fantasy-football-platform-comparison/">Platform Comparison</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Dynasty</h4>
+          <ul>
+            <li><a href="/dynasty-league-finder/">League Finder</a></li>
+            <li><a href="/orphan-team-matchmaker/">Orphan Matchmaker</a></li>
+            <li><a href="/small-league-dynasty-formats/">Small League Formats</a></li>
+            <li><a href="/blog/">Blog</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Commish Hub. All rights reserved.</span>
+        <span>Built for the league, not the algorithm.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function() {
+      const btn = document.getElementById('hamburger');
+      const panel = document.getElementById('mobile-nav');
+      if (!btn || !panel) return;
+      btn.addEventListener('click', function() {
+        const isOpen = btn.classList.toggle('open');
+        panel.classList.toggle('open');
+        btn.setAttribute('aria-expanded', isOpen);
+      });
+      panel.querySelectorAll('a').forEach(function(link) {
+        link.addEventListener('click', function() {
+          btn.classList.remove('open');
+          panel.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        });
+      });
+    })();
+  </script>
+
+</body>
+</html>
