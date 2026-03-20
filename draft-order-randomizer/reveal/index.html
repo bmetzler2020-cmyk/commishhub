@@ -147,14 +147,14 @@
   </div>
 
   <!-- Reveal board — shown only when ready to animate -->
-  <div id="reveal-state">
+  <div id="reveal-state" style="display:none;">
     <div class="board">
       <div class="picks-grid" id="picks-grid"></div>
     </div>
   </div>
 
   <!-- Error -->
-  <div id="error-state">
+  <div id="error-state" style="display:none;">
     <h2>Reveal not found.</h2>
     <p>This link may have expired or the ID is incorrect.<br/>
        <a href="/draft-order-randomizer/">Create a new one →</a>
@@ -310,7 +310,7 @@
     // ── Split-flap ─────────────────────────────────────────
     function splitFlap(el, finalText, duration, onComplete) {
       const chars       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -';
-      const totalFrames = Math.floor(duration / 65);
+      const totalFrames = Math.floor(duration / 90);
       let frame = 0;
 
       function tick() {

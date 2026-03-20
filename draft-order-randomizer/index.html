@@ -1162,7 +1162,7 @@
       card.classList.add('active');
 
       // Split-flap scramble — 700ms
-      splitFlap(nameEl, name, 1100, () => {
+      splitFlap(nameEl, name, 1400, () => {
         // Land — text settles to warm white
         nameEl.classList.add('settled');
         card.classList.remove('active');
@@ -1173,7 +1173,7 @@
     // ── Split-flap text effect ─────────────────────────────
     function splitFlap(el, finalText, duration, onComplete) {
       const chars       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -';
-      const totalFrames = Math.floor(duration / 65); // slower scramble
+      const totalFrames = Math.floor(duration / 90); // slower scramble
       let frame = 0;
 
       function tick() {
