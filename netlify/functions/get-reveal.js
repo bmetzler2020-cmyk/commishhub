@@ -19,7 +19,9 @@ exports.handler = async function(event, context) {
       siteID: process.env.NETLIFY_SITE_ID,
       token: process.env.NETLIFY_TOKEN
     });
-    data = await store.getJSON(`reveal-${id}`);
+    const raw = await store.get(`reveal-${id}`);
+    if (!raw) { data = null; }
+    else { data = JSON.parse(raw); }
   } catch (err) {
     console.error('Blob fetch error:', err.message);
     return { statusCode: 404, body: JSON.stringify({ error: 'Reveal not found' }) };

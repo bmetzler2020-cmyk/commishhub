@@ -64,13 +64,13 @@ exports.handler = async function(event, context) {
       siteID: process.env.NETLIFY_SITE_ID,
       token: process.env.NETLIFY_TOKEN
     });
-    await store.setJSON(`reveal-${revealId}`, {
+    await store.set(`reveal-${revealId}`, JSON.stringify({
       shuffled,
       leagueName: leagueName || 'CommishHub Draft Lottery',
       revealTime,
       speed: speed || 'default',
       createdAt: new Date().toISOString()
-    });
+    }));
   } catch (err) {
     console.error('Blob store error:', err.message);
     return { statusCode: 500, body: JSON.stringify({ error: 'Failed to store reveal data', detail: err.message }) };
