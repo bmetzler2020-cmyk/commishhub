@@ -7,14 +7,12 @@
   <meta name="description" content="Spin the wheel. Accept the verdict. Pre-loaded with 12 punishments including Punish the Commish mode." />
   <link rel="canonical" href="https://commishhub.com/punishment-wheel/" />
 
-  <!-- Favicons -->
   <link rel="icon" type="image/x-icon" href="/icons/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
 
-  <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://commishhub.com/punishment-wheel/" />
   <meta property="og:title" content="Fantasy Football Punishment Wheel — CommishHub" />
@@ -31,7 +29,6 @@
   <link rel="stylesheet" href="/styles.css" />
 
   <style>
-    /* ── Page hero ── */
     .tool-hero { position: relative; overflow: hidden; }
     .tool-hero::before {
       content: ''; position: absolute; inset: 0;
@@ -56,11 +53,9 @@
       margin-bottom: 12px; text-align: center; width: 100%;
     }
     #page-sub {
-      font-size: 1.05rem; color: var(--muted); max-width: 520px; line-height: 1.7;
-      text-align: center; width: 100%;
+      font-size: 1.05rem; color: var(--muted); max-width: 520px;
+      line-height: 1.7; text-align: center; width: 100%;
     }
-
-    /* ── Mode toggle ── */
     .mode-toggle { display: flex; justify-content: center; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
     .mode-btn {
       padding: 10px 24px; border-radius: 100px; border: 1.5px solid var(--border);
@@ -70,28 +65,52 @@
     .mode-btn.active-standard { background: var(--gold); border-color: var(--gold); color: #fff; }
     .mode-btn.active-commish  { background: var(--brown); border-color: var(--brown); color: var(--gold-lt); }
 
-    /* ── Wheel area ── */
-    .wheel-area { display: flex; flex-direction: column; align-items: center; padding: 12px 20px 48px; }
-    .pennant-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: -2px; position: relative; z-index: 2; }
-    .canvas-wrap { position: relative; width: min(500px, 92vw); height: min(500px, 92vw); }
-    #wheelCanvas { display: block; width: 100%; height: 100%; border-radius: 50%; }
-    #penaltyFlag { position: absolute; width: 44px; height: 52px; pointer-events: none; opacity: 0; z-index: 10; transform-origin: center bottom; }
+    /* Wheel layout */
+    .wheel-outer { max-width: var(--max); margin: 0 auto; padding: 0 16px; }
+    .wheel-area  { display: flex; flex-direction: column; align-items: center; padding: 0 0 52px; }
 
-    /* ── Spin button ── */
+    /* Triangle pointer — clean CSS, no SVG pole */
+    .wheel-pointer {
+      width: 0; height: 0;
+      border-left: 16px solid transparent;
+      border-right: 16px solid transparent;
+      border-top: 26px solid #2C1A0E;
+      margin-bottom: 0;
+      position: relative;
+      z-index: 2;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    /* Canvas: responsive size, never clips */
+    .canvas-wrap {
+      position: relative;
+      width: min(580px, 96vw);
+      height: min(580px, 96vw);
+    }
+    #wheelCanvas { display: block; width: 100%; height: 100%; }
+
+    /* Penalty flag */
+    #penaltyFlag {
+      position: absolute; width: 60px; height: 60px;
+      pointer-events: none; opacity: 0; z-index: 10;
+      transform-origin: center center;
+    }
+
+    /* Spin button */
     .spin-btn {
-      margin-top: 28px; padding: 15px 48px; border-radius: var(--r); border: none;
+      margin-top: 28px; padding: 15px 52px; border-radius: var(--r); border: none;
       font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600;
       cursor: pointer; transition: background .2s, color .2s, opacity .2s, transform .1s;
       box-shadow: 0 2px 10px rgba(0,0,0,.15);
     }
-    .spin-btn:hover:not(:disabled) { transform: translateY(-2px); }
+    .spin-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.2); }
     .spin-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
     .spin-btn.standard { background: var(--gold); color: #fff; }
     .spin-btn.commish  { background: var(--brown); color: var(--gold-lt); }
 
-    /* ── Result card ── */
-    .result-card { display: none; margin: 32px auto 0; max-width: 520px; width: 100%; border-radius: 14px; padding: 28px 28px 24px; animation: fadeUp .4s ease forwards; }
-    .result-card.visible { display: block; }
+    /* Result card */
+    .result-card { display: none; margin: 36px auto 0; max-width: 520px; width: 100%; border-radius: 14px; padding: 28px 28px 24px; }
+    .result-card.visible { display: block; animation: fadeUp .4s ease forwards; }
     .result-card.standard { background: var(--card); border: 1px solid var(--border); box-shadow: 0 4px 24px rgba(0,0,0,.08); }
     .result-card.commish  { background: var(--brown); border: 1px solid rgba(240,208,128,.2); box-shadow: 0 4px 24px rgba(0,0,0,.3); }
     .result-label { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 10px; }
@@ -114,7 +133,7 @@
     .result-card.commish  .btn-thats-one { border: 1.5px solid rgba(240,208,128,.3); color: var(--gold-lt); }
     .result-card.commish  .btn-thats-one:hover { border-color: var(--gold-lt); background: rgba(240,208,128,.06); }
 
-    /* ── More tools ── */
+    /* More tools */
     .more-tools { padding: 72px 28px 56px; }
     .more-tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 36px; max-width: var(--max); margin-left: auto; margin-right: auto; }
     .more-tool-card { background: var(--card); border-radius: 12px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 10px; }
@@ -126,21 +145,19 @@
     .more-tool-arrow { font-size: .82rem; font-weight: 600; color: var(--gold); display: inline-flex; align-items: center; gap: 6px; transition: gap .15s; }
     .more-tool-card.live:hover .more-tool-arrow { gap: 10px; }
 
-    /* ── Hall of Shame ── */
+    /* Hall of Shame */
     .hall-of-shame { padding: 72px 28px; background: linear-gradient(180deg, var(--bg) 0%, #ede8df 100%); border-top: 1px solid var(--border); }
     .shame-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px; max-width: var(--max); margin-left: auto; margin-right: auto; }
     .shame-card { background: var(--card); border-radius: 12px; padding: 24px 24px 22px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,.04); }
     .shame-card h3 { font-family: 'Lora', serif; font-size: 1.05rem; font-weight: 700; color: var(--brown); margin-bottom: 8px; }
     .shame-card p { font-size: .88rem; color: var(--muted); line-height: 1.7; }
 
-    /* ── Animations ── */
     @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
     .fu { opacity: 0; animation: fadeUp .55s ease forwards; }
     .fu:nth-child(1) { animation-delay: .04s; }
     .fu:nth-child(2) { animation-delay: .12s; }
     .fu:nth-child(3) { animation-delay: .20s; }
     .fu:nth-child(4) { animation-delay: .28s; }
-
     @media (max-width: 700px) { .more-tools-grid { grid-template-columns: 1fr; } .shame-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -211,7 +228,6 @@
 
   <main id="main-content">
 
-    <!-- PAGE HERO -->
     <section class="tool-hero">
       <div class="tool-hero-inner">
         <div class="tool-breadcrumb">
@@ -221,45 +237,58 @@
         <h1 id="page-h1" class="fu">Loser Punishment Wheel</h1>
         <p id="page-sub" class="fu">Last place has consequences. Time to find out what they are.</p>
         <div class="mode-toggle fu">
-          <button class="mode-btn active-standard" id="btn-standard" onclick="setMode('standard')" aria-pressed="true">Standard</button>
-          <button class="mode-btn" id="btn-commish" onclick="setMode('commish')" aria-pressed="false">Punish the Commish</button>
+          <button class="mode-btn active-standard" id="btn-standard" onclick="onModeClick('standard')" aria-pressed="true">Standard</button>
+          <button class="mode-btn" id="btn-commish" onclick="onModeClick('commish')" aria-pressed="false">Punish the Commish</button>
         </div>
       </div>
     </section>
 
-    <!-- WHEEL AREA -->
-    <div style="max-width:var(--max); margin:0 auto;">
+    <div class="wheel-outer">
       <div class="wheel-area">
 
-        <div class="pennant-wrap">
-          <svg id="pennant-svg" width="60" height="90" viewBox="0 0 60 90" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <rect id="pennant-pole" x="27" y="0" width="6" height="90" rx="3" fill="#2C1A0E"/>
-            <polygon id="pennant-flag" points="33,8 60,22 33,36" fill="#8B6914" stroke="#ffffff" stroke-width="1.5"/>
-          </svg>
-        </div>
+        <!-- Clean CSS triangle pointer — no pole, no clip art -->
+        <div class="wheel-pointer" aria-hidden="true"></div>
 
         <div class="canvas-wrap" id="canvasWrap">
           <canvas id="wheelCanvas" aria-label="Punishment wheel — spin to select a punishment"></canvas>
 
-          <svg id="penaltyFlag" viewBox="0 0 44 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <rect x="4" y="2" width="36" height="32" rx="5" ry="5" id="flagBody" fill="#F0D080"/>
-            <line x1="4" y1="12" x2="40" y2="12" stroke="rgba(0,0,0,0.12)" stroke-width="1"/>
-            <line x1="4" y1="22" x2="40" y2="22" stroke="rgba(0,0,0,0.12)" stroke-width="1"/>
-            <path d="M4,2 Q2,2 2,4" fill="none" stroke="rgba(0,0,0,0.15)" stroke-width="1.5"/>
-            <path d="M40,2 Q42,2 42,4" fill="none" stroke="rgba(0,0,0,0.15)" stroke-width="1.5"/>
-            <path d="M22,34 C20,40 24,44 22,50" fill="none" id="flagCord" stroke="#2C1A0E" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="22" cy="50" r="3" id="flagWeight" fill="#2C1A0E"/>
+          <!-- Penalty flag: organic thrown handkerchief, weighted corner -->
+          <svg id="penaltyFlag" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <!-- Cloth body — organic bezier, asymmetric, weighted corner at bottom-right -->
+            <path id="flagBody"
+              d="M 10,8
+                 C 14,3 36,1 46,10
+                 C 53,17 57,26 55,36
+                 C 53,44 47,54 38,56
+                 C 29,58 18,55 12,48
+                 C 6,41 3,30 5,19
+                 C 6,13 6,12 10,8 Z"
+              fill="#F0D080"
+              stroke="#2C1A0E"
+              stroke-width="1.8"
+              stroke-linejoin="round"
+            />
+            <!-- Fabric creases — diagonal, suggests bunched cloth -->
+            <path d="M 16,12 C 23,19 29,24 33,33" fill="none" stroke="rgba(0,0,0,0.13)" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M 25,10 C 32,17 38,26 40,34" fill="none" stroke="rgba(0,0,0,0.10)" stroke-width="1" stroke-linecap="round"/>
+            <path d="M 35,34 C 39,41 43,46 45,51" fill="none" stroke="rgba(0,0,0,0.09)" stroke-width="1" stroke-linecap="round"/>
+            <!-- Weight at heavy corner — dark sphere with 3D shading -->
+            <circle cx="41" cy="51" r="7" fill="#1a0e06"/>
+            <circle cx="39" cy="49" r="6.5" fill="#2C1A0E"/>
+            <circle cx="36.5" cy="46.5" r="2" fill="rgba(255,255,255,0.2)"/>
           </svg>
         </div>
 
-        <button class="spin-btn standard" id="spinBtn" onclick="spinWheel()" aria-label="Spin the punishment wheel">Spin the Wheel</button>
+        <button class="spin-btn standard" id="spinBtn" onclick="onSpinClick()" aria-label="Spin the punishment wheel">
+          Spin the Wheel
+        </button>
 
         <div class="result-card standard" id="resultCard" role="region" aria-live="polite" aria-label="Spin result">
           <p class="result-label" id="resultLabel">The Verdict</p>
           <h2 class="result-name" id="resultName"></h2>
           <p class="result-desc" id="resultDesc"></p>
           <div class="result-actions">
-            <button class="btn-spin-again" onclick="spinWheel()">↻ Spin Again</button>
+            <button class="btn-spin-again" onclick="onSpinClick()">↻ Spin Again</button>
             <button class="btn-thats-one" onclick="lockResult()">That's the One ✓</button>
           </div>
         </div>
@@ -269,7 +298,6 @@
 
     <hr class="rule" />
 
-    <!-- MORE TOOLS -->
     <section class="more-tools">
       <div class="wrap">
         <p class="section-eyebrow">More Tools</p>
@@ -298,36 +326,17 @@
       </div>
     </section>
 
-    <!-- HALL OF SHAME -->
     <section class="hall-of-shame">
       <div class="wrap">
         <p class="section-eyebrow">Hall of Shame</p>
         <h2 class="section-title">The punishments your league will actually remember.</h2>
         <div class="shame-grid">
-          <div class="shame-card">
-            <h3>Waffle House</h3>
-            <p>Twenty-four hours inside a Waffle House is not a punishment — it's a character study. You will see things. You will hear things. Every waffle eaten removes one hour from your sentence, which means you will eat a lot of waffles, and you will not enjoy a single one. The group chat gets updates.</p>
-          </div>
-          <div class="shame-card">
-            <h3>The Waxing</h3>
-            <p>There is no clause in the rulebook that protects you from this. Full body wax, documented, shared with the league. Some leagues have done this once and never finished last again. The deterrent effect alone makes it worth keeping in rotation every year.</p>
-          </div>
-          <div class="shame-card">
-            <h3>Full Autopick</h3>
-            <p>You spent hours on mock drafts. You had a board. You had a strategy. None of it matters — the algorithm gets the wheel next season and you get whatever it decides. This punishment hits hardest for the person who takes fantasy football the most seriously, which is usually the person who finished last.</p>
-          </div>
-          <div class="shame-card">
-            <h3>The Essay</h3>
-            <p>Five hundred words. Written. Printed. Read aloud at the draft party in front of everyone who watched you lose. The essay must explain, in detail, what went wrong and why. No blaming injuries. No blaming the algorithm. The jokes are optional but the accountability is not.</p>
-          </div>
-          <div class="shame-card">
-            <h3>The Sign</h3>
-            <p>One hour. A busy intersection. A sign that reads "I finished last in fantasy football." The sign must be legible from a moving vehicle. Photo evidence is required every fifteen minutes. Leagues that have done this report that the loser waves to approximately forty people, and about half of them honk in support.</p>
-          </div>
-          <div class="shame-card">
-            <h3>The Honorary Bust</h3>
-            <p>The player who hurt you most this season — the one you drafted too early, trusted too long, kept on your roster through three straight goose eggs — now has a namesake. Honorary only. Not legally binding. But the league will remember the name, and so will you, every time someone brings it up at the draft for the next five years.</p>
-          </div>
+          <div class="shame-card"><h3>Waffle House</h3><p>Twenty-four hours inside a Waffle House is not a punishment — it's a character study. You will see things. You will hear things. Every waffle eaten removes one hour from your sentence, which means you will eat a lot of waffles, and you will not enjoy a single one. The group chat gets updates.</p></div>
+          <div class="shame-card"><h3>The Waxing</h3><p>There is no clause in the rulebook that protects you from this. Full body wax, documented, shared with the league. Some leagues have done this once and never finished last again. The deterrent effect alone makes it worth keeping in rotation every year.</p></div>
+          <div class="shame-card"><h3>Full Autopick</h3><p>You spent hours on mock drafts. You had a board. You had a strategy. None of it matters — the algorithm gets the wheel next season and you get whatever it decides. This punishment hits hardest for the person who takes fantasy football the most seriously, which is usually the person who finished last.</p></div>
+          <div class="shame-card"><h3>The Essay</h3><p>Five hundred words. Written. Printed. Read aloud at the draft party in front of everyone who watched you lose. The essay must explain, in detail, what went wrong and why. No blaming injuries. No blaming the algorithm. The jokes are optional but the accountability is not.</p></div>
+          <div class="shame-card"><h3>The Sign</h3><p>One hour. A busy intersection. A sign that reads "I finished last in fantasy football." The sign must be legible from a moving vehicle. Photo evidence is required every fifteen minutes. Leagues that have done this report that the loser waves to approximately forty people, and about half of them honk in support.</p></div>
+          <div class="shame-card"><h3>The Honorary Bust</h3><p>The player who hurt you most this season — the one you drafted too early, trusted too long, kept on your roster through three straight goose eggs — now has a namesake. Honorary only. Not legally binding. But the league will remember the name, and so will you, every time someone brings it up at the draft for the next five years.</p></div>
         </div>
       </div>
     </section>
@@ -343,33 +352,9 @@
           <a class="logo" href="/">Commish <span>Hub</span></a>
           <p>Free tools for fantasy football commissioners and the leagues they keep running against their better judgment.</p>
         </div>
-        <div class="footer-col">
-          <h4>Tools</h4>
-          <ul>
-            <li><a href="/trash-talk-generator/">Trash Talk Generator</a></li>
-            <li><a href="/draft-order-randomizer/">Draft Order Randomizer</a></li>
-            <li><a href="/punishment-wheel/">Punishment Wheel</a></li>
-            <li><a href="/player-nickname-generator/">Nickname Generator</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Commissioner</h4>
-          <ul>
-            <li><a href="/new-commissioner-guide/">New Commissioner Wizard</a></li>
-            <li><a href="/league-rules-generator/">Rules Generator</a></li>
-            <li><a href="/commissioner-ruling-assistant/">Ruling Assistant</a></li>
-            <li><a href="/fantasy-football-platform-comparison/">Platform Comparison</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Dynasty</h4>
-          <ul>
-            <li><a href="/dynasty-league-finder/">League Finder</a></li>
-            <li><a href="/orphan-team-matchmaker/">Orphan Matchmaker</a></li>
-            <li><a href="/small-league-dynasty-formats/">Small League Formats</a></li>
-            <li><a href="/blog/">Blog</a></li>
-          </ul>
-        </div>
+        <div class="footer-col"><h4>Tools</h4><ul><li><a href="/trash-talk-generator/">Trash Talk Generator</a></li><li><a href="/draft-order-randomizer/">Draft Order Randomizer</a></li><li><a href="/punishment-wheel/">Punishment Wheel</a></li><li><a href="/player-nickname-generator/">Nickname Generator</a></li></ul></div>
+        <div class="footer-col"><h4>Commissioner</h4><ul><li><a href="/new-commissioner-guide/">New Commissioner Wizard</a></li><li><a href="/league-rules-generator/">Rules Generator</a></li><li><a href="/commissioner-ruling-assistant/">Ruling Assistant</a></li><li><a href="/fantasy-football-platform-comparison/">Platform Comparison</a></li></ul></div>
+        <div class="footer-col"><h4>Dynasty</h4><ul><li><a href="/dynasty-league-finder/">League Finder</a></li><li><a href="/orphan-team-matchmaker/">Orphan Matchmaker</a></li><li><a href="/small-league-dynasty-formats/">Small League Formats</a></li><li><a href="/blog/">Blog</a></li></ul></div>
       </div>
       <div class="footer-bottom">
         <span>© 2026 Commish Hub. All rights reserved.</span>
@@ -399,42 +384,88 @@
   </script>
 
   <script>
+    // ── Data ──────────────────────────────────────────────
     const standardPunishments = [
-      {label:"Waffle House",      desc:"24 hours at Waffle House. One waffle eaten removes one hour from the sentence."},
-      {label:"The Waxing",        desc:"Full body wax. Documented and shared with the league. No exceptions."},
-      {label:"Open Mic Night",    desc:"5 minute stand-up set in front of the league. The jokes can be written by others."},
-      {label:"The Essay",         desc:"500 word essay on why they lost — written, printed, and read aloud at the draft party."},
-      {label:"Hot Sauce",         desc:"One full spoonful of the hottest hot sauce available. Filmed for the group chat."},
-      {label:"Rival Jersey",      desc:"Wear a rival NFL team's jersey to work for a full week. Photo evidence required daily."},
-      {label:"Full Autopick",     desc:"AI-drafted team next season. Zero manual picks. Full autopick. Live with it."},
-      {label:"The Roast",         desc:"Write and perform a short roast of themselves at the draft party. No notes allowed."},
-      {label:"The Sign",          desc:"Hold a sign reading 'I finished last in fantasy football' at a busy intersection for one hour."},
-      {label:"Buy the Beer",      desc:"Buy the league winner a six pack of their choice. Delivered in person."},
-      {label:"The Post",          desc:"Post a video to Instagram admitting they finished last. Cannot delete for 30 days."},
-      {label:"Honorary Bust",     desc:"Must name their firstborn after their biggest bust of the season. Honorary only. Not legally binding."}
+      {label:"Waffle House",   desc:"24 hours at Waffle House. One waffle eaten removes one hour from the sentence."},
+      {label:"The Waxing",     desc:"Full body wax. Documented and shared with the league. No exceptions."},
+      {label:"Open Mic Night", desc:"5 minute stand-up set in front of the league. The jokes can be written by others."},
+      {label:"The Essay",      desc:"500 word essay on why they lost — written, printed, and read aloud at the draft party."},
+      {label:"Hot Sauce",      desc:"One full spoonful of the hottest hot sauce available. Filmed for the group chat."},
+      {label:"Rival Jersey",   desc:"Wear a rival NFL team's jersey to work for a full week. Photo evidence required daily."},
+      {label:"Full Autopick",  desc:"AI-drafted team next season. Zero manual picks. Full autopick. Live with it."},
+      {label:"The Roast",      desc:"Write and perform a short roast of themselves at the draft party. No notes allowed."},
+      {label:"The Sign",       desc:"Hold a sign reading 'I finished last in fantasy football' at a busy intersection for one hour."},
+      {label:"Buy the Beer",   desc:"Buy the league winner a six pack of their choice. Delivered in person."},
+      {label:"The Post",       desc:"Post a video to Instagram admitting they finished last. Cannot delete for 30 days."},
+      {label:"Honorary Bust",  desc:"Must name their firstborn after their biggest bust of the season. Honorary only. Not legally binding."}
     ];
     const commishPunishments = [
-      {label:"Formal Apology",    desc:"Written apology to every league member for the ruling in question. Minimum three sentences. No excuses."},
-      {label:"First Round",       desc:"Buys the first round at the draft party. No questions asked."},
-      {label:"Veto Revoked",      desc:"Loses commissioner veto power for the first half of next season."},
-      {label:"Glass Commish",     desc:"Every lineup decision posted to the group chat 24 hours in advance for two weeks."},
-      {label:"Make the Calls",    desc:"Must personally call — not text — every league member to announce the bad ruling."},
-      {label:"Dollar Apology",    desc:"Venmo every league member $1 as a formal apology. It's the principle."},
-      {label:"Commish Tax",       desc:"Drafts in the last position next season regardless of standings."},
-      {label:"Public Confession", desc:"Public admission in the group chat that the ruling was wrong. In writing. No hedging."},
-      {label:"Trade Approval",    desc:"Every trade next season requires a full league vote to approve."},
-      {label:"Waiver Freeze",     desc:"No waiver priority for four weeks. The league manages their pickups."},
-      {label:"League Runs Team",  desc:"Must set their lineup using only players suggested by the rest of the league for two weeks."},
-      {label:"Name Revoked",      desc:"League gets to rename one of their best players for the entire season."}
+      {label:"Formal Apology",   desc:"Written apology to every league member for the ruling in question. Minimum three sentences. No excuses."},
+      {label:"First Round",      desc:"Buys the first round at the draft party. No questions asked."},
+      {label:"Veto Revoked",     desc:"Loses commissioner veto power for the first half of next season."},
+      {label:"Glass Commish",    desc:"Every lineup decision posted to the group chat 24 hours in advance for two weeks."},
+      {label:"Make the Calls",   desc:"Must personally call — not text — every league member to announce the bad ruling."},
+      {label:"Dollar Apology",   desc:"Venmo every league member $1 as a formal apology. It's the principle."},
+      {label:"Commish Tax",      desc:"Drafts in the last position next season regardless of standings."},
+      {label:"Public Confession",desc:"Public admission in the group chat that the ruling was wrong. In writing. No hedging."},
+      {label:"Trade Approval",   desc:"Every trade next season requires a full league vote to approve."},
+      {label:"Waiver Freeze",    desc:"No waiver priority for four weeks. The league manages their pickups."},
+      {label:"League Runs Team", desc:"Must set their lineup using only players suggested by the rest of the league for two weeks."},
+      {label:"Name Revoked",     desc:"League gets to rename one of their best players for the entire season."}
     ];
+
     const standardColors = ['#D50A0A','#203731','#D4AC0D','#003087','#FF3C00','#4B1C8E','#AA0000','#008E97','#B3995D','#1B5EA6','#E31837','#0B5351'];
     const commishColors  = ['#2A2520','#3D342C','#2A2520','#3D342C','#2A2520','#3D342C','#2A2520','#3D342C','#2A2520','#3D342C','#2A2520','#3D342C'];
 
-    let currentMode    = 'standard';
-    let currentAngle   = 0;
-    let isSpinning     = false;
-    let winningSegment = -1;
+    // ── State ─────────────────────────────────────────────
+    let currentMode  = 'standard';
+    let currentAngle = 0;
+    let isSpinning   = false;
+    let grainCanvas  = null; // cached offscreen grain texture
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ── Build grain texture once, cache as offscreen canvas ──
+    // This is drawn once at load and composited onto each segment
+    // so it doesn't regenerate every animation frame
+    function buildGrainTexture(size) {
+      const gc = document.createElement('canvas');
+      gc.width  = size;
+      gc.height = size;
+      const gctx = gc.getContext('2d');
+      // Generate noise by drawing semi-transparent random points
+      // Seeded with a fixed pattern for consistency
+      const imageData = gctx.createImageData(size, size);
+      const data = imageData.data;
+      // Simple PRNG for consistent grain (not random per reload)
+      let seed = 42;
+      function rand() {
+        seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+        return (seed >>> 0) / 0xffffffff;
+      }
+      for (let i = 0; i < data.length; i += 4) {
+        const v = rand();
+        // Grain: mix of light and dark specks, mostly neutral
+        if (v < 0.04) {
+          // Dark speck
+          data[i] = data[i+1] = data[i+2] = 20;
+          data[i+3] = Math.floor(rand() * 80 + 40);
+        } else if (v < 0.08) {
+          // Light speck
+          data[i] = data[i+1] = data[i+2] = 240;
+          data[i+3] = Math.floor(rand() * 60 + 20);
+        } else {
+          // Mostly transparent
+          data[i+3] = 0;
+        }
+      }
+      gctx.putImageData(imageData, 0, 0);
+      return gc;
+    }
+
+    // ── Mode switch ───────────────────────────────────────
+    function onModeClick(mode) {
+      setMode(mode);
+    }
 
     function setMode(mode) {
       currentMode = mode;
@@ -450,149 +481,320 @@
         document.getElementById('page-sub').textContent = 'For when the commissioner makes a bad ruling and the league demands justice. Spin to decide the punishment. Bad ruling. No mercy.';
       }
       document.getElementById('spinBtn').className = 'spin-btn ' + mode;
-      updatePennant(mode);
-      currentAngle = 0; winningSegment = -1;
-      hideResult(); drawWheel();
+      currentAngle = 0;
+      hideResult();
+      hidePenaltyFlag();
+      drawWheel();
     }
 
-    function updatePennant(mode) {
-      const flag = document.getElementById('pennant-flag');
-      flag.setAttribute('fill', '#8B6914');
-      flag.setAttribute('stroke', '#ffffff');
-    }
-
+    // ── Draw wheel ────────────────────────────────────────
     function drawWheel(highlightSegment = -1) {
       const canvas = document.getElementById('wheelCanvas');
       const size   = canvas.offsetWidth || 500;
-      canvas.width = size; canvas.height = size;
-      const ctx = canvas.getContext('2d');
-      const cx = size / 2, cy = size / 2, radius = size / 2 - 8;
+
+      // Only resize canvas resolution when size actually changed
+      if (canvas.width !== size) {
+        canvas.width  = size;
+        canvas.height = size;
+        // Rebuild grain texture at new size
+        grainCanvas = buildGrainTexture(size);
+      }
+
+      const ctx    = canvas.getContext('2d');
+      const cx     = size / 2;
+      const cy     = size / 2;
+      const radius = size / 2 - 6;
+
       const punishments = currentMode === 'standard' ? standardPunishments : commishPunishments;
       const colors      = currentMode === 'standard' ? standardColors      : commishColors;
-      const n = punishments.length, arc = (2 * Math.PI) / n;
+      const n   = punishments.length;
+      const arc = (2 * Math.PI) / n;
+
       ctx.clearRect(0, 0, size, size);
+
+      // ── Draw each segment ──
       for (let i = 0; i < n; i++) {
-        const startAngle = currentAngle + i * arc, endAngle = startAngle + arc;
-        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, radius, startAngle, endAngle); ctx.closePath();
-        ctx.fillStyle = colors[i]; ctx.fill();
+        const startAngle = currentAngle + i * arc;
+        const endAngle   = startAngle + arc;
+
+        ctx.save();
+
+        // Clip to this segment so grain doesn't bleed
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.clip();
+
+        // Base color fill
+        ctx.fillStyle = colors[i];
+        ctx.fill();
+
+        // Highlight pulse overlay
         if (i === highlightSegment) {
-          ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, radius, startAngle, endAngle); ctx.closePath();
-          ctx.fillStyle = 'rgba(255,255,255,0.28)'; ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,0.28)';
+          ctx.fill();
         }
-        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, radius, startAngle, endAngle); ctx.closePath();
-        ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 2.5; ctx.stroke();
+
+        // Grain texture overlay — composited with 'overlay' for worn paint feel
+        if (grainCanvas) {
+          ctx.globalCompositeOperation = 'overlay';
+          ctx.globalAlpha = 0.45;
+          ctx.drawImage(grainCanvas, 0, 0, size, size);
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.globalAlpha = 1;
+        }
+
+        // Subtle radial darkening toward rim — adds depth
+        const rimGrad = ctx.createRadialGradient(cx, cy, radius * 0.55, cx, cy, radius);
+        rimGrad.addColorStop(0, 'rgba(0,0,0,0)');
+        rimGrad.addColorStop(1, 'rgba(0,0,0,0.32)');
+        ctx.fillStyle = rimGrad;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+
+        // White divider line
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        const ex = cx + radius * Math.cos(startAngle);
+        const ey = cy + radius * Math.sin(startAngle);
+        ctx.lineTo(ex, ey);
+        ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
       }
+
+      // ── Spoke labels ──
+      // Each label rotates so it reads outward from center.
+      // Left-half segments flip 180° so text is never upside-down.
+      const fontSize = Math.max(9, Math.min(11, size * 0.019));
+      ctx.font = `600 ${fontSize}px "DM Sans", sans-serif`;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+
       for (let i = 0; i < n; i++) {
         const midAngle = currentAngle + i * arc + arc / 2;
-        const labelR = radius * 0.68;
-        const textX = cx + labelR * Math.cos(midAngle), textY = cy + labelR * Math.sin(midAngle);
+        const labelR   = radius * 0.67;
+        const lx = cx + labelR * Math.cos(midAngle);
+        const ly = cy + labelR * Math.sin(midAngle);
         const label = punishments[i].label.toUpperCase();
-        ctx.save(); ctx.translate(textX, textY); ctx.rotate(midAngle + Math.PI / 2);
-        ctx.font = '600 9.5px "DM Sans", sans-serif';
-        const tw = ctx.measureText(label).width, ph = 4, pw = 8;
-        const pillW = tw + pw * 2, pillH = 14 + ph * 2;
-        ctx.fillStyle = 'rgba(0,0,0,0.42)';
-        ctx.beginPath(); ctx.roundRect(-(pillW/2), -(pillH/2), pillW, pillH, 3); ctx.fill();
-        ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(label, 0, 0); ctx.restore();
+
+        ctx.save();
+        ctx.translate(lx, ly);
+
+        // Spoke rotation: perpendicular to the radius
+        // For right half (cos > 0): text reads from center outward normally
+        // For left half (cos < 0): flip 180° so text isn't upside-down
+        let rot = midAngle + Math.PI / 2;
+        if (Math.cos(midAngle) < 0) rot += Math.PI;
+        ctx.rotate(rot);
+
+        // Pill background
+        const tw = ctx.measureText(label).width;
+        const pw = 8, ph = 4;
+        const pillW = tw + pw * 2;
+        const pillH = fontSize + ph * 2;
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.beginPath();
+        ctx.roundRect(-(pillW / 2), -(pillH / 2), pillW, pillH, 3);
+        ctx.fill();
+
+        // Label text
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(label, 0, 0);
+        ctx.restore();
       }
-      ctx.beginPath(); ctx.arc(cx, cy, radius + 4, 0, 2 * Math.PI);
-      ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 4; ctx.stroke();
-      const hubR = size * 0.055;
-      const hubFill = currentMode === 'standard' ? '#2C1A0E' : '#1A1008';
-      ctx.beginPath(); ctx.arc(cx, cy, hubR, 0, 2 * Math.PI);
-      ctx.fillStyle = hubFill; ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 2; ctx.stroke();
+
+      // ── Outer ring — white stroke, dark backing ──
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius + 5, 0, 2 * Math.PI);
+      ctx.strokeStyle = '#2C1A0E';
+      ctx.lineWidth = 7;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius + 5, 0, 2 * Math.PI);
+      ctx.strokeStyle = 'rgba(255,255,255,0.88)';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // ── Center hub ──
+      const hubR = size * 0.054;
+      // Hub shadow
+      ctx.beginPath();
+      ctx.arc(cx + 1, cy + 1, hubR, 0, 2 * Math.PI);
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.fill();
+      // Hub fill
+      ctx.beginPath();
+      ctx.arc(cx, cy, hubR, 0, 2 * Math.PI);
+      ctx.fillStyle = currentMode === 'standard' ? '#2C1A0E' : '#1A1008';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.88)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      // Hub highlight — small bright spot for 3D feel
+      ctx.beginPath();
+      ctx.arc(cx - hubR * 0.3, cy - hubR * 0.3, hubR * 0.35, 0, 2 * Math.PI);
+      ctx.fillStyle = 'rgba(255,255,255,0.18)';
+      ctx.fill();
     }
 
+    // ── Segment pulse ─────────────────────────────────────
     function pulseSegment(segIndex) {
       if (prefersReducedMotion) return;
       let count = 0;
-      const pulseInterval = setInterval(() => {
+      const iv = setInterval(() => {
         drawWheel(count % 2 === 0 ? segIndex : -1);
         count++;
-        if (count >= 6) { clearInterval(pulseInterval); drawWheel(); }
+        if (count >= 6) { clearInterval(iv); drawWheel(); }
       }, 80);
     }
 
+    // ── Penalty flag — 3s total animation ────────────────
+    // Drop: 700ms → Hold: 1400ms → Fade: 600ms → callback → result card
     function dropPenaltyFlag(segIndex, callback) {
       if (prefersReducedMotion) { callback(); return; }
+
       const canvas = document.getElementById('wheelCanvas');
       const flag   = document.getElementById('penaltyFlag');
-      const n = (currentMode === 'standard' ? standardPunishments : commishPunishments).length;
-      const arc = (2 * Math.PI) / n;
-      const size = canvas.offsetWidth, cx = size / 2, cy = size / 2;
+      const n      = (currentMode === 'standard' ? standardPunishments : commishPunishments).length;
+      const arc    = (2 * Math.PI) / n;
+      const size   = canvas.offsetWidth;
+      const cx = size / 2, cy = size / 2;
+
       const midAngle = currentAngle + segIndex * arc + arc / 2;
-      const landR = (size / 2 - 8) * 0.75;
-      const landX = cx + landR * Math.cos(midAngle), landY = cy + landR * Math.sin(midAngle);
-      const flagW = 44, flagH = 52;
-      const finalLeft = landX - flagW / 2, finalTop = landY - flagH / 2;
-      const startTop = finalTop - 80;
-      const flagColor = currentMode === 'commish' ? '#C41E3A' : '#F0D080';
-      document.getElementById('flagBody').setAttribute('fill', flagColor);
-      document.getElementById('flagCord').setAttribute('stroke', currentMode === 'commish' ? '#8B0000' : '#2C1A0E');
-      document.getElementById('flagWeight').setAttribute('fill', currentMode === 'commish' ? '#8B0000' : '#2C1A0E');
-      flag.style.left = finalLeft + 'px'; flag.style.top = startTop + 'px';
-      flag.style.opacity = '1'; flag.style.transform = 'rotate(-15deg)'; flag.style.transition = 'none';
+      const landR    = (size / 2 - 6) * 0.70;
+      const landX    = cx + landR * Math.cos(midAngle);
+      const landY    = cy + landR * Math.sin(midAngle);
+
+      const fW = 60, fH = 60;
+      const finalLeft = landX - fW / 2;
+      const finalTop  = landY - fH / 2;
+      const startTop  = finalTop - 110;
+
+      // Rotate flag to face into the segment — feels like it was thrown there
+      const flagDeg = (midAngle * 180 / Math.PI) + 45;
+
+      // Flag color — yellow standard, red commish
+      const isCommish = currentMode === 'commish';
+      document.getElementById('flagBody').setAttribute('fill', isCommish ? '#C41E3A' : '#F0D080');
+
+      // Set start state instantly (no transition)
+      flag.style.cssText = `
+        left: ${finalLeft}px;
+        top: ${startTop}px;
+        opacity: 1;
+        transform: rotate(${flagDeg - 30}deg) scale(0.6);
+        transition: none;
+      `;
+
+      // Force reflow so start state applies before we set the end state
       flag.getBoundingClientRect();
-      flag.style.transition = 'top 400ms cubic-bezier(0.34, 1.56, 0.64, 1), transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1)';
-      flag.style.top = finalTop + 'px'; flag.style.transform = 'rotate(0deg)';
+
+      // Drop with bouncy cubic-bezier — 700ms
+      flag.style.transition = 'top 700ms cubic-bezier(0.34, 1.45, 0.64, 1), transform 700ms cubic-bezier(0.34, 1.45, 0.64, 1)';
+      flag.style.top       = finalTop + 'px';
+      flag.style.transform = `rotate(${flagDeg}deg) scale(1)`;
+
+      // Hold 1400ms after landing, then fade 600ms
       setTimeout(() => {
-        flag.style.transition = 'opacity 300ms ease'; flag.style.opacity = '0';
-        setTimeout(callback, 300);
-      }, 1000);
+        flag.style.transition = 'opacity 600ms ease, transform 600ms ease';
+        flag.style.opacity    = '0';
+        flag.style.transform  = `rotate(${flagDeg + 12}deg) scale(0.8)`;
+        // Result card appears after fade
+        setTimeout(callback, 620);
+      }, 700 + 1400);
     }
 
+    // ── Which segment is under the pointer ────────────────
+    // Pointer sits at top of wheel = angle -PI/2
     function getSegmentAtPointer() {
-      const n = (currentMode === 'standard' ? standardPunishments : commishPunishments).length;
+      const n   = (currentMode === 'standard' ? standardPunishments : commishPunishments).length;
       const arc = (2 * Math.PI) / n;
-      const normalizedAngle = ((currentAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-      const pointerInWheel = ((-Math.PI / 2) - normalizedAngle + 2 * Math.PI * 10) % (2 * Math.PI);
-      return Math.floor(pointerInWheel / arc) % n;
+      const normalized   = ((currentAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const pointerAngle = ((-Math.PI / 2) - normalized + 2 * Math.PI * 10) % (2 * Math.PI);
+      return Math.floor(pointerAngle / arc) % n;
     }
 
+    // ── Spin click — haptic fires immediately on button press ──
+    function onSpinClick() {
+      if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+      spinWheel();
+    }
+
+    // ── Spin ──────────────────────────────────────────────
     function spinWheel() {
       if (isSpinning) return;
-      hideResult(); hidePenaltyFlag();
+      hideResult();
+      hidePenaltyFlag();
       isSpinning = true;
       document.getElementById('spinBtn').disabled = true;
-      const n = (currentMode === 'standard' ? standardPunishments : commishPunishments).length;
+
+      const n   = (currentMode === 'standard' ? standardPunishments : commishPunishments).length;
       const arc = (2 * Math.PI) / n;
-      const targetSegment = Math.floor(Math.random() * n);
-      const minRotations = 6, extraRotations = minRotations + Math.random() * 4;
-      const baseTarget = -Math.PI / 2 - (targetSegment * arc + arc / 2) - currentAngle;
-      const normalized = ((baseTarget % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-      const totalRotation = normalized + extraRotations * 2 * Math.PI;
-      const duration = 4200, startAngle = currentAngle, startTime = performance.now();
-      winningSegment = targetSegment;
+
+      // Pick target segment, calculate exact rotation to land it under pointer
+      const targetSeg     = Math.floor(Math.random() * n);
+      const minRotations  = 6;
+      const extraRot      = minRotations + Math.random() * 4;
+      const baseTarget    = -Math.PI / 2 - (targetSeg * arc + arc / 2) - currentAngle;
+      const normalized    = ((baseTarget % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const totalRotation = normalized + extraRot * 2 * Math.PI;
+
+      const duration   = 4200;
+      const startAngle = currentAngle;
+      const startTime  = performance.now();
+
       function animate(now) {
-        const elapsed = now - startTime, progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 4);
+        const elapsed  = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased    = 1 - Math.pow(1 - progress, 4);
+
         currentAngle = startAngle + totalRotation * eased;
         drawWheel();
-        if (progress < 1) { requestAnimationFrame(animate); }
-        else {
-          currentAngle = startAngle + totalRotation; drawWheel();
-          isSpinning = false; document.getElementById('spinBtn').disabled = false;
-          const verifiedSegment = getSegmentAtPointer();
-          if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
-          if (prefersReducedMotion) { showResult(verifiedSegment); }
-          else { pulseSegment(verifiedSegment); dropPenaltyFlag(verifiedSegment, function() { showResult(verifiedSegment); }); }
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          currentAngle = startAngle + totalRotation;
+          drawWheel();
+          isSpinning = false;
+          document.getElementById('spinBtn').disabled = false;
+
+          // Verify with angle math (source of truth)
+          const verified = getSegmentAtPointer();
+
+          if (prefersReducedMotion) {
+            showResult(verified);
+          } else {
+            pulseSegment(verified);
+            dropPenaltyFlag(verified, () => showResult(verified));
+          }
         }
       }
+
       requestAnimationFrame(animate);
     }
 
+    // ── Hide flag ─────────────────────────────────────────
     function hidePenaltyFlag() {
-      const flag = document.getElementById('penaltyFlag');
-      flag.style.transition = 'none'; flag.style.opacity = '0';
+      const f = document.getElementById('penaltyFlag');
+      f.style.transition = 'none';
+      f.style.opacity    = '0';
     }
 
+    // ── Show result ───────────────────────────────────────
     function showResult(segIndex) {
       const punishments = currentMode === 'standard' ? standardPunishments : commishPunishments;
-      const punishment = punishments[segIndex];
-      document.getElementById('resultName').textContent  = punishment.label;
-      document.getElementById('resultDesc').textContent  = punishment.desc;
+      const p = punishments[segIndex];
+      document.getElementById('resultName').textContent  = p.label;
+      document.getElementById('resultDesc').textContent  = p.desc;
       document.getElementById('resultLabel').textContent = currentMode === 'standard' ? 'The Verdict' : 'The Ruling';
       const card = document.getElementById('resultCard');
       card.className = 'result-card visible ' + currentMode;
@@ -603,13 +805,31 @@
 
     function lockResult() {
       const btn = document.querySelector('.btn-thats-one');
-      btn.textContent = '✓ Locked In'; btn.disabled = true;
+      btn.textContent = '✓ Locked In';
+      btn.disabled = true;
       setTimeout(() => { btn.textContent = "That's the One ✓"; btn.disabled = false; }, 2500);
     }
 
-    window.addEventListener('load', function() { updatePennant('standard'); drawWheel(); });
+    // ── Init ──────────────────────────────────────────────
+    window.addEventListener('load', () => {
+      const canvas = document.getElementById('wheelCanvas');
+      const size   = canvas.offsetWidth || 500;
+      canvas.width  = size;
+      canvas.height = size;
+      grainCanvas   = buildGrainTexture(size);
+      drawWheel();
+    });
+
     let resizeTimer;
-    window.addEventListener('resize', function() { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawWheel, 120); });
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const canvas = document.getElementById('wheelCanvas');
+        // Force resolution reset so grain rebuilds at new size
+        canvas.width = 0;
+        drawWheel();
+      }, 150);
+    });
   </script>
 
   <script type="application/ld+json">

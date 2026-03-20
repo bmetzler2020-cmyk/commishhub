@@ -4,46 +4,37 @@
 // The API key never touches the browser.
 //
 // RATE LIMITING NOTE:
-// This uses an in-memory store, which works for single-instance
-// environments but will not persist across separate Netlify function
-// invocations if they land on different server instances (serverless limitation).
-// Good enough for early traffic. Upgrade to Upstash Redis when traffic grows.
+// Uses an in-memory store — works for single-instance environments.
+// Serverless means separate instances won't share state, so the
+// real-world effective limit is higher than the number below.
+// Upgrade to Upstash Redis when traffic grows.
+//
+// RATE LIMIT: 20/hour per IP — enough for a real user (10+ generations),
+// not enough for systematic abuse. Drop to 10 if abuse becomes an issue.
 
-// ── In-memory rate limit store ──────────────────────────────
-// Structure: { "ip_address": [timestamp1, timestamp2, ...] }
 const ipRequestLog = {};
-const RATE_LIMIT = 10;          // max requests
-const WINDOW_MS = 60 * 60 * 1000; // per hour (in milliseconds)
+const RATE_LIMIT = 20;
+const WINDOW_MS  = 60 * 60 * 1000; // 1 hour
 
 function isRateLimited(ip) {
   const now = Date.now();
-  if (!ipRequestLog[ip]) {
-    ipRequestLog[ip] = [];
-  }
-  // Remove timestamps older than the window
+  if (!ipRequestLog[ip]) ipRequestLog[ip] = [];
   ipRequestLog[ip] = ipRequestLog[ip].filter(ts => now - ts < WINDOW_MS);
-  // Check if over limit
-  if (ipRequestLog[ip].length >= RATE_LIMIT) {
-    return true;
-  }
-  // Log this request
+  if (ipRequestLog[ip].length >= RATE_LIMIT) return true;
   ipRequestLog[ip].push(now);
   return false;
 }
 
-// ── Handler ─────────────────────────────────────────────────
 exports.handler = async function(event) {
 
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method not allowed' };
   }
 
-  // Get client IP from Netlify headers
   const ip = event.headers['x-forwarded-for']
     ? event.headers['x-forwarded-for'].split(',')[0].trim()
     : event.headers['client-ip'] || 'unknown';
 
-  // Check rate limit before doing anything else
   if (isRateLimited(ip)) {
     console.log('Rate limit hit for IP:', ip);
     return {
@@ -55,25 +46,17 @@ exports.handler = async function(event) {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    console.log('ERROR: ANTHROPIC_API_KEY not set');
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not set in environment variables' })
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured' }) };
   }
 
   let payload;
   try {
     payload = JSON.parse(event.body);
   } catch (e) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Invalid JSON in request body' })
-    };
+    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
 
-  console.log('Model:', payload.model);
-  console.log('IP:', ip);
+  console.log('Model:', payload.model, '| IP:', ip);
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -88,20 +71,11 @@ exports.handler = async function(event) {
     });
 
     const rawText = await response.text();
-    console.log('Anthropic status:', response.status);
-    if (!response.ok) {
-      console.log('Anthropic error:', rawText.slice(0, 300));
-    }
+    if (!response.ok) console.log('Anthropic error:', response.status, rawText.slice(0, 300));
 
     let data;
-    try {
-      data = JSON.parse(rawText);
-    } catch (e) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Could not parse Anthropic response' })
-      };
-    }
+    try { data = JSON.parse(rawText); }
+    catch (e) { return { statusCode: 500, body: JSON.stringify({ error: 'Could not parse response' }) }; }
 
     return {
       statusCode: response.status,
@@ -111,9 +85,6 @@ exports.handler = async function(event) {
 
   } catch (err) {
     console.log('Fetch error:', err.message);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Function failed', detail: err.message })
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: 'Function failed', detail: err.message }) };
   }
 };

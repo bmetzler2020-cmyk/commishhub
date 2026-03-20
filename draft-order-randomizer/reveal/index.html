@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Draft Order Reveal — CommishHub</title>
+  <meta name="robots" content="noindex" />
+
+  <link rel="icon" type="image/x-icon" href="/icons/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      background: #0A0705;
+      color: #FAF7F0;
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .league-name {
+      font-family: 'Lora', serif;
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      color: #FAF7F0;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 48px;
+      opacity: .7;
+    }
+
+    /* Countdown state */
+    #countdown-state { text-align: center; }
+    .countdown-label {
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(139,105,20,0.7);
+      margin-bottom: 20px;
+    }
+    .countdown-display {
+      font-family: 'Lora', serif;
+      font-size: clamp(3rem, 10vw, 6rem);
+      font-weight: 700;
+      color: #F0D080;
+      letter-spacing: .04em;
+      line-height: 1;
+      margin-bottom: 24px;
+    }
+    .countdown-sub {
+      font-size: 1rem;
+      color: rgba(250,247,240,0.45);
+      font-style: italic;
+    }
+
+    /* Board reveal state — reused from main tool */
+    #reveal-state { display: none; width: 100%; max-width: 960px; }
+    .board {
+      background: #1A0F07;
+      border: 2px solid rgba(139,105,20,0.6);
+      box-shadow: 0 0 40px rgba(139,105,20,0.2), 0 0 80px rgba(139,105,20,0.08);
+      border-radius: 8px;
+      padding: 32px;
+      width: 100%;
+    }
+    .picks-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .pick-card {
+      background: #0F0807;
+      border: 1px solid rgba(139,105,20,0.2);
+      border-radius: 6px;
+      padding: 16px 20px;
+      opacity: 0;
+    }
+    .pick-number {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #8B6914;
+      margin-bottom: 6px;
+    }
+    .pick-name {
+      font-family: 'Lora', serif;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: #FAF7F0;
+      min-height: 1.4em;
+      letter-spacing: .02em;
+    }
+
+    .error-state {
+      text-align: center;
+      color: rgba(250,247,240,0.5);
+    }
+    .error-state h2 {
+      font-family: 'Lora', serif;
+      color: #F0D080;
+      margin-bottom: 12px;
+    }
+    .error-state a {
+      color: #8B6914;
+      text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+      .picks-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <p class="league-name" id="league-name-display">CommishHub Draft Lottery</p>
+
+  <!-- Countdown -->
+  <div id="countdown-state">
+    <p class="countdown-label">Reveal begins in</p>
+    <div class="countdown-display" id="countdown-timer">--:--:--</div>
+    <p class="countdown-sub">The pick is in. Hang tight.</p>
+  </div>
+
+  <!-- Reveal board (hidden until ready) -->
+  <div id="reveal-state">
+    <div class="board">
+      <div class="picks-grid" id="picks-grid"></div>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div id="error-state" style="display:none;" class="error-state">
+    <h2>Reveal not found.</h2>
+    <p>This link may have expired or the ID is incorrect. <a href="/draft-order-randomizer/">Create a new one →</a></p>
+  </div>
+
+  <script>
+    // ── Get reveal ID from URL ─────────────────────────────
+    const params   = new URLSearchParams(window.location.search);
+    const revealId = params.get('id');
+
+    if (!revealId) {
+      showError();
+    } else {
+      loadReveal();
+    }
+
+    // ── Load reveal data ───────────────────────────────────
+    async function loadReveal() {
+      try {
+        const res  = await fetch(`/.netlify/functions/get-reveal?id=${revealId}`);
+        const data = await res.json();
+
+        if (!res.ok || data.error) { showError(); return; }
+
+        // Update league name
+        if (data.leagueName) {
+          document.getElementById('league-name-display').textContent = data.leagueName;
+        }
+
+        if (data.ready) {
+          // Time has passed — go straight to reveal
+          startReveal(data.shuffled, data.speed || 'default');
+        } else {
+          // Show countdown, poll until ready
+          startCountdown(data.revealTime, revealId);
+        }
+      } catch (err) {
+        showError();
+      }
+    }
+
+    // ── Countdown ──────────────────────────────────────────
+    function startCountdown(revealTime, id) {
+      const revealAt = new Date(revealTime).getTime();
+      const timerEl  = document.getElementById('countdown-timer');
+
+      function update() {
+        const remaining = revealAt - Date.now();
+        if (remaining <= 0) {
+          // Time's up — reload reveal data
+          loadReveal();
+          return;
+        }
+        const h = Math.floor(remaining / 3600000);
+        const m = Math.floor((remaining % 3600000) / 60000);
+        const s = Math.floor((remaining % 60000) / 1000);
+        timerEl.textContent =
+          String(h).padStart(2,'0') + ':' +
+          String(m).padStart(2,'0') + ':' +
+          String(s).padStart(2,'0');
+        setTimeout(update, 1000);
+      }
+      update();
+    }
+
+    // ── Reveal sequence ────────────────────────────────────
+    function startReveal(shuffled, speed) {
+      document.getElementById('countdown-state').style.display = 'none';
+      document.getElementById('reveal-state').style.display    = 'block';
+
+      const grid = document.getElementById('picks-grid');
+      grid.innerHTML = '';
+
+      const cards = shuffled.map((name, i) => {
+        const card = document.createElement('div');
+        card.className = 'pick-card';
+        card.innerHTML = `
+          <div class="pick-number">Pick ${i + 1}</div>
+          <div class="pick-name" id="rname-${i}"></div>
+        `;
+        grid.appendChild(card);
+        return card;
+      });
+
+      const delays = { fast: 1500, default: 3000, slow: 6000 };
+      const delay  = delays[speed] || 3000;
+
+      // Stagger reveal
+      cards.forEach((card, i) => {
+        setTimeout(() => {
+          gsap.to(card, { opacity: 1, duration: 0.3,
+            onComplete: () => {
+              gsap.to(card, {
+                boxShadow: '0 0 20px rgba(139,105,20,0.5)',
+                borderColor: 'rgba(139,105,20,0.8)',
+                duration: 0.2
+              });
+              splitFlap(
+                document.getElementById(`rname-${i}`),
+                shuffled[i],
+                600
+              );
+            }
+          });
+        }, i * delay + 800);
+      });
+    }
+
+    // ── Split-flap text effect ─────────────────────────────
+    function splitFlap(el, finalText, duration) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -';
+      const totalFrames = Math.floor(duration / 40);
+      let frame = 0;
+      function tick() {
+        frame++;
+        const progress = frame / totalFrames;
+        let display = '';
+        for (let i = 0; i < finalText.length; i++) {
+          if (i < Math.floor(progress * finalText.length * 1.5)) {
+            display += finalText[i].toUpperCase();
+          } else {
+            display += chars[Math.floor(Math.random() * chars.length)];
+          }
+        }
+        el.textContent = display;
+        if (frame < totalFrames) {
+          requestAnimationFrame(tick);
+        } else {
+          el.textContent = finalText.toUpperCase();
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function showError() {
+      document.getElementById('countdown-state').style.display = 'none';
+      document.getElementById('error-state').style.display     = 'block';
+    }
+  </script>
+
+</body>
+</html>
