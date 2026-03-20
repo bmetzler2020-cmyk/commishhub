@@ -921,19 +921,11 @@
 
       const teams = isWeighted ? getTeamsWithBalls() : getTeamNames().map(n => ({ name: n, balls: 1 }));
 
-      // datetime-local gives "YYYY-MM-DDTHH:MM" with no timezone.
-      // We send the raw string PLUS the browser's UTC offset in minutes.
-      // The server uses the offset to reconstruct the correct UTC time.
+      // datetime-local gives "YYYY-MM-DDTHH:MM" with no timezone info.
+      // Send raw value + browser UTC offset so server can reconstruct correct UTC time.
       const rawTime      = document.getElementById('reveal-time').value;
-      const utcOffsetMin = new Date().getTimezoneOffset(); // e.g. 300 for EST (UTC-5)
-      const revealTimeISO = rawTime; // send raw, server will apply offset
-
-      // Fix datetime-local timezone: input gives local time without offset,
-      // convert to ISO string with correct timezone so server comparison is accurate
-      const rawTime = document.getElementById('reveal-time').value;
-      const localDate = new Date(rawTime);
-      const revealTimeISO = localDate.toISOString();
-      document.getElementById('reveal-time').dataset.iso = revealTimeISO;
+      const utcOffsetMin = new Date().getTimezoneOffset();
+      const revealTimeISO = rawTime;
 
       try {
         const res  = await fetch('/.netlify/functions/schedule-reveal', {
