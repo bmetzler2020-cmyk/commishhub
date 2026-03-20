@@ -58,7 +58,12 @@ exports.handler = async function(event, context) {
                    Math.random().toString(36).substring(2, 6);
 
   try {
-    const store = getStore({ name: 'draft-reveals', consistency: 'strong' });
+    const store = getStore({
+      name: 'draft-reveals',
+      consistency: 'strong',
+      siteID: process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_TOKEN
+    });
     await store.setJSON(`reveal-${revealId}`, {
       shuffled,
       leagueName: leagueName || 'CommishHub Draft Lottery',

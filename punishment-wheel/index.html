@@ -84,8 +84,9 @@
     /* Canvas: responsive size, never clips */
     .canvas-wrap {
       position: relative;
-      width: min(540px, 94vw);
-      height: min(540px, 94vw);
+      width: min(540px, 92vw);
+      height: min(540px, 92vw);
+      /* No border-radius here — let the canvas draw its own circle */
     }
     #wheelCanvas { display: block; width: 100%; height: 100%; }
 
@@ -503,7 +504,7 @@
       const ctx    = canvas.getContext('2d');
       const cx     = size / 2;
       const cy     = size / 2;
-      const radius = size / 2 - 6;
+      const radius = size / 2 - 4;
 
       const punishments = currentMode === 'standard' ? standardPunishments : commishPunishments;
       const colors      = currentMode === 'standard' ? standardColors      : commishColors;
@@ -588,11 +589,17 @@
         ctx.translate(lx, ly);
 
         // Text orientation: base at center, top pointing toward rim.
-        // Every segment uses the same rotation formula — no per-segment flip.
-        // midAngle points from center toward rim.
-        // Rotating by midAngle aligns the text along that spoke direction.
-        // Subtracting PI/2 then makes letter bases face center, tops face rim.
-        const rot = midAngle - Math.PI / 2;
+        // Normalize midAngle to [0, 2PI) for consistent quadrant detection.
+        const normAngle = ((midAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        // Right half of wheel (0 to PI): rotate = normAngle + PI/2
+        // Left half of wheel (PI to 2PI): rotate = normAngle - PI/2
+        // Both cases produce: base at center, top at rim, never upside down
+        let rot;
+        if (normAngle <= Math.PI) {
+          rot = normAngle + Math.PI / 2;
+        } else {
+          rot = normAngle - Math.PI / 2;
+        }
         ctx.rotate(rot);
 
         // Pill background

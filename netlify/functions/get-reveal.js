@@ -13,7 +13,12 @@ exports.handler = async function(event, context) {
 
   let data;
   try {
-    const store = getStore({ name: 'draft-reveals', consistency: 'strong' });
+    const store = getStore({
+      name: 'draft-reveals',
+      consistency: 'strong',
+      siteID: process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_TOKEN
+    });
     data = await store.getJSON(`reveal-${id}`);
   } catch (err) {
     console.error('Blob fetch error:', err.message);
