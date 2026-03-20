@@ -76,6 +76,28 @@ exports.handler = async function(event, context) {
     return { statusCode: 500, body: JSON.stringify({ error: 'Failed to store reveal data', detail: err.message }) };
   }
 
+  // Also save email to email-signups store for future outreach
+  // This runs independently — if it fails, the reveal still works
+  try {
+    const emailStore = getStore({
+      name: 'email-signups',
+      consistency: 'strong',
+      siteID: process.env.NETLIFY_SITE_ID,
+      token:  process.env.NETLIFY_TOKEN
+    });
+    const emailKey = `email-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+    await emailStore.set(emailKey, JSON.stringify({
+      email:     email.trim().toLowerCase(),
+      source:    'draft-reveal-schedule',
+      metadata:  { leagueName: leagueName || null, revealId },
+      createdAt: new Date().toISOString()
+    }));
+    console.log(`Email saved for future outreach: ${email}`);
+  } catch (err) {
+    // Non-fatal — log but continue
+    console.error('Email save error (non-fatal):', err.message);
+  }
+
   const revealUrl    = `https://commishhub.com/draft-order-randomizer/reveal/?id=${revealId}`;
   const displayName  = leagueName || 'CommishHub Draft Lottery';
 

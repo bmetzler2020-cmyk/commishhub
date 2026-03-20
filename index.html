@@ -378,22 +378,49 @@
       });
     })();
 
-    function handleEmail() {
+    async function handleEmail() {
       const input = document.getElementById('emailInput');
+      const btn   = document.querySelector('.btn-capture');
       const email = input.value.trim();
+
       if (!email || !email.includes('@')) {
         input.style.borderColor = '#c0392b';
         setTimeout(() => { input.style.borderColor = ''; }, 1400);
         return;
       }
-      const list = JSON.parse(localStorage.getItem('commishhub_emails') || '[]');
-      if (!list.includes(email)) {
-        list.push(email);
-        localStorage.setItem('commishhub_emails', JSON.stringify(list));
+
+      // Disable button while submitting
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      try {
+        const res = await fetch('/.netlify/functions/save-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            source: 'dynasty-teaser',
+            metadata: { page: 'homepage' }
+          })
+        });
+
+        if (res.ok) {
+          document.getElementById('emailForm').style.display = 'none';
+          document.getElementById('emailSuccess').style.display = 'block';
+        } else {
+          // Function failed — still show success to user, log error
+          console.error('Email save failed:', res.status);
+          document.getElementById('emailForm').style.display = 'none';
+          document.getElementById('emailSuccess').style.display = 'block';
+        }
+      } catch (err) {
+        // Network error — show success anyway, don't frustrate the user
+        console.error('Email save error:', err);
+        document.getElementById('emailForm').style.display = 'none';
+        document.getElementById('emailSuccess').style.display = 'block';
       }
-      document.getElementById('emailForm').style.display = 'none';
-      document.getElementById('emailSuccess').style.display = 'block';
     }
+
     document.getElementById('emailInput').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') handleEmail();
     });
