@@ -84,8 +84,8 @@
     /* Canvas: responsive size, never clips */
     .canvas-wrap {
       position: relative;
-      width: min(580px, 96vw);
-      height: min(580px, 96vw);
+      width: min(540px, 94vw);
+      height: min(540px, 94vw);
     }
     #wheelCanvas { display: block; width: 100%; height: 100%; }
 
@@ -415,7 +415,7 @@
     ];
 
     const standardColors = ['#D50A0A','#203731','#D4AC0D','#003087','#FF3C00','#4B1C8E','#AA0000','#008E97','#B3995D','#1B5EA6','#E31837','#0B5351'];
-    const commishColors  = ['#2A2520','#3D342C','#2A2520','#3D342C','#2A2520','#3D342C','#2A2520','#3D342C','#2A2520','#3D342C','#2A2520','#3D342C'];
+    const commishColors  = ['#2C1A0E','#3d2012','#2C1A0E','#3d2012','#2C1A0E','#3d2012','#2C1A0E','#3d2012','#2C1A0E','#3d2012','#2C1A0E','#3d2012'];
 
     // ── State ─────────────────────────────────────────────
     let currentMode  = 'standard';
@@ -587,11 +587,12 @@
         ctx.save();
         ctx.translate(lx, ly);
 
-        // Spoke rotation: perpendicular to the radius
-        // For right half (cos > 0): text reads from center outward normally
-        // For left half (cos < 0): flip 180° so text isn't upside-down
-        let rot = midAngle + Math.PI / 2;
-        if (Math.cos(midAngle) < 0) rot += Math.PI;
+        // Text orientation: base at center, top pointing toward rim.
+        // Every segment uses the same rotation formula — no per-segment flip.
+        // midAngle points from center toward rim.
+        // Rotating by midAngle aligns the text along that spoke direction.
+        // Subtracting PI/2 then makes letter bases face center, tops face rim.
+        const rot = midAngle - Math.PI / 2;
         ctx.rotate(rot);
 
         // Pill background

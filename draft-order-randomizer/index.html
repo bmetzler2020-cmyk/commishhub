@@ -101,7 +101,8 @@
     .board {
       background: #1A0F07;
       border: 2px solid rgba(139,105,20,0.6);
-      box-shadow: 0 0 40px rgba(139,105,20,0.2), 0 0 80px rgba(139,105,20,0.08);
+      box-shadow: 0 0 40px rgba(139,105,20,0.2), 0 0 80px rgba(139,105,20,0.08),
+                  inset 0 1px 0 rgba(139,105,20,0.18);
       border-radius: 8px;
       padding: 32px;
       position: relative;
@@ -343,11 +344,12 @@
     .pick-card {
       background: #0F0807;
       border: 1px solid rgba(139,105,20,0.2);
+      border-left: 2px solid rgba(139,105,20,0.35);
       border-radius: 6px;
       padding: 14px 18px;
       opacity: 0;
       box-shadow: none;
-      transition: box-shadow .2s;
+      transition: box-shadow .2s, border-color .2s;
     }
     .pick-card.active {
       border-color: rgba(139,105,20,0.7);
@@ -949,9 +951,17 @@
 
     function playTick() {
       if (isMuted || !audioCtx || !tickBuffer) return;
-      const src = audioCtx.createBufferSource();
+      const src  = audioCtx.createBufferSource();
+      const gain = audioCtx.createGain();
+      // Lower volume and apply a mild low-pass filter to soften the high end
+      gain.gain.value = 0.45;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 3200; // cut harsh highs above 3.2kHz
       src.buffer = tickBuffer;
-      src.connect(audioCtx.destination);
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
       src.start();
     }
 
@@ -963,14 +973,30 @@
 
     function playApplause() {
       if (isMuted || !applauseAudio) return;
+      applauseAudio.currentTime = 0;
       applauseAudio.volume = 0;
       applauseAudio.play().catch(() => {});
-      // Fade in over 500ms
+      // Fade in to 0.55 max volume over 400ms, then fade out after 5s
       const start = performance.now();
+      const maxVol = 0.55;
+      const holdMs = 5000;
+      const fadeInMs = 400;
+      const fadeOutMs = 800;
       function fadeIn(now) {
-        const t = (now - start) / 500;
-        applauseAudio.volume = Math.min(1, t);
-        if (t < 1) requestAnimationFrame(fadeIn);
+        const t = Math.min((now - start) / fadeInMs, 1);
+        applauseAudio.volume = t * maxVol;
+        if (t < 1) { requestAnimationFrame(fadeIn); }
+        else { setTimeout(fadeOutApplause, holdMs); }
+      }
+      function fadeOutApplause() {
+        const fadeStart = performance.now();
+        function fadeOut(now) {
+          const t = Math.min((now - fadeStart) / fadeOutMs, 1);
+          if (applauseAudio) applauseAudio.volume = maxVol * (1 - t);
+          if (t < 1) { requestAnimationFrame(fadeOut); }
+          else if (applauseAudio) { applauseAudio.pause(); applauseAudio.currentTime = 0; }
+        }
+        requestAnimationFrame(fadeOut);
       }
       requestAnimationFrame(fadeIn);
     }
@@ -1032,7 +1058,10 @@
       const tl = gsap.timeline({
         onComplete: () => {
           playChime();
-          setTimeout(startRevealSequence, 800);
+          // Wait for chime to finish before first card rolls
+          // Chime is ~1.5s, plus 300ms pause for effect
+          const chimeWait = chimeAudio ? Math.ceil((chimeAudio.duration || 1.5) * 1000) + 300 : 1800;
+          setTimeout(startRevealSequence, chimeWait);
         }
       });
 
@@ -1089,7 +1118,7 @@
       card.classList.add('active');
 
       // Split-flap scramble — 700ms
-      splitFlap(nameEl, name, 700, () => {
+      splitFlap(nameEl, name, 1100, () => {
         // Land — text settles to warm white
         nameEl.classList.add('settled');
         card.classList.remove('active');
@@ -1100,7 +1129,7 @@
     // ── Split-flap text effect ─────────────────────────────
     function splitFlap(el, finalText, duration, onComplete) {
       const chars       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -';
-      const totalFrames = Math.floor(duration / 40);
+      const totalFrames = Math.floor(duration / 65); // slower scramble
       let frame = 0;
 
       function tick() {
