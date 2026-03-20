@@ -37,7 +37,7 @@ exports.handler = async function(event, context) {
   try { body = JSON.parse(event.body); }
   catch (e) { return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
-  const { teams, leagueName, revealTime, email, speed, weighted } = body;
+  const { teams, leagueName, revealTime, utcOffsetMin, email, speed, weighted } = body;
 
   if (!teams || teams.length < 2) {
     return { statusCode: 400, body: JSON.stringify({ error: 'At least 2 teams required' }) };
@@ -54,6 +54,24 @@ exports.handler = async function(event, context) {
     shuffled = shuffle(names);
   }
 
+  // Convert local datetime string to UTC using the browser's offset
+  // revealTime = "YYYY-MM-DDTHH:MM" (no tz), utcOffsetMin = browser getTimezoneOffset()
+  // getTimezoneOffset() returns minutes BEHIND UTC (positive = west of UTC)
+  // e.g. EST = 300, so local time is UTC - 300min = UTC + offset
+  let revealTimeUTC = revealTime;
+  try {
+    if (revealTime && typeof utcOffsetMin === 'number') {
+      // Parse as if UTC, then add the offset back to get true UTC
+      const localMs  = new Date(revealTime + ':00Z').getTime(); // treat as UTC first
+      const offsetMs = utcOffsetMin * 60 * 1000;               // convert mins to ms
+      revealTimeUTC  = new Date(localMs + offsetMs).toISOString();
+    }
+  } catch (e) {
+    console.error('Time conversion error:', e.message);
+    // Fall back to raw string — better than crashing
+    revealTimeUTC = revealTime;
+  }
+
   const revealId = Math.random().toString(36).substring(2, 10) +
                    Math.random().toString(36).substring(2, 6);
 
@@ -67,7 +85,7 @@ exports.handler = async function(event, context) {
     await store.set(`reveal-${revealId}`, JSON.stringify({
       shuffled,
       leagueName: leagueName || 'CommishHub Draft Lottery',
-      revealTime,
+      revealTime: revealTimeUTC,
       speed: speed || 'default',
       createdAt: new Date().toISOString()
     }));

@@ -34,46 +34,46 @@
 
     .league-name {
       font-family: 'Lora', serif;
-      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      font-size: clamp(1rem, 3vw, 1.6rem);
       color: #FAF7F0;
       letter-spacing: .12em;
       text-transform: uppercase;
       text-align: center;
       margin-bottom: 48px;
-      opacity: .7;
+      opacity: .6;
     }
 
-    /* Countdown state */
+    /* ── Countdown ── */
     #countdown-state { text-align: center; }
     .countdown-label {
-      font-size: .75rem;
-      font-weight: 600;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: rgba(139,105,20,0.7);
-      margin-bottom: 20px;
+      font-size: .72rem; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(139,105,20,0.7); margin-bottom: 20px;
     }
     .countdown-display {
       font-family: 'Lora', serif;
       font-size: clamp(3rem, 10vw, 6rem);
-      font-weight: 700;
-      color: #F0D080;
-      letter-spacing: .04em;
-      line-height: 1;
+      font-weight: 700; color: #F0D080;
+      letter-spacing: .04em; line-height: 1;
       margin-bottom: 24px;
     }
     .countdown-sub {
       font-size: 1rem;
-      color: rgba(250,247,240,0.45);
+      color: rgba(250,247,240,0.4);
       font-style: italic;
     }
 
-    /* Board reveal state — reused from main tool */
-    #reveal-state { display: none; width: 100%; max-width: 960px; }
+    /* ── Board reveal — hidden until ready ── */
+    #reveal-state {
+      display: none;  /* CRITICAL: hidden on load, shown only when ready */
+      width: 100%;
+      max-width: 960px;
+    }
     .board {
       background: #1A0F07;
       border: 2px solid rgba(139,105,20,0.6);
-      box-shadow: 0 0 40px rgba(139,105,20,0.2), 0 0 80px rgba(139,105,20,0.08);
+      box-shadow: 0 0 40px rgba(139,105,20,0.2), 0 0 80px rgba(139,105,20,0.08),
+                  inset 0 1px 0 rgba(139,105,20,0.18);
       border-radius: 8px;
       padding: 32px;
       width: 100%;
@@ -81,47 +81,54 @@
     .picks-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+      gap: 10px;
     }
     .pick-card {
       background: #0F0807;
       border: 1px solid rgba(139,105,20,0.2);
+      border-left: 2px solid rgba(139,105,20,0.35);
       border-radius: 6px;
-      padding: 16px 20px;
+      padding: 14px 18px;
       opacity: 0;
     }
     .pick-number {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: #8B6914;
-      margin-bottom: 6px;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: #8B6914; margin-bottom: 6px;
     }
     .pick-name {
       font-family: 'Lora', serif;
-      font-size: clamp(1rem, 2.5vw, 1.25rem);
-      color: #FAF7F0;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: #8B6914;
       min-height: 1.4em;
       letter-spacing: .02em;
+      transition: color .3s;
     }
+    .pick-name.settled { color: #FAF7F0; }
 
-    .error-state {
+    /* ── Error ── */
+    #error-state {
+      display: none;
       text-align: center;
       color: rgba(250,247,240,0.5);
     }
-    .error-state h2 {
+    #error-state h2 {
       font-family: 'Lora', serif;
-      color: #F0D080;
-      margin-bottom: 12px;
+      color: #F0D080; margin-bottom: 12px;
     }
-    .error-state a {
-      color: #8B6914;
-      text-decoration: none;
+    #error-state a { color: #8B6914; text-decoration: none; }
+
+    /* ── Loading ── */
+    #loading-state {
+      text-align: center;
+      color: rgba(250,247,240,0.35);
+      font-size: .88rem;
+      font-style: italic;
     }
 
     @media (max-width: 600px) {
       .picks-grid { grid-template-columns: 1fr; }
+      .board { padding: 20px 16px; }
     }
   </style>
 </head>
@@ -129,14 +136,17 @@
 
   <p class="league-name" id="league-name-display">CommishHub Draft Lottery</p>
 
-  <!-- Countdown -->
-  <div id="countdown-state">
+  <!-- Loading — shown first while we fetch -->
+  <div id="loading-state">Loading reveal...</div>
+
+  <!-- Countdown — shown when time hasn't arrived yet -->
+  <div id="countdown-state" style="display:none;">
     <p class="countdown-label">Reveal begins in</p>
     <div class="countdown-display" id="countdown-timer">--:--:--</div>
     <p class="countdown-sub">The pick is in. Hang tight.</p>
   </div>
 
-  <!-- Reveal board (hidden until ready) -->
+  <!-- Reveal board — shown only when ready to animate -->
   <div id="reveal-state">
     <div class="board">
       <div class="picks-grid" id="picks-grid"></div>
@@ -144,13 +154,20 @@
   </div>
 
   <!-- Error -->
-  <div id="error-state" style="display:none;" class="error-state">
+  <div id="error-state">
     <h2>Reveal not found.</h2>
-    <p>This link may have expired or the ID is incorrect. <a href="/draft-order-randomizer/">Create a new one →</a></p>
+    <p>This link may have expired or the ID is incorrect.<br/>
+       <a href="/draft-order-randomizer/">Create a new one →</a>
+    </p>
   </div>
 
   <script>
-    // ── Get reveal ID from URL ─────────────────────────────
+    // ── Helpers ───────────────────────────────────────────
+    function show(id)  { document.getElementById(id).style.display = 'block'; }
+    function hide(id)  { document.getElementById(id).style.display = 'none'; }
+    function showError() { hide('loading-state'); hide('countdown-state'); hide('reveal-state'); show('error-state'); }
+
+    // ── Get reveal ID ─────────────────────────────────────
     const params   = new URLSearchParams(window.location.search);
     const revealId = params.get('id');
 
@@ -163,100 +180,139 @@
     // ── Load reveal data ───────────────────────────────────
     async function loadReveal() {
       try {
-        const res  = await fetch(`/.netlify/functions/get-reveal?id=${revealId}`);
+        const res = await fetch(`/.netlify/functions/get-reveal?id=${encodeURIComponent(revealId)}`);
+
+        if (!res.ok) {
+          console.error('get-reveal returned', res.status);
+          showError();
+          return;
+        }
+
         const data = await res.json();
 
-        if (!res.ok || data.error) { showError(); return; }
+        if (data.error) {
+          console.error('get-reveal error:', data.error);
+          showError();
+          return;
+        }
 
-        // Update league name
+        // Update league name display
         if (data.leagueName) {
           document.getElementById('league-name-display').textContent = data.leagueName;
         }
 
+        hide('loading-state');
+
         if (data.ready) {
-          // Time has passed — go straight to reveal
-          startReveal(data.shuffled, data.speed || 'default');
+          // Reveal time has passed — start animation
+          beginReveal(data.shuffled, data.speed || 'default');
         } else {
-          // Show countdown, poll until ready
-          startCountdown(data.revealTime, revealId);
+          // Not yet — show countdown, poll every second
+          show('countdown-state');
+          startCountdown(data.revealTime, data.shuffled ? data : null);
         }
+
       } catch (err) {
+        console.error('loadReveal error:', err);
         showError();
       }
     }
 
     // ── Countdown ──────────────────────────────────────────
-    function startCountdown(revealTime, id) {
-      const revealAt = new Date(revealTime).getTime();
+    // revealTime is a UTC ISO string stored by the server
+    function startCountdown(revealTimeUTC) {
+      const revealAt = new Date(revealTimeUTC).getTime();
       const timerEl  = document.getElementById('countdown-timer');
 
-      function update() {
+      // Safety check — if time is invalid, show error
+      if (isNaN(revealAt)) {
+        console.error('Invalid revealTime:', revealTimeUTC);
+        showError();
+        return;
+      }
+
+      // If already past for some reason, reload to get fresh data
+      if (Date.now() >= revealAt) {
+        loadReveal();
+        return;
+      }
+
+      function tick() {
         const remaining = revealAt - Date.now();
+
         if (remaining <= 0) {
-          // Time's up — reload reveal data
-          loadReveal();
+          // Time's up — fetch fresh data which will now return ready:true
+          timerEl.textContent = '00:00:00';
+          setTimeout(loadReveal, 500);
           return;
         }
+
         const h = Math.floor(remaining / 3600000);
         const m = Math.floor((remaining % 3600000) / 60000);
         const s = Math.floor((remaining % 60000) / 1000);
+
         timerEl.textContent =
-          String(h).padStart(2,'0') + ':' +
-          String(m).padStart(2,'0') + ':' +
-          String(s).padStart(2,'0');
-        setTimeout(update, 1000);
+          String(h).padStart(2, '0') + ':' +
+          String(m).padStart(2, '0') + ':' +
+          String(s).padStart(2, '0');
+
+        setTimeout(tick, 1000);
       }
-      update();
+
+      tick();
     }
 
-    // ── Reveal sequence ────────────────────────────────────
-    function startReveal(shuffled, speed) {
-      document.getElementById('countdown-state').style.display = 'none';
-      document.getElementById('reveal-state').style.display    = 'block';
+    // ── Begin reveal ───────────────────────────────────────
+    function beginReveal(shuffled, speed) {
+      hide('countdown-state');
+      show('reveal-state');
 
       const grid = document.getElementById('picks-grid');
       grid.innerHTML = '';
 
-      const cards = shuffled.map((name, i) => {
+      shuffled.forEach((name, i) => {
         const card = document.createElement('div');
         card.className = 'pick-card';
+        card.id = `rcard-${i}`;
         card.innerHTML = `
           <div class="pick-number">Pick ${i + 1}</div>
           <div class="pick-name" id="rname-${i}"></div>
         `;
         grid.appendChild(card);
-        return card;
       });
 
       const delays = { fast: 1500, default: 3000, slow: 6000 };
       const delay  = delays[speed] || 3000;
 
-      // Stagger reveal
-      cards.forEach((card, i) => {
-        setTimeout(() => {
-          gsap.to(card, { opacity: 1, duration: 0.3,
-            onComplete: () => {
-              gsap.to(card, {
-                boxShadow: '0 0 20px rgba(139,105,20,0.5)',
-                borderColor: 'rgba(139,105,20,0.8)',
-                duration: 0.2
-              });
-              splitFlap(
-                document.getElementById(`rname-${i}`),
-                shuffled[i],
-                600
-              );
-            }
-          });
-        }, i * delay + 800);
+      shuffled.forEach((name, i) => {
+        setTimeout(() => revealCard(i, name), i * delay + 800);
       });
     }
 
-    // ── Split-flap text effect ─────────────────────────────
-    function splitFlap(el, finalText, duration) {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -';
-      const totalFrames = Math.floor(duration / 40);
+    function revealCard(idx, name) {
+      const card   = document.getElementById(`rcard-${idx}`);
+      const nameEl = document.getElementById(`rname-${idx}`);
+
+      gsap.to(card, {
+        opacity: 1, duration: 0.25,
+        onComplete: () => {
+          card.style.borderColor      = 'rgba(139,105,20,0.7)';
+          card.style.boxShadow        = '0 0 16px rgba(139,105,20,0.3)';
+          splitFlap(nameEl, name, 1100, () => {
+            nameEl.classList.add('settled');
+            card.style.borderColor = 'rgba(139,105,20,0.45)';
+            card.style.boxShadow   = '0 0 8px rgba(139,105,20,0.15)';
+          });
+        }
+      });
+    }
+
+    // ── Split-flap ─────────────────────────────────────────
+    function splitFlap(el, finalText, duration, onComplete) {
+      const chars       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -';
+      const totalFrames = Math.floor(duration / 65);
       let frame = 0;
+
       function tick() {
         frame++;
         const progress = frame / totalFrames;
@@ -273,14 +329,10 @@
           requestAnimationFrame(tick);
         } else {
           el.textContent = finalText.toUpperCase();
+          if (onComplete) onComplete();
         }
       }
       requestAnimationFrame(tick);
-    }
-
-    function showError() {
-      document.getElementById('countdown-state').style.display = 'none';
-      document.getElementById('error-state').style.display     = 'block';
     }
   </script>
 

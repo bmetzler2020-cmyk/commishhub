@@ -645,10 +645,34 @@
               <input class="schedule-input" type="datetime-local" id="reveal-time" />
               <input class="schedule-input" type="email" id="reveal-email" placeholder="Your email address" />
             </div>
+            <p style="font-size:.72rem;color:rgba(250,247,240,0.3);margin-bottom:12px;line-height:1.5;">
+              We'll notify you by email when automated reminders are live.
+            </p>
             <button class="schedule-btn" onclick="scheduleReveal()">Schedule Reveal →</button>
             <div class="schedule-success" id="schedule-success">
-              Reveal scheduled. <span id="reveal-link-text"></span>
-              <a id="reveal-link" href="#" target="_blank"></a>
+              <p style="color:rgba(139,105,20,0.8);font-size:.82rem;margin-bottom:10px;">✓ Reveal scheduled. Share this link with your league:</p>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input
+                  id="reveal-link-input"
+                  type="text"
+                  readonly
+                  style="flex:1;background:#0F0807;border:1px solid rgba(139,105,20,0.4);border-radius:5px;
+                         padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:.82rem;
+                         color:rgba(250,247,240,0.8);outline:none;cursor:text;"
+                />
+                <button
+                  onclick="copyRevealLink()"
+                  id="copy-reveal-btn"
+                  style="background:rgba(139,105,20,0.2);border:1px solid rgba(139,105,20,0.4);
+                         border-radius:5px;padding:9px 14px;font-family:'DM Sans',sans-serif;
+                         font-size:.78rem;font-weight:600;color:rgba(139,105,20,0.9);
+                         cursor:pointer;white-space:nowrap;transition:background .15s;"
+                >Copy</button>
+              </div>
+              <a id="reveal-link" href="#" target="_blank"
+                 style="display:block;margin-top:8px;font-size:.72rem;
+                        color:rgba(139,105,20,0.5);word-break:break-all;">
+              </a>
             </div>
           </div>
 
@@ -897,23 +921,51 @@
 
       const teams = isWeighted ? getTeamsWithBalls() : getTeamNames().map(n => ({ name: n, balls: 1 }));
 
+      // datetime-local gives "YYYY-MM-DDTHH:MM" with no timezone.
+      // We send the raw string PLUS the browser's UTC offset in minutes.
+      // The server uses the offset to reconstruct the correct UTC time.
+      const rawTime      = document.getElementById('reveal-time').value;
+      const utcOffsetMin = new Date().getTimezoneOffset(); // e.g. 300 for EST (UTC-5)
+      const revealTimeISO = rawTime; // send raw, server will apply offset
+
+      // Fix datetime-local timezone: input gives local time without offset,
+      // convert to ISO string with correct timezone so server comparison is accurate
+      const rawTime = document.getElementById('reveal-time').value;
+      const localDate = new Date(rawTime);
+      const revealTimeISO = localDate.toISOString();
+      document.getElementById('reveal-time').dataset.iso = revealTimeISO;
+
       try {
         const res  = await fetch('/.netlify/functions/schedule-reveal', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ teams, leagueName, revealTime, email, speed: selectedSpeed, weighted: isWeighted })
+          body: JSON.stringify({ teams, leagueName, revealTime: revealTimeISO, utcOffsetMin, email, speed: selectedSpeed, weighted: isWeighted })
         });
         const data = await res.json();
         if (data.revealUrl) {
           document.getElementById('schedule-success').style.display = 'block';
-          document.getElementById('reveal-link-text').textContent = 'Share this link: ';
+          document.getElementById('reveal-link-input').value = data.revealUrl;
           const link = document.getElementById('reveal-link');
-          link.href = data.revealUrl;
+          link.href        = data.revealUrl;
           link.textContent = data.revealUrl;
         }
       } catch (err) {
         alert('Something went wrong scheduling the reveal. Try again.');
       }
+    }
+
+    function copyRevealLink() {
+      const input = document.getElementById('reveal-link-input');
+      const btn   = document.getElementById('copy-reveal-btn');
+      navigator.clipboard.writeText(input.value).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      }).catch(() => {
+        input.select();
+        document.execCommand('copy');
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      });
     }
 
     // ── Audio ──────────────────────────────────────────────
