@@ -68,11 +68,24 @@
     }
 
     .board-wrap { width: min(960px, 92vw); margin: 0 auto; }
+    @keyframes boardPulse {
+      0%, 100% { box-shadow: 0 0 40px rgba(139,105,20,0.2), 0 0 80px rgba(139,105,20,0.08), inset 0 1px 0 rgba(139,105,20,0.18); }
+      50%       { box-shadow: 0 0 58px rgba(139,105,20,0.32), 0 0 110px rgba(139,105,20,0.16), inset 0 1px 0 rgba(139,105,20,0.26); }
+    }
+    body.reveal-mode .board.pulsing { animation: boardPulse 3.5s ease-in-out infinite; }
     .board {
       background: #1A0F07;
       border: 2px solid rgba(139,105,20,0.6);
       box-shadow: 0 0 40px rgba(139,105,20,0.2), 0 0 80px rgba(139,105,20,0.08), inset 0 1px 0 rgba(139,105,20,0.18);
-      border-radius: 8px; padding: 32px; position: relative;
+      border-radius: 8px; padding: 36px 40px; position: relative;
+    }
+    /* Board ambient pulse — slow breathing glow while reveal is playing */
+    @keyframes boardPulse {
+      0%, 100% { box-shadow: 0 0 40px rgba(139,105,20,0.2), 0 0 80px rgba(139,105,20,0.08), inset 0 1px 0 rgba(139,105,20,0.18); }
+      50%       { box-shadow: 0 0 55px rgba(139,105,20,0.3), 0 0 100px rgba(139,105,20,0.14), inset 0 1px 0 rgba(139,105,20,0.25); }
+    }
+    body.reveal-mode .board.pulsing {
+      animation: boardPulse 3.5s ease-in-out infinite;
     }
 
     .mute-btn {
@@ -142,13 +155,13 @@
     .schedule-success { display:none;text-align:center;padding:12px;color:rgba(139,105,20,0.8);font-size:.88rem; }
 
     /* Reveal state — pick cards */
-    .picks-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:12px; }
+    .picks-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:16px; }
 
     .pick-card {
       background: #0D0906;
       border: 1px solid rgba(139,105,20,0.12);
       border-radius: 8px;
-      padding: 18px 20px 16px;
+      padding: 22px 24px 22px;
       position: relative;
       overflow: hidden;
     }
@@ -160,23 +173,23 @@
     }
     .pick-num {
       font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
-      color: rgba(139,105,20,0.35); margin-bottom: 10px; transition: color 0.4s;
+      color: rgba(139,105,20,0.35); margin-bottom: 14px; transition: color 0.4s;
     }
     .pick-card.lit .pick-num { color: #8B6914; }
 
     /* Name — large, Lora serif, two size tiers */
     .pick-name {
       font-family: 'Lora', serif;
-      font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+      font-size: clamp(1.6rem, 3.8vw, 2.4rem);
       color: #FAF7F0; line-height: 1.15; letter-spacing: .01em;
       min-height: 1.3em; opacity: 0;
     }
-    .pick-name.long-name { font-size: clamp(1.1rem, 2.4vw, 1.6rem); }
+    .pick-name.long-name { font-size: clamp(1.2rem, 2.8vw, 1.8rem); }
 
     /* Card state transitions */
     .pick-card.waiting  { opacity: 1; border-color: rgba(139,105,20,0.12); box-shadow: none; }
     .pick-card.active   { border-color: rgba(139,105,20,0.65); box-shadow: 0 0 22px rgba(139,105,20,0.28), inset 0 0 20px rgba(139,105,20,0.04); }
-    .pick-card.revealed { border-color: rgba(139,105,20,0.32); box-shadow: 0 0 10px rgba(139,105,20,0.1); }
+    .pick-card.revealed { border-color: rgba(139,105,20,0.32); border-left: 3px solid rgba(139,105,20,0.55); box-shadow: 0 0 10px rgba(139,105,20,0.1); }
 
     /* End buttons */
     .end-btns { display:flex;justify-content:center;gap:14px;margin-top:28px;flex-wrap:wrap;opacity:0; }
@@ -211,9 +224,93 @@
       .more-tools-grid { grid-template-columns:1fr; }
       .atmo-cone-left, .atmo-cone-right { display:none; }
     }
+
+    /* ═══════════════════════════════════════════════
+       INPUT MODE — light CommishHub aesthetic
+       Overrides dark defaults when body.input-mode
+       ═══════════════════════════════════════════════ */
+    body.input-mode { background: var(--bg) !important; }
+
+    body.input-mode .board {
+      background: var(--card) !important;
+      border: 1px solid var(--border) !important;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06) !important;
+    }
+
+    /* Labels */
+    body.input-mode .input-label { color: var(--gold) !important; }
+    body.input-mode .above-board-text { color: var(--brown) !important; opacity: .7 !important; }
+    body.input-mode .more-tools-eyebrow { color: var(--gold) !important; }
+    body.input-mode .more-tools-title { color: var(--brown) !important; }
+
+    /* Count buttons */
+    body.input-mode .count-btn {
+      border-color: var(--border) !important;
+      color: var(--muted) !important;
+    }
+    body.input-mode .count-btn:hover { border-color: var(--gold) !important; color: var(--gold) !important; }
+    body.input-mode .count-btn.active { background: var(--gold) !important; border-color: var(--gold) !important; color: #fff !important; }
+
+    /* Advanced panel */
+    body.input-mode .advanced-toggle-btn { color: rgba(139,105,20,0.6) !important; }
+    body.input-mode .advanced-panel { background: rgba(139,105,20,0.04) !important; }
+    body.input-mode .weighted-label { color: var(--muted) !important; }
+    body.input-mode .weighted-helper { color: var(--muted) !important; }
+
+    /* Team slots */
+    body.input-mode .team-slot {
+      background: var(--bg) !important;
+      border-color: var(--border) !important;
+    }
+    body.input-mode .team-slot:focus-within { border-color: var(--gold) !important; }
+    body.input-mode .team-input { color: var(--text) !important; }
+    body.input-mode .team-input::placeholder { color: rgba(44,26,14,0.25) !important; }
+
+    /* Optional slots */
+    body.input-mode .optional-slot {
+      background: var(--bg) !important;
+      border-color: var(--border) !important;
+    }
+    body.input-mode .optional-slot:focus-within { border-color: var(--gold) !important; }
+    body.input-mode .optional-input { color: var(--text) !important; }
+    body.input-mode .optional-input::placeholder { color: rgba(44,26,14,0.3) !important; }
+
+    /* Speed buttons */
+    body.input-mode .speed-btn {
+      border-color: var(--border) !important;
+      color: var(--muted) !important;
+    }
+    body.input-mode .speed-btn:hover { border-color: var(--gold) !important; color: var(--gold) !important; }
+    body.input-mode .speed-btn.active {
+      background: rgba(139,105,20,0.08) !important;
+      border-color: var(--gold) !important;
+      color: var(--gold) !important;
+    }
+
+    /* Schedule panel */
+    body.input-mode .schedule-panel { background: rgba(139,105,20,0.03) !important; }
+    body.input-mode .schedule-input { background: var(--bg) !important; color: var(--text) !important; }
+
+    /* More cards */
+    body.input-mode .more-card {
+      background: var(--card) !important;
+      border-color: var(--border) !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05) !important;
+    }
+    body.input-mode .more-card h3 { color: var(--brown) !important; }
+    body.input-mode .more-card p  { color: var(--muted) !important; }
+    body.input-mode .badge-live { background: rgba(139,105,20,0.1) !important; color: var(--gold) !important; }
+    body.input-mode .badge-soon { background: rgba(0,0,0,0.05) !important; color: var(--muted) !important; }
+
+    /* Atmosphere cones — only in reveal mode */
+    body.input-mode .atmo-cone-left,
+    body.input-mode .atmo-cone-right { display: none !important; }
+
+    /* Mute button */
+    body.input-mode .mute-btn { color: rgba(44,26,14,0.3) !important; }
   </style>
 </head>
-<body>
+<body class="input-mode">
 
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
@@ -726,11 +823,16 @@
 
       // Overlay fully dark — switch page to dark mode, then lift overlay
       setTimeout(() => {
+        document.body.classList.remove('input-mode');
         document.body.classList.add('reveal-mode');
         gsap.to(overlay, {
           opacity: 0, duration: 0.6, ease: 'power2.out',
           onComplete: () => { gsap.set(overlay, { pointerEvents: 'none' }); }
         });
+        // Board starts breathing — slow ambient glow pulse
+        document.getElementById('board').classList.add('pulsing');
+        // Board starts breathing
+        document.getElementById('board').classList.add('pulsing');
         // Rumble starts as overlay lifts
         playRumble(1600);
         // Chime after rumble settles
@@ -788,42 +890,52 @@
       card.classList.add('active', 'lit');
 
       // Light sweep across surface
+      // Light sweep — slow, like a spotlight crossing a dark stage
       gsap.fromTo(sweep,
         { left: '-65%', opacity: 1 },
-        { left: '115%', duration: 0.6, ease: 'power2.inOut',
-          onComplete: () => { sweep.style.opacity = '0'; }
+        { left: '120%', duration: 1.1, ease: 'power1.inOut',
+          onComplete: () => { gsap.to(sweep, { opacity: 0, duration: 0.3 }); }
         }
       );
 
       // After hold — name appears clean, no movement
       setTimeout(() => {
         nameEl.textContent = name.toUpperCase();
-        gsap.to(nameEl, {
-          opacity: 1, duration: 0.2, ease: 'power2.out',
-          onComplete: () => {
-            playRevealTone();
-            card.classList.remove('active');
-            card.classList.add('revealed');
+        // Name slides up gently from below and fades in — weighted, deliberate
+        gsap.fromTo(nameEl,
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out',
+            onComplete: () => {
+              playRevealTone();
+              // Card stays fully active for a moment so the name can be read
+              setTimeout(() => {
+                card.classList.remove('active');
+                card.classList.add('revealed');
+              }, 600);
+            }
           }
-        });
+        );
       }, holdBeforeName);
     }
 
     // ── All revealed — house lights up ──
     function onAllRevealed() {
+      // Stop the ambient pulse — house lights taking over
+      document.getElementById('board').classList.remove('pulsing');
       playApplause();
       // All cards brighten together
+      // House lights: staggered left-to-right, each card brightens like a bulb warming up
       gsap.to('.pick-card.revealed', {
-        borderColor: 'rgba(139,105,20,0.5)',
-        boxShadow: '0 0 18px rgba(139,105,20,0.2)',
-        duration: 1.0, ease: 'power2.out', stagger: 0.03
+        borderColor: 'rgba(139,105,20,0.52)',
+        boxShadow: '0 0 22px rgba(139,105,20,0.22)',
+        duration: 1.4, ease: 'power2.out', stagger: 0.05
       });
-      // Board final glow
+      // Board final glow — richer than ambient pulse
       gsap.to('#board', {
-        boxShadow: '0 0 60px rgba(139,105,20,0.4), 0 0 120px rgba(139,105,20,0.14), inset 0 1px 0 rgba(139,105,20,0.28)',
-        duration: 1.0, ease: 'power2.out'
+        boxShadow: '0 0 70px rgba(139,105,20,0.45), 0 0 130px rgba(139,105,20,0.18), inset 0 1px 0 rgba(139,105,20,0.3)',
+        duration: 1.6, ease: 'power2.out'
       });
-      gsap.to('#end-btns', { opacity: 1, duration: 0.6, delay: 0.6 });
+      gsap.to('#end-btns', { opacity: 1, duration: 0.8, delay: 1.2 });
     }
 
     // ── Share image ──
@@ -855,9 +967,9 @@
       ctx.beginPath(); ctx.moveTo(80, 102); ctx.lineTo(1120, 102); ctx.stroke();
 
       const cols = 2, rows = Math.ceil(shuffledOrder.length / cols);
-      const padX = 72, padY = 120, gapX = 24, gapY = 12;
+      const padX = 64, padY = 114, gapX = 20, gapY = 10;
       const cardW = (1200 - padX * 2 - gapX) / 2;
-      const cardH = Math.max(52, Math.min(72, (630 - padY - 60 - (rows - 1) * gapY) / rows));
+      const cardH = Math.max(60, Math.min(82, (630 - padY - 54 - (rows - 1) * gapY) / rows));
 
       shuffledOrder.forEach((name, i) => {
         const col = i % cols, row = Math.floor(i / cols);
@@ -868,8 +980,8 @@
         ctx.textAlign = 'left'; ctx.fillText(`PICK ${i + 1}`, x + 16, y + 18);
         const isLong = name.length > 14;
         ctx.fillStyle = '#FAF7F0';
-        ctx.font = `700 ${isLong ? Math.min(16, cardH * 0.35) : Math.min(20, cardH * 0.42)}px "Lora", serif`;
-        ctx.fillText(name.toUpperCase(), x + 16, y + cardH - 14);
+        ctx.font = `700 ${isLong ? Math.min(18, cardH * 0.38) : Math.min(23, cardH * 0.46)}px "Lora", serif`;
+        ctx.fillText(name.toUpperCase(), x + 16, y + cardH - 16);
       });
 
       ctx.fillStyle = 'rgba(139,105,20,0.38)'; ctx.font = '500 11px "DM Sans", sans-serif';
@@ -893,6 +1005,8 @@
       shuffledOrder = [];
       if (applauseAudio) { applauseAudio.pause(); applauseAudio.currentTime = 0; }
       document.body.classList.remove('reveal-mode');
+      document.body.classList.add('input-mode');
+      document.body.classList.add('input-mode');
       document.getElementById('reveal-state').style.display = 'none';
       document.getElementById('picks-grid').innerHTML = '';
       gsap.set('#end-btns', { opacity: 0 });
