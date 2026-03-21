@@ -190,16 +190,15 @@
 
         <div class="form-field">
           <label class="field-label" for="player-name">Player name</label>
-          <input class="input" type="text" id="player-name" placeholder="e.g. Woody Marks" maxlength="40" autocomplete="off" autocorrect="off" spellcheck="false" />
+          <input class="input" type="text" id="player-name" placeholder="e.g. Patrick Mahomes" maxlength="40" autocomplete="off" autocorrect="off" spellcheck="false" />
         </div>
 
         <div class="form-field form-field-optional">
           <label class="field-label" for="player-context">
-            Anything worth knowing?
+            Anything worth noting?
             <span style="font-weight:400; color:var(--muted); font-size:.8rem;"> — optional</span>
           </label>
-          <span class="field-hint">Known for fumbles, plays for a bad team, just got benched — anything that earns a better nickname.</span>
-          <input class="input" type="text" id="player-context" placeholder="e.g. known for fumbles, plays for a bad team, just got benched" autocomplete="off" />
+          <input class="input" type="text" id="player-context" placeholder="e.g. known for fumbles, recently benched, plays for a bad team" autocomplete="off" />
         </div>
 
         <!-- Mode toggle -->
@@ -375,14 +374,15 @@
     }
 
     function renderResult(nickname, explanation) {
-      const nicknameEl = document.getElementById('result-nickname');
+      const nicknameEl    = document.getElementById('result-nickname');
       const explanationEl = document.getElementById('result-explanation');
-      nicknameEl.textContent = nickname;
+      nicknameEl.textContent    = nickname;
       explanationEl.textContent = explanation;
       // Reset styles in case of a previous error state
-      nicknameEl.style.color = '';
+      nicknameEl.style.color    = '';
       nicknameEl.style.fontSize = '';
-      explanationEl.style.display = '';
+      // Hide explanation element if empty — output is now nickname only
+      explanationEl.style.display = explanation ? '' : 'none';
       document.getElementById('results').classList.add('visible');
       document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -426,12 +426,26 @@
       setTimeout(function() { el.style.borderColor = ''; el.style.animation = ''; }, 800);
     }
 
+    // Canonical nicknames — these fire instantly before any API call.
+    // Add players here when consensus is strong enough to hardcode.
+    const CANONICAL = {
+      'jaxon smith-njigba': { nickname: 'Emerald City Route Merchant', mode: 'linkedin' },
+      'jsn': { nickname: 'Emerald City Route Merchant', mode: 'linkedin' },
+    };
+
     async function generateNickname(rerun) {
       const playerName = rerun ? lastPlayerName : document.getElementById('player-name').value.trim();
       const context    = rerun ? lastContext    : document.getElementById('player-context').value.trim();
 
-      if (!playerName) {
-        shakeField('player-name');
+      if (!playerName) { shakeField('player-name'); return; }
+
+      // Check canonical lookup first — instant return, no API call
+      const canonical = CANONICAL[playerName.toLowerCase().trim()];
+      if (canonical && !rerun) {
+        lastPlayerName = playerName;
+        lastContext    = context;
+        stopLoading();
+        renderResult(canonical.nickname, '');
         return;
       }
 
@@ -446,28 +460,25 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: 'claude-sonnet-4-20250514',
-            max_tokens: 200,
+            tool: 'nickname',
+            max_tokens: 100,
             tools: [{ type: 'web_search_20250305', name: 'web_search' }],
             system: selectedMode === 'nickname'
-              ? `You are a fantasy football nickname generator with deep knowledge of NFL player personalities, physical traits, playing styles, known controversies, and cultural reputation. Generate exactly one nickname using this priority order:
-1. Internet consensus — search for what the fantasy football community already calls this player, any running jokes or established reputation
-2. Recent news — on field performance, off field reputation, current situation, anything the internet has strong opinions about
-3. Wordplay — only if it is genuinely funny and earned by something specific about the player. Never forced. The humor should be either witty or intentionally crude in the way that earns a laugh at a casual get-together — think observational and inevitable, not randomly offensive.
+              ? `You are a fantasy football nickname generator. Your job is to find the single best nickname for an NFL player — the one that feels inevitable the moment you hear it.
 
-The gold standard for this tool is 'The Dick Print' for Woody Marks — a nickname that works because it is specific, observable, and the moment you hear it you cannot unhear it. Aim for that level of specificity and inevitability.
+Priority order:
+1. Internet consensus — search for what the fantasy football community already calls this player. If there's an established nickname or running joke, use it.
+2. Recent news — on-field performance, controversies, current situation. Recent is better than old.
+3. Wordplay — only if genuinely earned. Can be witty or crudely observational. Never forced.
 
-Generate exactly one nickname. Then write exactly one sentence explaining why it fits — dry, specific, confident.
+The gold standard: "The Dick Print" for Woody Marks. Specific, observable, impossible to un-hear.
 
-Format: two lines. Line 1: the nickname only. Line 2: the explanation.
+Output exactly one line: the nickname only. 2-5 words maximum. No quotes, no punctuation, no explanation. Just the nickname.
 
-Rules: never racist, never sexist, never targeting genuinely private personal information. Crude is fine if it is earned. Generic is never acceptable.`
-              : `You are generating a nickname in the style of overwrought AI-generated football nicknames that have become a cultural joke in fantasy football circles — think 'Emerald City Route Merchant' for Jaxon Smith-Njigba. The nickname should be 3-5 words, unnecessarily poetic and grand, sounds like a fantasy novel character or a very serious LinkedIn job title. It should be completely committed to its own importance while being unintentionally hilarious. Reference the player's position, city, playing style, or physical traits but elevate them to absurd levels of significance.
+Rules: never racist, never sexist, never genuinely private information. Crude is fine if earned. Generic is never acceptable. "The Beast" is not a nickname. "The Dick Print" is.`
+              : `You are generating an overwrought, grandiose nickname in the style that has become a joke in fantasy football circles — think "Emerald City Route Merchant" for Jaxon Smith-Njigba. 3-5 words. Unnecessarily poetic. Sounds like a fantasy novel character or a LinkedIn job title that takes itself very seriously. Reference the player's position, city, playing style, or traits but elevate them to absurd significance. Commit fully to the bit.
 
-Generate exactly one nickname in this style. Then write exactly one sentence in the same grandiose tone explaining the nickname — as if you are describing a figure of historical importance.
-
-Format: two lines. Line 1: the nickname only. Line 2: the explanation in matching grandiose tone.
-
-Commit fully to the bit. No winking at the camera.`,
+Output exactly one line: the nickname only. No explanation, no punctuation after it, just the nickname.`
             messages: [{
               role: 'user',
               content: 'Player: ' + playerName + (context ? '\nContext: ' + context : '')
@@ -477,7 +488,7 @@ Commit fully to the bit. No winking at the camera.`,
 
         if (response.status === 429) {
           stopLoading();
-          renderError("You've been naming too many players. Come back in an hour.");
+          renderError("You've been naming players faster than they can get drafted. Come back in an hour.");
           return;
         }
         if (!response.ok) throw new Error('API error: ' + response.status);
@@ -495,14 +506,13 @@ Commit fully to the bit. No winking at the camera.`,
         if (!fullText) throw new Error('No text in response');
 
         // Split on newlines, take first two non-empty lines
-        const lines = fullText.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; });
-        const nickname    = lines[0] || '';
-        const explanation = lines[1] || '';
+        // Output is now nickname only — one line, no explanation
+        const nickname = fullText.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; })[0] || '';
 
         if (!nickname) throw new Error('Could not parse nickname from response');
 
         stopLoading();
-        renderResult(nickname, explanation);
+        renderResult(nickname, '');
 
       } catch (err) {
         stopLoading();

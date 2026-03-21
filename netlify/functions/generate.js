@@ -3,25 +3,31 @@
 // Proxies requests from the browser to the Anthropic API.
 // The API key never touches the browser.
 //
-// RATE LIMITING NOTE:
-// Uses an in-memory store — works for single-instance environments.
-// Serverless means separate instances won't share state, so the
-// real-world effective limit is higher than the number below.
-// Upgrade to Upstash Redis when traffic grows.
-//
-// RATE LIMIT: 20/hour per IP — enough for a real user (10+ generations),
-// not enough for systematic abuse. Drop to 10 if abuse becomes an issue.
+// RATE LIMITING:
+// Two separate counters per IP:
+//   - "nickname" tool: 30/hour (retry-heavy by design)
+//   - all other tools: 20/hour (shared — trash talk, etc.)
+// Uses in-memory store — serverless instances don't share state so
+// real-world effective limits are higher. Upgrade to Upstash Redis at scale.
 
-const ipRequestLog = {};
-const RATE_LIMIT = 20;
-const WINDOW_MS  = 60 * 60 * 1000; // 1 hour
+const ipRequestLog   = {};   // key: "ip"         — general tools
+const ipNicknameLog  = {};   // key: "ip:nickname" — nickname generator only
 
-function isRateLimited(ip) {
-  const now = Date.now();
-  if (!ipRequestLog[ip]) ipRequestLog[ip] = [];
-  ipRequestLog[ip] = ipRequestLog[ip].filter(ts => now - ts < WINDOW_MS);
-  if (ipRequestLog[ip].length >= RATE_LIMIT) return true;
-  ipRequestLog[ip].push(now);
+const RATE_LIMIT_GENERAL  = 20;
+const RATE_LIMIT_NICKNAME = 30;
+const WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
+function isRateLimited(ip, tool) {
+  const now   = Date.now();
+  const isNickname = tool === 'nickname';
+  const log   = isNickname ? ipNicknameLog : ipRequestLog;
+  const limit = isNickname ? RATE_LIMIT_NICKNAME : RATE_LIMIT_GENERAL;
+  const key   = isNickname ? ip + ':nickname' : ip;
+
+  if (!log[key]) log[key] = [];
+  log[key] = log[key].filter(ts => now - ts < WINDOW_MS);
+  if (log[key].length >= limit) return true;
+  log[key].push(now);
   return false;
 }
 
@@ -35,20 +41,7 @@ exports.handler = async function(event) {
     ? event.headers['x-forwarded-for'].split(',')[0].trim()
     : event.headers['client-ip'] || 'unknown';
 
-  if (isRateLimited(ip)) {
-    console.log('Rate limit hit for IP:', ip);
-    return {
-      statusCode: 429,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Rate limit exceeded' })
-    };
-  }
-
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return { statusCode: 500, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured' }) };
-  }
-
+  // Caller can pass { tool: 'nickname' } to use the separate nickname counter
   let payload;
   try {
     payload = JSON.parse(event.body);
@@ -56,7 +49,26 @@ exports.handler = async function(event) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
 
-  console.log('Model:', payload.model, '| IP:', ip);
+  const tool = payload.tool || 'general';
+
+  if (isRateLimited(ip, tool)) {
+    console.log('Rate limit hit for IP:', ip, '| tool:', tool);
+    return {
+      statusCode: 429,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Rate limit exceeded' })
+    };
+  }
+
+  // Remove tool field before forwarding — Anthropic API doesn't know about it
+  delete payload.tool;
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return { statusCode: 500, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured' }) };
+  }
+
+  console.log('Model:', payload.model, '| IP:', ip, '| tool:', tool);
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
