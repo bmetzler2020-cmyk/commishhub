@@ -149,10 +149,22 @@
     .schedule-panel.open { display:block; }
     .schedule-row { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px; }
     .schedule-input { width:100%;background:#0F0807;border:1px solid rgba(139,105,20,0.25);border-radius:6px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:rgba(250,247,240,0.8);outline:none;transition:border-color .15s;color-scheme:dark; }
+    body.input-mode .schedule-input[type="datetime-local"] {
+      color-scheme: light;
+      color: var(--text);
+      background: var(--bg);
+    }
+    /* Force calendar icon to match light mode — browser renders it dark-on-dark otherwise */
+    body.input-mode .schedule-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.4) sepia(1) saturate(2) hue-rotate(5deg);
+      opacity: 0.7;
+      cursor: pointer;
+    }
     .schedule-input:focus { border-color:rgba(139,105,20,0.6); }
     .schedule-btn { background:transparent;border:1.5px solid rgba(139,105,20,0.5);color:rgba(139,105,20,0.8);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;padding:10px 24px;border-radius:6px;cursor:pointer;transition:all .15s; }
     .schedule-btn:hover { background:rgba(139,105,20,0.1);border-color:rgba(139,105,20,0.8);color:#8B6914; }
     .schedule-success { display:none;text-align:center;padding:12px;color:rgba(139,105,20,0.8);font-size:.88rem; }
+    .schedule-success input[type="text"] { color-scheme: light; }
 
     /* Reveal state — pick cards */
     .picks-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:16px; }
@@ -438,7 +450,7 @@
             <button class="run-btn" id="run-btn" onclick="runLottery()" disabled>Run the Lottery</button>
           </div>
           <div class="schedule-toggle-wrap">
-            <button class="schedule-toggle-btn" onclick="toggleSchedule()">Want to reveal this with your league later? Schedule a reveal →</button>
+            <button class="schedule-toggle-btn" id="schedule-toggle-btn" onclick="toggleSchedule()">Want to reveal this with your league later? Schedule a reveal →</button>
           </div>
           <div class="schedule-panel" id="schedule-panel">
             <span class="input-label" style="margin-bottom:12px;">Schedule your reveal</span>
@@ -451,7 +463,7 @@
             <div class="schedule-success" id="schedule-success">
               <p style="color:rgba(139,105,20,0.8);font-size:.82rem;margin-bottom:10px;">✓ Reveal scheduled. Share this link with your league:</p>
               <div style="display:flex;gap:8px;align-items:center;">
-                <input id="reveal-link-input" type="text" readonly style="flex:1;background:#0F0807;border:1px solid rgba(139,105,20,0.4);border-radius:5px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:rgba(250,247,240,0.8);outline:none;cursor:text;" />
+                <input id="reveal-link-input" type="text" readonly style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:rgba(250,247,240,0.8);outline:none;cursor:text;" />
                 <button onclick="copyRevealLink()" id="copy-reveal-btn" style="background:rgba(139,105,20,0.2);border:1px solid rgba(139,105,20,0.4);border-radius:5px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;color:rgba(139,105,20,0.9);cursor:pointer;white-space:nowrap;transition:background .15s;">Copy</button>
               </div>
               <a id="reveal-link" href="#" target="_blank" style="display:block;margin-top:8px;font-size:.72rem;color:rgba(139,105,20,0.5);word-break:break-all;"></a>
@@ -488,14 +500,14 @@
           <div class="more-card-icon" aria-hidden="true">🎡</div>
           <span class="badge-live">Live Now</span>
           <h3>Loser Punishment Wheel</h3>
-          <p>Make finishing last mean something.</p>
+          <p>Spin it. Accept the verdict. Or spin again and let fate decide if it gets worse.</p>
           <span class="more-card-arrow">Spin it →</span>
         </a>
         <a href="/player-nickname-generator/" class="more-card live">
           <div class="more-card-icon" aria-hidden="true">🏷️</div>
           <span class="badge-live">Live Now</span>
           <h3>Player Nickname Generator</h3>
-          <p>Names that stick all season long.</p>
+          <p>Every player has a nickname they don't know about yet. Some are obvious. Some are inevitable. One sounds like a job title on a very impressive resume.</p>
           <span class="more-card-arrow">Try it →</span>
         </a>
       </div>
@@ -654,7 +666,12 @@
       document.querySelectorAll('[id^="balls-wrap-"]').forEach(w => w.classList.toggle('visible', isWeighted));
     }
 
-    function toggleSchedule() { document.getElementById('schedule-panel').classList.toggle('open'); }
+    function toggleSchedule() {
+      const panel  = document.getElementById('schedule-panel');
+      const btn    = document.getElementById('schedule-toggle-btn');
+      const isOpen = panel.classList.toggle('open');
+      btn.textContent = isOpen ? '× Close' : 'Want to reveal this with your league later? Schedule a reveal →';
+    }
 
     async function scheduleReveal() {
       const revealTime = document.getElementById('reveal-time').value;

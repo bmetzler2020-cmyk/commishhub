@@ -106,9 +106,44 @@
       .picks-grid { grid-template-columns:1fr; }
       .atmo-left, .atmo-right { display:none; }
     }
+
+    /* ── Tap to reveal overlay ── */
+    #tap-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: #0A0705;
+      flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 40px 24px;
+      cursor: pointer; user-select: none;
+    }
+    #tap-overlay.visible { display: flex; }
+    .tap-league-name {
+      font-family: 'Lora', serif; font-size: clamp(.9rem, 2.5vw, 1.3rem);
+      font-weight: 700; color: #FAF7F0; letter-spacing: .14em;
+      text-transform: uppercase; opacity: .45; margin-bottom: 52px;
+    }
+    .tap-prompt {
+      font-family: 'Lora', serif;
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      font-weight: 700; color: #F0D080; letter-spacing: .02em;
+      margin-bottom: 20px;
+      animation: tapPulse 2.2s ease-in-out infinite;
+    }
+    .tap-sub { font-size: .95rem; color: rgba(250,247,240,0.3); font-style: italic; }
+    @keyframes tapPulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.45; }
+    }
   </style>
 </head>
 <body>
+
+  <!-- Tap-to-reveal — required for audio to work on mobile and most browsers -->
+  <div id="tap-overlay" onclick="onTapReveal()" role="button" aria-label="Tap to begin the reveal">
+    <p class="tap-league-name" id="tap-league-name">CommishHub Draft Lottery</p>
+    <p class="tap-prompt">Tap to reveal.</p>
+    <p class="tap-sub">The pick is in.</p>
+  </div>
 
   <div class="atmo-left"  aria-hidden="true"></div>
   <div class="atmo-right" aria-hidden="true"></div>
@@ -149,6 +184,7 @@
     let chimeAudio    = null;
     let applauseAudio = null;
     let isMuted       = false;
+    let pendingReveal = null; // set when data loads, consumed on tap
 
     // Preload audio
     chimeAudio    = new Audio('/audio/chime.mp3');
@@ -233,6 +269,28 @@
     if (!revealId) { showError(); }
     else { loadReveal(); }
 
+    function onTapReveal() {
+      if (!pendingReveal) return;
+      const { shuffled, speed } = pendingReveal;
+      pendingReveal = null;
+
+      document.getElementById('tap-overlay').classList.remove('visible');
+      document.getElementById('board-wrap').style.display = 'block';
+      document.getElementById('picks-grid').style.display = 'grid';
+
+      // User gesture — audio context and all audio will now work
+      ensureAudioCtx();
+      document.getElementById('board').classList.add('pulsing');
+      playRumble(1600);
+      setTimeout(() => {
+        playChime();
+        const chimeWait = chimeAudio
+          ? Math.ceil((chimeAudio.duration || 1.5) * 1000) + 2000
+          : 3500;
+        setTimeout(() => startRevealSequence(shuffled, speed), chimeWait);
+      }, 900);
+    }
+
     async function loadReveal() {
       try {
         const res  = await fetch(`/.netlify/functions/get-reveal?id=${encodeURIComponent(revealId)}`);
@@ -248,19 +306,15 @@
         document.getElementById('board-wrap').style.display    = 'block';
 
         if (data.ready) {
-          // Start reveal sequence immediately
-          ensureAudioCtx();
+          // Store for tap — audio requires a direct user gesture first
+          pendingReveal = { shuffled: data.shuffled, speed: data.speed || 'default' };
           buildPickCards(data.shuffled);
-          document.getElementById('picks-grid').style.display = 'grid';
-          document.getElementById('board').classList.add('pulsing');
-          playRumble(1600);
-          setTimeout(() => {
-            playChime();
-            const chimeWait = chimeAudio
-              ? Math.ceil((chimeAudio.duration || 1.5) * 1000) + 2000
-              : 3500;
-            setTimeout(() => startRevealSequence(data.shuffled, data.speed || 'default'), chimeWait);
-          }, 900);
+          // Show tap overlay (hides board until user taps)
+          const tapLeague = document.getElementById('tap-league-name');
+          if (data.leagueName) tapLeague.textContent = data.leagueName;
+          document.getElementById('loading-state').style.display = 'none';
+          document.getElementById('board-wrap').style.display    = 'none';
+          document.getElementById('tap-overlay').classList.add('visible');
         } else {
           // Show countdown inside the dark board
           document.getElementById('countdown-overlay').classList.add('visible');

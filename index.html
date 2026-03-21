@@ -236,7 +236,7 @@
             <div class="tool-icon" aria-hidden="true">🎡</div>
             <span class="badge badge-gold">Live Now</span>
             <h3>Loser Punishment Wheel</h3>
-            <p>Placeholder — real copy coming after tool is designed.</p>
+            <p>Spin it. Accept the verdict. Or spin again and let fate decide if it gets worse.</p>
             <span class="tool-arrow" aria-hidden="true">Spin it →</span>
           </div>
 
@@ -244,43 +244,44 @@
             <div class="tool-icon" aria-hidden="true">🎲</div>
             <span class="badge badge-gold">Live Now</span>
             <h3>Draft Order Randomizer</h3>
-            <p>Placeholder — real copy coming after tool is designed.</p>
+            <p>Enter your teams. Hit the button. Watch your league's draft fate get decided by something more official than pulling names from a hat.</p>
             <span class="tool-arrow" aria-hidden="true">Randomize →</span>
           </div>
 
-          <div class="tool-card">
+          <div class="tool-card live" onclick="window.location='/player-nickname-generator/'" role="link" aria-label="Try the Player Nickname Generator">
             <div class="tool-icon" aria-hidden="true">🏷️</div>
-            <span class="badge badge-soon">Coming Soon</span>
+            <span class="badge badge-gold">Live Now</span>
             <h3>Player Nickname Generator</h3>
-            <p>Placeholder — real copy coming after tool is designed.</p>
+            <p>Every player has a nickname they don't know about yet. Some are obvious. Some are inevitable. Enter a name.</p>
+            <span class="tool-arrow" aria-hidden="true">Find the nickname →</span>
           </div>
 
           <div class="tool-card">
             <div class="tool-icon sage-icon" aria-hidden="true">📋</div>
             <span class="badge badge-soon">Coming Soon</span>
             <h3>New Commissioner Wizard</h3>
-            <p>Placeholder — real copy coming after tool is designed.</p>
+            <p>Everything a first-time commissioner needs to set up a league that doesn't fall apart by week three.</p>
           </div>
 
           <div class="tool-card">
             <div class="tool-icon sage-icon" aria-hidden="true">📜</div>
             <span class="badge badge-soon">Coming Soon</span>
             <h3>League Rules Generator</h3>
-            <p>Placeholder — real copy coming after tool is designed.</p>
+            <p>A complete rulebook your league can actually agree on. Covers scoring, trades, waivers, and the disputes you haven't had yet.</p>
           </div>
 
           <div class="tool-card">
             <div class="tool-icon sage-icon" aria-hidden="true">⚖️</div>
             <span class="badge badge-soon">Coming Soon</span>
             <h3>AI Commissioner Ruling Assistant</h3>
-            <p>Placeholder — real copy coming after tool is designed.</p>
+            <p>Someone started someone on bye. Someone traded a player mid-game. The AI doesn't take sides — it just reads the rules and tells you what happened.</p>
           </div>
 
           <div class="tool-card">
             <div class="tool-icon sage-icon" aria-hidden="true">🔍</div>
             <span class="badge badge-soon">Coming Soon</span>
             <h3>Platform Comparison Tool</h3>
-            <p>Placeholder — real copy coming after tool is designed.</p>
+            <p>ESPN, Sleeper, Yahoo, NFL.com — every platform compared side by side so you can stop arguing about it and start arguing about something that matters.</p>
           </div>
 
         </div>
@@ -389,7 +390,6 @@
         return;
       }
 
-      // Disable button while submitting
       btn.disabled = true;
       btn.textContent = 'Saving...';
 
@@ -408,13 +408,11 @@
           document.getElementById('emailForm').style.display = 'none';
           document.getElementById('emailSuccess').style.display = 'block';
         } else {
-          // Function failed — still show success to user, log error
           console.error('Email save failed:', res.status);
           document.getElementById('emailForm').style.display = 'none';
           document.getElementById('emailSuccess').style.display = 'block';
         }
       } catch (err) {
-        // Network error — show success anyway, don't frustrate the user
         console.error('Email save error:', err);
         document.getElementById('emailForm').style.display = 'none';
         document.getElementById('emailSuccess').style.display = 'block';
