@@ -7,9 +7,7 @@
   <meta name="robots" content="noindex" />
 
   <link rel="icon" type="image/x-icon" href="/icons/favicon.ico" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
-  <link rel="manifest" href="/site.webmanifest" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,143 +16,122 @@
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
     body {
-      background: #0A0705;
-      color: #FAF7F0;
+      background: #0A0705; color: #FAF7F0;
       font-family: 'DM Sans', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start;
+      padding: 48px 20px 80px;
       -webkit-font-smoothing: antialiased;
     }
 
+    /* Atmosphere */
+    .atmo-left, .atmo-right {
+      position: fixed; top: 0; width: 35vw; height: 70vh; pointer-events: none; z-index: 0;
+    }
+    .atmo-left  { left:0;  background: radial-gradient(ellipse at 20% 0%, rgba(139,105,20,0.09) 0%, transparent 65%); }
+    .atmo-right { right:0; background: radial-gradient(ellipse at 80% 0%, rgba(139,105,20,0.09) 0%, transparent 65%); }
+
+    /* League name */
     .league-name {
-      font-family: 'Lora', serif;
-      font-size: clamp(1rem, 3vw, 1.6rem);
-      color: #FAF7F0;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      text-align: center;
-      margin-bottom: 48px;
-      opacity: .6;
+      position: relative; z-index: 1;
+      font-family: 'Lora', serif; font-size: clamp(.9rem, 2.5vw, 1.2rem);
+      font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+      color: #FAF7F0; opacity: .55; text-align: center; margin-bottom: 32px;
     }
 
-    /* ── Countdown ── */
-    #countdown-state { text-align: center; }
-    .countdown-label {
-      font-size: .72rem; font-weight: 600;
-      letter-spacing: .1em; text-transform: uppercase;
-      color: rgba(139,105,20,0.7); margin-bottom: 20px;
-    }
-    .countdown-display {
-      font-family: 'Lora', serif;
-      font-size: clamp(3rem, 10vw, 6rem);
-      font-weight: 700; color: #F0D080;
-      letter-spacing: .04em; line-height: 1;
-      margin-bottom: 24px;
-    }
-    .countdown-sub {
-      font-size: 1rem;
-      color: rgba(250,247,240,0.4);
-      font-style: italic;
-    }
-
-    /* ── Board reveal — hidden until ready ── */
-    #reveal-state {
-      display: none;  /* CRITICAL: hidden on load, shown only when ready */
-      width: 100%;
-      max-width: 960px;
-    }
+    /* Board */
+    .board-wrap { position: relative; z-index: 1; width: min(960px, 92vw); margin: 0 auto; }
     .board {
       background: #1A0F07;
       border: 2px solid rgba(139,105,20,0.6);
-      box-shadow: 0 0 40px rgba(139,105,20,0.2), 0 0 80px rgba(139,105,20,0.08),
-                  inset 0 1px 0 rgba(139,105,20,0.18);
-      border-radius: 8px;
-      padding: 32px;
-      width: 100%;
+      box-shadow: 0 0 40px rgba(139,105,20,0.2), 0 0 80px rgba(139,105,20,0.08), inset 0 1px 0 rgba(139,105,20,0.18);
+      border-radius: 8px; padding: 32px; width: 100%;
     }
-    .picks-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-    .pick-card {
-      background: #0F0807;
-      border: 1px solid rgba(139,105,20,0.2);
-      border-left: 2px solid rgba(139,105,20,0.35);
-      border-radius: 6px;
-      padding: 14px 18px;
-      opacity: 0;
-    }
-    .pick-number {
-      font-size: 10px; font-weight: 600;
-      letter-spacing: .1em; text-transform: uppercase;
-      color: #8B6914; margin-bottom: 6px;
-    }
-    .pick-name {
-      font-family: 'Lora', serif;
-      font-size: clamp(1rem, 2.5vw, 1.2rem);
-      color: #8B6914;
-      min-height: 1.4em;
-      letter-spacing: .02em;
-      transition: color .3s;
-    }
-    .pick-name.settled { color: #FAF7F0; }
 
-    /* ── Error ── */
-    #error-state {
+    /* Countdown overlay — shown over the dark board */
+    #countdown-overlay {
       display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      padding: 48px 20px;
       text-align: center;
-      color: rgba(250,247,240,0.5);
     }
-    #error-state h2 {
-      font-family: 'Lora', serif;
-      color: #F0D080; margin-bottom: 12px;
-    }
-    #error-state a { color: #8B6914; text-decoration: none; }
+    #countdown-overlay.visible { display: flex; }
+    .countdown-label { font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(139,105,20,0.7);margin-bottom:20px; }
+    .countdown-display { font-family:'Lora',serif;font-size:clamp(3rem,10vw,5.5rem);font-weight:700;color:#F0D080;letter-spacing:.04em;line-height:1;margin-bottom:24px; }
+    .countdown-sub { font-size:1rem;color:rgba(250,247,240,0.4);font-style:italic; }
 
-    /* ── Loading ── */
-    #loading-state {
-      text-align: center;
-      color: rgba(250,247,240,0.35);
-      font-size: .88rem;
-      font-style: italic;
-    }
+    /* Picks grid */
+    .picks-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
 
-    @media (max-width: 600px) {
-      .picks-grid { grid-template-columns: 1fr; }
-      .board { padding: 20px 16px; }
+    .pick-card {
+      background: #0D0906; border: 1px solid rgba(139,105,20,0.12);
+      border-radius: 8px; padding: 18px 20px 16px;
+      position: relative; overflow: hidden;
+    }
+    .pick-card-sweep {
+      position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(240,208,128,0.13), transparent);
+      pointer-events: none;
+    }
+    .pick-num {
+      font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(139,105,20,0.35); margin-bottom: 10px; transition: color 0.4s;
+    }
+    .pick-card.lit .pick-num { color: #8B6914; }
+    .pick-name {
+      font-family: 'Lora', serif; font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+      color: #FAF7F0; line-height: 1.15; letter-spacing: .01em; min-height: 1.3em; opacity: 0;
+    }
+    .pick-name.long-name { font-size: clamp(1.1rem, 2.4vw, 1.6rem); }
+    .pick-card.waiting  { opacity: 1; border-color: rgba(139,105,20,0.12); box-shadow: none; }
+    .pick-card.active   { border-color: rgba(139,105,20,0.65); box-shadow: 0 0 22px rgba(139,105,20,0.28), inset 0 0 20px rgba(139,105,20,0.04); }
+    .pick-card.revealed { border-color: rgba(139,105,20,0.32); box-shadow: 0 0 10px rgba(139,105,20,0.1); }
+
+    /* Loading */
+    #loading-state { position:relative;z-index:1;text-align:center;color:rgba(250,247,240,0.3);font-size:.88rem;font-style:italic; }
+
+    /* Error */
+    #error-state { display:none;position:relative;z-index:1;text-align:center;color:rgba(250,247,240,0.5);max-width:400px; }
+    #error-state h2 { font-family:'Lora',serif;color:#F0D080;margin-bottom:12px;font-size:1.4rem; }
+    #error-state a { color:#8B6914;text-decoration:none; }
+
+    @media (max-width:600px) {
+      .board { padding:20px 16px; }
+      .picks-grid { grid-template-columns:1fr; }
+      .atmo-left, .atmo-right { display:none; }
     }
   </style>
 </head>
 <body>
 
+  <div class="atmo-left"  aria-hidden="true"></div>
+  <div class="atmo-right" aria-hidden="true"></div>
+
   <p class="league-name" id="league-name-display">CommishHub Draft Lottery</p>
 
-  <!-- Loading — shown first while we fetch -->
+  <!-- Loading -->
   <div id="loading-state">Loading reveal...</div>
 
-  <!-- Countdown — shown when time hasn't arrived yet -->
-  <div id="countdown-state" style="display:none;">
-    <p class="countdown-label">Reveal begins in</p>
-    <div class="countdown-display" id="countdown-timer">--:--:--</div>
-    <p class="countdown-sub">The pick is in. Hang tight.</p>
-  </div>
+  <!-- Board — always rendered dark, countdown or reveal happens inside -->
+  <div class="board-wrap" id="board-wrap" style="display:none;">
+    <div class="board" id="board">
 
-  <!-- Reveal board — shown only when ready to animate -->
-  <div id="reveal-state" style="display:none;">
-    <div class="board">
-      <div class="picks-grid" id="picks-grid"></div>
+      <!-- Countdown overlaid on dark board -->
+      <div id="countdown-overlay">
+        <p class="countdown-label">Reveal begins in</p>
+        <div class="countdown-display" id="countdown-timer">--:--:--</div>
+        <p class="countdown-sub">The pick is in. Hang tight.</p>
+      </div>
+
+      <!-- Pick cards — built by JS when ready -->
+      <div class="picks-grid" id="picks-grid" style="display:none;"></div>
+
     </div>
   </div>
 
   <!-- Error -->
-  <div id="error-state" style="display:none;">
+  <div id="error-state">
     <h2>Reveal not found.</h2>
     <p>This link may have expired or the ID is incorrect.<br/>
        <a href="/draft-order-randomizer/">Create a new one →</a>
@@ -162,177 +139,239 @@
   </div>
 
   <script>
-    // ── Helpers ───────────────────────────────────────────
-    function show(id)  { document.getElementById(id).style.display = 'block'; }
-    function hide(id)  { document.getElementById(id).style.display = 'none'; }
-    function showError() { hide('loading-state'); hide('countdown-state'); hide('reveal-state'); show('error-state'); }
+    // ── State ──
+    let audioCtx      = null;
+    let chimeAudio    = null;
+    let applauseAudio = null;
+    let isMuted       = false;
 
-    // ── Get reveal ID ─────────────────────────────────────
+    // Preload audio
+    chimeAudio    = new Audio('/audio/chime.mp3');
+    applauseAudio = new Audio('/audio/applause.mp3');
+    chimeAudio.preload = applauseAudio.preload = 'auto';
+
+    function ensureAudioCtx() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playRumble(durationMs) {
+      if (!audioCtx) return;
+      const dur = durationMs / 1000;
+      const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * dur, audioCtx.sampleRate);
+      const data = buf.getChannelData(0);
+      let last = 0;
+      for (let i = 0; i < data.length; i++) {
+        const w = Math.random() * 2 - 1;
+        last = (last + 0.02 * w) / 1.02;
+        data[i] = last * 3.5;
+      }
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass'; filter.frequency.value = 90; filter.Q.value = 0.8;
+      const gain = audioCtx.createGain();
+      const now  = audioCtx.currentTime;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.18, now + 0.6);
+      gain.gain.linearRampToValueAtTime(0.12, now + dur - 0.3);
+      gain.gain.linearRampToValueAtTime(0, now + dur);
+      src.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+      src.start(); src.stop(now + dur);
+    }
+
+    function playRevealTone() {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine'; osc.frequency.value = 440;
+      const now = audioCtx.currentTime;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.22, now + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(now + 0.65);
+    }
+
+    function playChime() {
+      if (!chimeAudio) return;
+      chimeAudio.currentTime = 0; chimeAudio.play().catch(() => {});
+    }
+
+    function playApplause() {
+      if (!applauseAudio) return;
+      applauseAudio.currentTime = 0; applauseAudio.volume = 0;
+      applauseAudio.play().catch(() => {});
+      const start = performance.now(), maxVol = 0.55, fadeInMs = 400, holdMs = 5000, fadeOutMs = 800;
+      function fadeIn(now) {
+        const t = Math.min((now - start) / fadeInMs, 1);
+        applauseAudio.volume = t * maxVol;
+        if (t < 1) requestAnimationFrame(fadeIn); else setTimeout(startFadeOut, holdMs);
+      }
+      function startFadeOut() {
+        const fs = performance.now();
+        function fadeOut(now) {
+          const t = Math.min((now - fs) / fadeOutMs, 1);
+          if (applauseAudio) applauseAudio.volume = maxVol * (1 - t);
+          if (t < 1) requestAnimationFrame(fadeOut);
+          else if (applauseAudio) { applauseAudio.pause(); applauseAudio.currentTime = 0; }
+        }
+        requestAnimationFrame(fadeOut);
+      }
+      requestAnimationFrame(fadeIn);
+    }
+
+    // ── Load reveal ──
     const params   = new URLSearchParams(window.location.search);
     const revealId = params.get('id');
 
-    if (!revealId) {
-      showError();
-    } else {
-      loadReveal();
-    }
+    if (!revealId) { showError(); }
+    else { loadReveal(); }
 
-    // ── Load reveal data ───────────────────────────────────
     async function loadReveal() {
       try {
-        const res = await fetch(`/.netlify/functions/get-reveal?id=${encodeURIComponent(revealId)}`);
-
-        if (!res.ok) {
-          console.error('get-reveal returned', res.status);
-          showError();
-          return;
-        }
-
+        const res  = await fetch(`/.netlify/functions/get-reveal?id=${encodeURIComponent(revealId)}`);
+        if (!res.ok) { showError(); return; }
         const data = await res.json();
+        if (data.error) { showError(); return; }
 
-        if (data.error) {
-          console.error('get-reveal error:', data.error);
-          showError();
-          return;
-        }
-
-        // Update league name display
         if (data.leagueName) {
           document.getElementById('league-name-display').textContent = data.leagueName;
         }
 
-        hide('loading-state');
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('board-wrap').style.display    = 'block';
 
         if (data.ready) {
-          // Reveal time has passed — start animation
-          beginReveal(data.shuffled, data.speed || 'default');
+          // Start reveal sequence immediately
+          ensureAudioCtx();
+          buildPickCards(data.shuffled);
+          document.getElementById('picks-grid').style.display = 'grid';
+          playRumble(1600);
+          setTimeout(() => {
+            playChime();
+            const chimeWait = chimeAudio
+              ? Math.ceil((chimeAudio.duration || 1.5) * 1000) + 2000
+              : 3500;
+            setTimeout(() => startRevealSequence(data.shuffled, data.speed || 'default'), chimeWait);
+          }, 900);
         } else {
-          // Not yet — show countdown, poll every second
-          show('countdown-state');
-          startCountdown(data.revealTime, data.shuffled ? data : null);
+          // Show countdown inside the dark board
+          document.getElementById('countdown-overlay').classList.add('visible');
+          startCountdown(data.revealTime);
         }
-
       } catch (err) {
         console.error('loadReveal error:', err);
         showError();
       }
     }
 
-    // ── Countdown ──────────────────────────────────────────
-    // revealTime is a UTC ISO string stored by the server
+    // ── Countdown ──
     function startCountdown(revealTimeUTC) {
       const revealAt = new Date(revealTimeUTC).getTime();
       const timerEl  = document.getElementById('countdown-timer');
 
-      // Safety check — if time is invalid, show error
-      if (isNaN(revealAt)) {
-        console.error('Invalid revealTime:', revealTimeUTC);
-        showError();
-        return;
-      }
-
-      // If already past for some reason, reload to get fresh data
-      if (Date.now() >= revealAt) {
-        loadReveal();
-        return;
-      }
+      if (isNaN(revealAt)) { showError(); return; }
+      if (Date.now() >= revealAt) { loadReveal(); return; }
 
       function tick() {
         const remaining = revealAt - Date.now();
-
         if (remaining <= 0) {
-          // Time's up — fetch fresh data which will now return ready:true
           timerEl.textContent = '00:00:00';
           setTimeout(loadReveal, 500);
           return;
         }
-
         const h = Math.floor(remaining / 3600000);
         const m = Math.floor((remaining % 3600000) / 60000);
         const s = Math.floor((remaining % 60000) / 1000);
-
-        timerEl.textContent =
-          String(h).padStart(2, '0') + ':' +
-          String(m).padStart(2, '0') + ':' +
-          String(s).padStart(2, '0');
-
+        timerEl.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
         setTimeout(tick, 1000);
       }
-
       tick();
     }
 
-    // ── Begin reveal ───────────────────────────────────────
-    function beginReveal(shuffled, speed) {
-      hide('countdown-state');
-      show('reveal-state');
-
+    // ── Build cards ──
+    function buildPickCards(order) {
       const grid = document.getElementById('picks-grid');
       grid.innerHTML = '';
-
-      shuffled.forEach((name, i) => {
+      order.forEach((name, i) => {
         const card = document.createElement('div');
-        card.className = 'pick-card';
-        card.id = `rcard-${i}`;
+        card.className = 'pick-card waiting';
+        card.id = `pick-card-${i}`;
         card.innerHTML = `
-          <div class="pick-number">Pick ${i + 1}</div>
-          <div class="pick-name" id="rname-${i}"></div>
-        `;
+          <div class="pick-card-sweep" id="sweep-${i}"></div>
+          <div class="pick-num" id="pick-num-${i}">Pick ${i + 1}</div>
+          <div class="pick-name${name.length > 14 ? ' long-name' : ''}" id="pick-name-${i}"></div>`;
         grid.appendChild(card);
       });
+    }
 
-      const delays = { fast: 1500, default: 3000, slow: 6000 };
-      const delay  = delays[speed] || 3000;
+    // ── Reveal sequence — identical to main tool ──
+    const speedDelays = { fast: 1500, default: 3000, slow: 6000 };
+
+    function startRevealSequence(shuffled, speed) {
+      // Hide countdown if showing
+      document.getElementById('countdown-overlay').classList.remove('visible');
+      document.getElementById('picks-grid').style.display = 'grid';
+
+      const delay = speedDelays[speed] || 3000;
+      let elapsed = 0;
 
       shuffled.forEach((name, i) => {
-        setTimeout(() => revealCard(i, name), i * delay + 800);
+        const holdMs = Math.max(800, 2000 - i * 100);
+        setTimeout(() => revealPick(i, name, holdMs), elapsed);
+        elapsed += delay;
       });
+
+      const lastHold = Math.max(800, 2000 - (shuffled.length - 1) * 100);
+      setTimeout(onAllRevealed, elapsed - delay + lastHold + 600);
     }
 
-    function revealCard(idx, name) {
-      const card   = document.getElementById(`rcard-${idx}`);
-      const nameEl = document.getElementById(`rname-${idx}`);
+    function revealPick(idx, name, holdBeforeName) {
+      const card   = document.getElementById(`pick-card-${idx}`);
+      const nameEl = document.getElementById(`pick-name-${idx}`);
+      const sweep  = document.getElementById(`sweep-${idx}`);
 
-      gsap.to(card, {
-        opacity: 1, duration: 0.25,
-        onComplete: () => {
-          card.style.borderColor      = 'rgba(139,105,20,0.7)';
-          card.style.boxShadow        = '0 0 16px rgba(139,105,20,0.3)';
-          splitFlap(nameEl, name, 1100, () => {
-            nameEl.classList.add('settled');
-            card.style.borderColor = 'rgba(139,105,20,0.45)';
-            card.style.boxShadow   = '0 0 8px rgba(139,105,20,0.15)';
-          });
+      card.classList.remove('waiting');
+      card.classList.add('active', 'lit');
+
+      gsap.fromTo(sweep,
+        { left: '-65%', opacity: 1 },
+        { left: '115%', duration: 0.6, ease: 'power2.inOut',
+          onComplete: () => { sweep.style.opacity = '0'; }
         }
-      });
-    }
+      );
 
-    // ── Split-flap ─────────────────────────────────────────
-    function splitFlap(el, finalText, duration, onComplete) {
-      const chars       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -';
-      const totalFrames = Math.floor(duration / 90);
-      let frame = 0;
-
-      function tick() {
-        frame++;
-        const progress = frame / totalFrames;
-        let display = '';
-        for (let i = 0; i < finalText.length; i++) {
-          if (i < Math.floor(progress * finalText.length * 1.5)) {
-            display += finalText[i].toUpperCase();
-          } else {
-            display += chars[Math.floor(Math.random() * chars.length)];
+      setTimeout(() => {
+        nameEl.textContent = name.toUpperCase();
+        gsap.to(nameEl, {
+          opacity: 1, duration: 0.2, ease: 'power2.out',
+          onComplete: () => {
+            playRevealTone();
+            card.classList.remove('active');
+            card.classList.add('revealed');
           }
-        }
-        el.textContent = display;
-        if (frame < totalFrames) {
-          requestAnimationFrame(tick);
-        } else {
-          el.textContent = finalText.toUpperCase();
-          if (onComplete) onComplete();
-        }
-      }
-      requestAnimationFrame(tick);
+        });
+      }, holdBeforeName);
+    }
+
+    function onAllRevealed() {
+      playApplause();
+      gsap.to('.pick-card.revealed', {
+        borderColor: 'rgba(139,105,20,0.5)',
+        boxShadow: '0 0 18px rgba(139,105,20,0.2)',
+        duration: 1.0, ease: 'power2.out', stagger: 0.03
+      });
+      gsap.to('#board', {
+        boxShadow: '0 0 60px rgba(139,105,20,0.4), 0 0 120px rgba(139,105,20,0.14), inset 0 1px 0 rgba(139,105,20,0.28)',
+        duration: 1.0, ease: 'power2.out'
+      });
+    }
+
+    function showError() {
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('board-wrap').style.display    = 'none';
+      document.getElementById('error-state').style.display   = 'block';
     }
   </script>
 

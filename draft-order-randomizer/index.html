@@ -27,425 +27,189 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
-
-  <!-- GSAP for all reveal animations -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
   <style>
-    /* ── Page resets for cinematic layout ── */
-    body { background: #0A0705; }
+    .seo-h1 { position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0; }
 
-    /* SEO H1 — in DOM but not visible in the experience */
-    .seo-h1 {
-      position: absolute; width: 1px; height: 1px;
-      overflow: hidden; clip: rect(0,0,0,0);
-      white-space: nowrap; border: 0;
+    /* Page transitions light → dark */
+    body { transition: background 0.8s ease; }
+    body.reveal-mode { background: #0A0705; }
+
+    /* Full-page overlay for theater-lights-down effect */
+    #theater-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: #0A0705; opacity: 0; pointer-events: none;
     }
 
-    /* ── Atmosphere: light cone gradients ── */
-    .atmo-cone-left,
-    .atmo-cone-right {
+    /* Atmosphere — only visible in reveal mode */
+    .atmo-cone-left, .atmo-cone-right {
       position: fixed; top: 0; width: 35vw; height: 70vh;
-      pointer-events: none; z-index: 0;
+      pointer-events: none; z-index: 1; opacity: 0; transition: opacity 1.2s;
     }
-    .atmo-cone-left {
-      left: 0;
-      background: radial-gradient(ellipse at 20% 0%, rgba(139,105,20,0.07) 0%, transparent 65%);
-    }
-    .atmo-cone-right {
-      right: 0;
-      background: radial-gradient(ellipse at 80% 0%, rgba(139,105,20,0.07) 0%, transparent 65%);
-    }
+    .atmo-cone-left  { left:0;  background: radial-gradient(ellipse at 20% 0%, rgba(139,105,20,0.09) 0%, transparent 65%); }
+    .atmo-cone-right { right:0; background: radial-gradient(ellipse at 80% 0%, rgba(139,105,20,0.09) 0%, transparent 65%); }
+    body.reveal-mode .atmo-cone-left,
+    body.reveal-mode .atmo-cone-right { opacity: 1; }
 
-    /* ── Crowd silhouette strip ── */
-    .crowd-strip {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      height: 48px; z-index: 0; pointer-events: none;
-      overflow: hidden;
-    }
+    nav { position: relative; z-index: 600; }
+    .mobile-nav { z-index: 601; }
 
-    /* ── Page scaffold ── */
     .page-wrap {
-      position: relative; z-index: 1;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 0 0 100px;
+      position: relative; z-index: 2;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; padding: 0 0 100px;
     }
 
-    /* ── Nav override for dark page ── */
-    nav { position: relative; z-index: 100; }
-
-    /* ── League name above board ── */
-    .above-board {
-      width: min(960px, 92vw);
-      text-align: center;
-      margin: 32px auto 12px;
-    }
+    .above-board { width: min(960px, 92vw); text-align: center; margin: 32px auto 12px; }
     .above-board-text {
-      font-family: 'Lora', serif;
-      font-size: .85rem;
-      font-weight: 700;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: #FAF7F0;
-      opacity: .55;
+      font-family: 'Lora', serif; font-size: .85rem; font-weight: 700;
+      letter-spacing: .14em; text-transform: uppercase; color: #FAF7F0; opacity: .55;
     }
 
-    /* ── The Board ── */
-    .board-wrap {
-      width: min(960px, 92vw);
-      margin: 0 auto;
-    }
+    .board-wrap { width: min(960px, 92vw); margin: 0 auto; }
     .board {
       background: #1A0F07;
       border: 2px solid rgba(139,105,20,0.6);
-      box-shadow: 0 0 40px rgba(139,105,20,0.2), 0 0 80px rgba(139,105,20,0.08),
-                  inset 0 1px 0 rgba(139,105,20,0.18);
-      border-radius: 8px;
-      padding: 32px;
-      position: relative;
+      box-shadow: 0 0 40px rgba(139,105,20,0.2), 0 0 80px rgba(139,105,20,0.08), inset 0 1px 0 rgba(139,105,20,0.18);
+      border-radius: 8px; padding: 32px; position: relative;
     }
 
-    /* ── Mute button ── */
     .mute-btn {
-      position: absolute; top: 16px; right: 16px;
-      background: none; border: none; cursor: pointer;
-      color: rgba(139,105,20,0.6); padding: 6px;
-      transition: color .15s;
-      z-index: 10;
+      position: absolute; top: 16px; right: 16px; background: none; border: none;
+      cursor: pointer; color: rgba(139,105,20,0.6); padding: 6px; transition: color .15s; z-index: 10;
     }
     .mute-btn:hover { color: rgba(139,105,20,1); }
     .mute-btn svg { display: block; }
 
-    /* ── Team count selector ── */
+    /* Input state */
     .count-section { margin-bottom: 28px; }
-    .input-label {
-      font-size: .72rem;
-      font-weight: 600;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: #8B6914;
-      margin-bottom: 10px;
-      display: block;
-    }
-    .count-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-    .count-btn {
-      width: 40px; height: 40px;
-      border-radius: 6px;
-      border: 1.5px solid rgba(139,105,20,0.3);
-      background: transparent;
-      color: rgba(250,247,240,0.5);
-      font-family: 'DM Sans', sans-serif;
-      font-size: .9rem; font-weight: 600;
-      cursor: pointer;
-      transition: all .15s;
-    }
-    .count-btn:hover { border-color: rgba(139,105,20,0.7); color: #FAF7F0; }
-    .count-btn.active {
-      background: #8B6914; border-color: #8B6914; color: #fff;
-    }
+    .input-label { font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#8B6914;margin-bottom:10px;display:block; }
+    .count-btns { display:flex;gap:8px;flex-wrap:wrap; }
+    .count-btn { width:40px;height:40px;border-radius:6px;border:1.5px solid rgba(139,105,20,0.3);background:transparent;color:rgba(250,247,240,0.5);font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .15s; }
+    .count-btn:hover { border-color:rgba(139,105,20,0.7);color:#FAF7F0; }
+    .count-btn.active { background:#8B6914;border-color:#8B6914;color:#fff; }
+    .advanced-toggle { margin-bottom:20px; }
+    .advanced-toggle-btn { background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:rgba(139,105,20,0.6);display:flex;align-items:center;gap:6px;padding:0;transition:color .15s; }
+    .advanced-toggle-btn:hover { color:rgba(139,105,20,1); }
+    .advanced-chevron { transition:transform .2s;font-size:.6rem; }
+    .advanced-chevron.open { transform:rotate(180deg); }
+    .advanced-panel { display:none;margin-top:16px;padding:16px;background:rgba(0,0,0,0.2);border:1px solid rgba(139,105,20,0.15);border-radius:6px; }
+    .advanced-panel.open { display:block; }
+    .weighted-toggle-row { display:flex;align-items:center;gap:12px;margin-bottom:10px; }
+    .toggle-switch { position:relative;width:36px;height:20px;background:rgba(139,105,20,0.2);border-radius:10px;cursor:pointer;transition:background .2s;flex-shrink:0; }
+    .toggle-switch.on { background:#8B6914; }
+    .toggle-knob { position:absolute;top:2px;left:2px;width:16px;height:16px;background:#FAF7F0;border-radius:50%;transition:transform .2s; }
+    .toggle-switch.on .toggle-knob { transform:translateX(16px); }
+    .weighted-label { font-family:'DM Sans',sans-serif;font-size:.85rem;color:rgba(250,247,240,0.7); }
+    .weighted-helper { font-size:.75rem;color:rgba(250,247,240,0.35);margin-bottom:14px;line-height:1.5; }
+    .teams-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px; }
+    .team-slot { background:#0F0807;border:1px solid rgba(139,105,20,0.3);border-radius:6px;padding:10px 14px;position:relative;transition:border-color .15s; }
+    .team-slot:focus-within { border-color:rgba(139,105,20,0.7); }
+    .slot-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:6px; }
+    .slot-pick-label { font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#8B6914; }
+    .slot-char-count { font-size:10px;color:rgba(139,105,20,0.5);display:none; }
+    .team-input { width:100%;background:transparent;border:none;outline:none;font-family:'Lora',serif;font-size:1rem;color:#FAF7F0;caret-color:#8B6914; }
+    .team-input::placeholder { color:rgba(250,247,240,0.2); }
+    .balls-input-wrap { margin-top:8px;display:none; }
+    .balls-input-wrap.visible { display:block; }
+    .balls-input { width:60px;background:rgba(0,0,0,0.3);border:1px solid rgba(139,105,20,0.2);border-radius:4px;color:rgba(250,247,240,0.7);font-family:'DM Sans',sans-serif;font-size:.78rem;padding:4px 8px;outline:none;transition:border-color .15s; }
+    .balls-input:focus { border-color:rgba(139,105,20,0.5); }
+    .balls-label { font-size:.72rem;color:rgba(250,247,240,0.3);margin-left:6px; }
+    .optional-fields { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px; }
+    .optional-slot { background:#0F0807;border:1px solid rgba(139,105,20,0.2);border-radius:6px;padding:10px 14px;transition:border-color .15s; }
+    .optional-slot:focus-within { border-color:rgba(139,105,20,0.5); }
+    .optional-input { width:100%;background:transparent;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:.88rem;color:rgba(250,247,240,0.7);caret-color:#8B6914; }
+    .optional-input::placeholder { color:rgba(250,247,240,0.2); }
+    .speed-btns { display:flex;gap:8px; }
+    .speed-btn { flex:1;padding:6px 10px;border-radius:100px;border:1px solid rgba(139,105,20,0.25);background:transparent;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;color:rgba(250,247,240,0.4);cursor:pointer;transition:all .15s;text-align:center; }
+    .speed-btn:hover { border-color:rgba(139,105,20,0.5);color:rgba(250,247,240,0.7); }
+    .speed-btn.active { background:rgba(139,105,20,0.25);border-color:rgba(139,105,20,0.6);color:#FAF7F0; }
+    .run-btn-wrap { text-align:center;margin-bottom:20px; }
+    .run-btn { background:#8B6914;color:#fff;font-family:'Lora',serif;font-size:1.15rem;font-weight:700;padding:16px 52px;border-radius:8px;border:none;cursor:pointer;letter-spacing:.02em;box-shadow:0 2px 20px rgba(139,105,20,0.3);transition:background .15s,transform .12s,box-shadow .15s,opacity .15s; }
+    .run-btn:hover:not(:disabled) { background:#a07820;transform:translateY(-2px);box-shadow:0 6px 28px rgba(139,105,20,0.4); }
+    .run-btn:disabled { opacity:.4;cursor:not-allowed;transform:none; }
+    .schedule-toggle-wrap { text-align:center;margin-bottom:8px; }
+    .schedule-toggle-btn { background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.78rem;color:rgba(139,105,20,0.55);text-decoration:underline;text-underline-offset:3px;transition:color .15s; }
+    .schedule-toggle-btn:hover { color:rgba(139,105,20,0.9); }
+    .schedule-panel { display:none;margin-top:16px;padding:20px;background:rgba(0,0,0,0.25);border:1px solid rgba(139,105,20,0.2);border-radius:6px; }
+    .schedule-panel.open { display:block; }
+    .schedule-row { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px; }
+    .schedule-input { width:100%;background:#0F0807;border:1px solid rgba(139,105,20,0.25);border-radius:6px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:rgba(250,247,240,0.8);outline:none;transition:border-color .15s;color-scheme:dark; }
+    .schedule-input:focus { border-color:rgba(139,105,20,0.6); }
+    .schedule-btn { background:transparent;border:1.5px solid rgba(139,105,20,0.5);color:rgba(139,105,20,0.8);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;padding:10px 24px;border-radius:6px;cursor:pointer;transition:all .15s; }
+    .schedule-btn:hover { background:rgba(139,105,20,0.1);border-color:rgba(139,105,20,0.8);color:#8B6914; }
+    .schedule-success { display:none;text-align:center;padding:12px;color:rgba(139,105,20,0.8);font-size:.88rem; }
 
-    /* ── Advanced options toggle ── */
-    .advanced-toggle {
-      margin-bottom: 20px;
-    }
-    .advanced-toggle-btn {
-      background: none; border: none; cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      font-size: .78rem; font-weight: 600;
-      letter-spacing: .06em; text-transform: uppercase;
-      color: rgba(139,105,20,0.6);
-      display: flex; align-items: center; gap: 6px;
-      padding: 0; transition: color .15s;
-    }
-    .advanced-toggle-btn:hover { color: rgba(139,105,20,1); }
-    .advanced-chevron { transition: transform .2s; font-size: .6rem; }
-    .advanced-chevron.open { transform: rotate(180deg); }
-    .advanced-panel {
-      display: none;
-      margin-top: 16px;
-      padding: 16px;
-      background: rgba(0,0,0,0.2);
-      border: 1px solid rgba(139,105,20,0.15);
-      border-radius: 6px;
-    }
-    .advanced-panel.open { display: block; }
-    .weighted-toggle-row {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
-    }
-    .toggle-switch {
-      position: relative; width: 36px; height: 20px;
-      background: rgba(139,105,20,0.2);
-      border-radius: 10px; cursor: pointer;
-      transition: background .2s;
-      flex-shrink: 0;
-    }
-    .toggle-switch.on { background: #8B6914; }
-    .toggle-knob {
-      position: absolute; top: 2px; left: 2px;
-      width: 16px; height: 16px;
-      background: #FAF7F0; border-radius: 50%;
-      transition: transform .2s;
-    }
-    .toggle-switch.on .toggle-knob { transform: translateX(16px); }
-    .weighted-label {
-      font-family: 'DM Sans', sans-serif;
-      font-size: .85rem; color: rgba(250,247,240,0.7);
-    }
-    .weighted-helper {
-      font-size: .75rem; color: rgba(250,247,240,0.35);
-      margin-bottom: 14px; line-height: 1.5;
-    }
+    /* Reveal state — pick cards */
+    .picks-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:12px; }
 
-    /* ── Team inputs grid ── */
-    .teams-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-bottom: 24px;
-    }
-    .team-slot {
-      background: #0F0807;
-      border: 1px solid rgba(139,105,20,0.3);
-      border-radius: 6px;
-      padding: 10px 14px;
-      position: relative;
-      transition: border-color .15s;
-    }
-    .team-slot:focus-within { border-color: rgba(139,105,20,0.7); }
-    .slot-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .slot-pick-label {
-      font-size: 10px; font-weight: 600;
-      letter-spacing: .1em; text-transform: uppercase;
-      color: #8B6914;
-    }
-    .slot-char-count {
-      font-size: 10px; color: rgba(139,105,20,0.5);
-      display: none;
-    }
-    .team-input {
-      width: 100%; background: transparent; border: none; outline: none;
-      font-family: 'Lora', serif; font-size: 1rem;
-      color: #FAF7F0; caret-color: #8B6914;
-    }
-    .team-input::placeholder { color: rgba(250,247,240,0.2); }
-    .balls-input-wrap { margin-top: 8px; display: none; }
-    .balls-input-wrap.visible { display: block; }
-    .balls-input {
-      width: 60px; background: rgba(0,0,0,0.3);
-      border: 1px solid rgba(139,105,20,0.2); border-radius: 4px;
-      color: rgba(250,247,240,0.7); font-family: 'DM Sans', sans-serif;
-      font-size: .78rem; padding: 4px 8px; outline: none;
-      transition: border-color .15s;
-    }
-    .balls-input:focus { border-color: rgba(139,105,20,0.5); }
-    .balls-label {
-      font-size: .72rem; color: rgba(250,247,240,0.3);
-      margin-left: 6px;
-    }
-
-    /* ── Optional fields ── */
-    .optional-fields {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 12px; margin-bottom: 28px;
-    }
-    .optional-slot {
-      background: #0F0807;
-      border: 1px solid rgba(139,105,20,0.2);
-      border-radius: 6px; padding: 10px 14px;
-      transition: border-color .15s;
-    }
-    .optional-slot:focus-within { border-color: rgba(139,105,20,0.5); }
-    .optional-input {
-      width: 100%; background: transparent; border: none; outline: none;
-      font-family: 'DM Sans', sans-serif; font-size: .88rem;
-      color: rgba(250,247,240,0.7); caret-color: #8B6914;
-    }
-    .optional-input::placeholder { color: rgba(250,247,240,0.2); }
-
-    /* Speed selector */
-    .speed-btns { display: flex; gap: 8px; }
-    .speed-btn {
-      flex: 1; padding: 6px 10px;
-      border-radius: 100px; border: 1px solid rgba(139,105,20,0.25);
-      background: transparent;
-      font-family: 'DM Sans', sans-serif; font-size: .78rem; font-weight: 600;
-      color: rgba(250,247,240,0.4); cursor: pointer; transition: all .15s;
-      text-align: center;
-    }
-    .speed-btn:hover { border-color: rgba(139,105,20,0.5); color: rgba(250,247,240,0.7); }
-    .speed-btn.active { background: rgba(139,105,20,0.25); border-color: rgba(139,105,20,0.6); color: #FAF7F0; }
-
-    /* ── Run button ── */
-    .run-btn-wrap { text-align: center; margin-bottom: 20px; }
-    .run-btn {
-      background: #8B6914; color: #fff;
-      font-family: 'Lora', serif; font-size: 1.15rem; font-weight: 700;
-      padding: 16px 52px; border-radius: 8px; border: none;
-      cursor: pointer; letter-spacing: .02em;
-      box-shadow: 0 2px 20px rgba(139,105,20,0.3);
-      transition: background .15s, transform .12s, box-shadow .15s, opacity .15s;
-    }
-    .run-btn:hover:not(:disabled) {
-      background: #a07820; transform: translateY(-2px);
-      box-shadow: 0 6px 28px rgba(139,105,20,0.4);
-    }
-    .run-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
-
-    /* ── Schedule option ── */
-    .schedule-toggle-wrap {
-      text-align: center; margin-bottom: 8px;
-    }
-    .schedule-toggle-btn {
-      background: none; border: none; cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      font-size: .78rem; color: rgba(139,105,20,0.55);
-      text-decoration: underline; text-underline-offset: 3px;
-      transition: color .15s;
-    }
-    .schedule-toggle-btn:hover { color: rgba(139,105,20,0.9); }
-    .schedule-panel {
-      display: none; margin-top: 16px;
-      padding: 20px; background: rgba(0,0,0,0.25);
-      border: 1px solid rgba(139,105,20,0.2); border-radius: 6px;
-    }
-    .schedule-panel.open { display: block; }
-    .schedule-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-    .schedule-input {
-      width: 100%; background: #0F0807;
-      border: 1px solid rgba(139,105,20,0.25); border-radius: 6px;
-      padding: 10px 14px; font-family: 'DM Sans', sans-serif;
-      font-size: .88rem; color: rgba(250,247,240,0.8); outline: none;
-      transition: border-color .15s;
-      color-scheme: dark;
-    }
-    .schedule-input:focus { border-color: rgba(139,105,20,0.6); }
-    .schedule-btn {
-      background: transparent; border: 1.5px solid rgba(139,105,20,0.5);
-      color: rgba(139,105,20,0.8); font-family: 'DM Sans', sans-serif;
-      font-size: .88rem; font-weight: 600; padding: 10px 24px;
-      border-radius: 6px; cursor: pointer; transition: all .15s;
-    }
-    .schedule-btn:hover { background: rgba(139,105,20,0.1); border-color: rgba(139,105,20,0.8); color: #8B6914; }
-    .schedule-success {
-      display: none; text-align: center; padding: 12px;
-      color: rgba(139,105,20,0.8); font-size: .88rem;
-    }
-    .schedule-success a { color: #8B6914; }
-
-    /* ── Pick cards (reveal state) ── */
-    .picks-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
     .pick-card {
-      background: #0F0807;
-      border: 1px solid rgba(139,105,20,0.2);
-      border-left: 2px solid rgba(139,105,20,0.35);
-      border-radius: 6px;
-      padding: 14px 18px;
-      opacity: 0;
-      box-shadow: none;
-      transition: box-shadow .2s, border-color .2s;
+      background: #0D0906;
+      border: 1px solid rgba(139,105,20,0.12);
+      border-radius: 8px;
+      padding: 18px 20px 16px;
+      position: relative;
+      overflow: hidden;
     }
-    .pick-card.active {
-      border-color: rgba(139,105,20,0.7);
-      box-shadow: 0 0 16px rgba(139,105,20,0.3);
-    }
-    .pick-card.settled {
-      border-color: rgba(139,105,20,0.45);
-      box-shadow: 0 0 8px rgba(139,105,20,0.15);
+    /* Light sweep element */
+    .pick-card-sweep {
+      position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(240,208,128,0.13), transparent);
+      pointer-events: none;
     }
     .pick-num {
-      font-size: 10px; font-weight: 600;
-      letter-spacing: .1em; text-transform: uppercase;
-      color: #8B6914; margin-bottom: 6px;
+      font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(139,105,20,0.35); margin-bottom: 10px; transition: color 0.4s;
     }
+    .pick-card.lit .pick-num { color: #8B6914; }
+
+    /* Name — large, Lora serif, two size tiers */
     .pick-name {
       font-family: 'Lora', serif;
-      font-size: clamp(1rem, 2vw, 1.2rem);
-      color: #8B6914;
-      min-height: 1.5em;
-      letter-spacing: .02em;
-      transition: color .3s;
+      font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+      color: #FAF7F0; line-height: 1.15; letter-spacing: .01em;
+      min-height: 1.3em; opacity: 0;
     }
-    .pick-name.settled { color: #FAF7F0; }
+    .pick-name.long-name { font-size: clamp(1.1rem, 2.4vw, 1.6rem); }
 
-    /* ── End state buttons ── */
-    .end-btns {
-      display: flex; justify-content: center; gap: 14px;
-      margin-top: 28px; flex-wrap: wrap; opacity: 0;
-    }
-    .share-btn {
-      background: #8B6914; color: #fff;
-      font-family: 'DM Sans', sans-serif; font-weight: 600;
-      font-size: .95rem; padding: 13px 28px;
-      border-radius: 8px; border: none; cursor: pointer;
-      box-shadow: 0 2px 12px rgba(139,105,20,0.3);
-      transition: background .15s, transform .1s;
-    }
-    .share-btn:hover { background: #a07820; transform: translateY(-1px); }
-    .run-again-btn {
-      background: transparent; color: rgba(250,247,240,0.7);
-      font-family: 'DM Sans', sans-serif; font-weight: 500;
-      font-size: .95rem; padding: 13px 28px;
-      border-radius: 8px; border: 1.5px solid rgba(250,247,240,0.2);
-      cursor: pointer; transition: border-color .15s, color .15s;
-    }
-    .run-again-btn:hover { border-color: rgba(250,247,240,0.5); color: #FAF7F0; }
+    /* Card state transitions */
+    .pick-card.waiting  { opacity: 1; border-color: rgba(139,105,20,0.12); box-shadow: none; }
+    .pick-card.active   { border-color: rgba(139,105,20,0.65); box-shadow: 0 0 22px rgba(139,105,20,0.28), inset 0 0 20px rgba(139,105,20,0.04); }
+    .pick-card.revealed { border-color: rgba(139,105,20,0.32); box-shadow: 0 0 10px rgba(139,105,20,0.1); }
 
-    /* ── More tools ── */
-    .more-tools-section {
-      width: min(960px, 92vw);
-      margin: 56px auto 0;
-    }
-    .more-tools-eyebrow {
-      font-size: .72rem; font-weight: 600; letter-spacing: .1em;
-      text-transform: uppercase; color: rgba(139,105,20,0.6); margin-bottom: 10px;
-    }
-    .more-tools-title {
-      font-family: 'Lora', serif;
-      font-size: clamp(1.4rem, 3vw, 1.8rem);
-      font-weight: 700; color: #FAF7F0; margin-bottom: 24px;
-    }
-    .more-tools-grid {
-      display: grid; grid-template-columns: repeat(3,1fr); gap: 14px;
-    }
-    .more-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(139,105,20,0.15);
-      border-radius: 10px; padding: 20px;
-      display: flex; flex-direction: column; gap: 8px;
-    }
-    .more-card.live { cursor: pointer; transition: background .15s, border-color .15s; }
-    .more-card.live:hover { background: rgba(255,255,255,0.07); border-color: rgba(139,105,20,0.3); }
-    .more-card-icon { font-size: 1.2rem; }
-    .more-card h3 {
-      font-family: 'Lora', serif; font-size: 1rem;
-      font-weight: 700; color: #FAF7F0;
-    }
-    .more-card p { font-size: .82rem; color: rgba(250,247,240,0.45); line-height: 1.5; flex: 1; }
-    .more-card-arrow { font-size: .8rem; font-weight: 600; color: #8B6914; }
+    /* End buttons */
+    .end-btns { display:flex;justify-content:center;gap:14px;margin-top:28px;flex-wrap:wrap;opacity:0; }
+    .share-btn { background:#8B6914;color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.95rem;padding:13px 28px;border-radius:8px;border:none;cursor:pointer;box-shadow:0 2px 12px rgba(139,105,20,0.3);transition:background .15s,transform .1s; }
+    .share-btn:hover { background:#a07820;transform:translateY(-1px); }
+    .run-again-btn { background:transparent;color:rgba(250,247,240,0.7);font-family:'DM Sans',sans-serif;font-weight:500;font-size:.95rem;padding:13px 28px;border-radius:8px;border:1.5px solid rgba(250,247,240,0.2);cursor:pointer;transition:border-color .15s,color .15s; }
+    .run-again-btn:hover { border-color:rgba(250,247,240,0.5);color:#FAF7F0; }
 
-    /* Badge in dark context */
-    .badge-live { background: rgba(240,208,128,0.15); color: #F0D080; font-size: .65rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; padding: 2px 8px; border-radius: 100px; width: fit-content; }
-    .badge-soon { background: rgba(255,255,255,0.06); color: rgba(250,247,240,0.35); font-size: .65rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; padding: 2px 8px; border-radius: 100px; width: fit-content; }
+    /* More tools */
+    .more-tools-section { width:min(960px,92vw);margin:56px auto 0; }
+    .more-tools-eyebrow { font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(139,105,20,0.6);margin-bottom:10px; }
+    .more-tools-title { font-family:'Lora',serif;font-size:clamp(1.4rem,3vw,1.8rem);font-weight:700;color:#FAF7F0;margin-bottom:24px; }
+    .more-tools-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:14px; }
+    .more-card { background:rgba(255,255,255,0.04);border:1px solid rgba(139,105,20,0.15);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:8px; }
+    .more-card.live { cursor:pointer;transition:background .15s,border-color .15s; }
+    .more-card.live:hover { background:rgba(255,255,255,0.07);border-color:rgba(139,105,20,0.3); }
+    .more-card-icon { font-size:1.2rem; }
+    .more-card h3 { font-family:'Lora',serif;font-size:1rem;font-weight:700;color:#FAF7F0; }
+    .more-card p { font-size:.82rem;color:rgba(250,247,240,0.45);line-height:1.5;flex:1; }
+    .more-card-arrow { font-size:.8rem;font-weight:600;color:#8B6914; }
+    .badge-live { background:rgba(240,208,128,0.15);color:#F0D080;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:100px;width:fit-content; }
+    .badge-soon { background:rgba(255,255,255,0.06);color:rgba(250,247,240,0.35);font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:100px;width:fit-content; }
 
-    /* ── Footer override ── */
-    footer { position: relative; z-index: 1; }
+    footer { position:relative;z-index:2; }
 
-    /* ── Responsive ── */
     @media (max-width: 600px) {
-      .board { padding: 20px 16px; }
-      .teams-grid { grid-template-columns: 1fr; }
-      .optional-fields { grid-template-columns: 1fr; }
-      .schedule-row { grid-template-columns: 1fr; }
-      .picks-grid { grid-template-columns: 1fr; }
-      .more-tools-grid { grid-template-columns: 1fr; }
-      .atmo-cone-left, .atmo-cone-right { display: none; }
+      .board { padding:20px 16px; }
+      .teams-grid { grid-template-columns:1fr; }
+      .optional-fields { grid-template-columns:1fr; }
+      .schedule-row { grid-template-columns:1fr; }
+      .picks-grid { grid-template-columns:1fr; }
+      .more-tools-grid { grid-template-columns:1fr; }
+      .atmo-cone-left, .atmo-cone-right { display:none; }
     }
   </style>
 </head>
@@ -453,46 +217,11 @@
 
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <!-- Atmosphere -->
-  <div class="atmo-cone-left" aria-hidden="true"></div>
+  <div id="theater-overlay" aria-hidden="true"></div>
+  <div class="atmo-cone-left"  aria-hidden="true"></div>
   <div class="atmo-cone-right" aria-hidden="true"></div>
-  <div class="crowd-strip" aria-hidden="true">
-    <svg width="100%" height="48" viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Simple crowd silhouette: repeating head shapes, very dark -->
-      <g fill="#0F0A07">
-        <ellipse cx="30"  cy="44" rx="14" ry="10"/><rect x="22"  y="38" width="16" height="10" rx="2"/>
-        <ellipse cx="80"  cy="42" rx="12" ry="9"/> <rect x="73"  y="37" width="14" height="10" rx="2"/>
-        <ellipse cx="130" cy="45" rx="15" ry="11"/><rect x="121" y="38" width="18" height="10" rx="2"/>
-        <ellipse cx="185" cy="43" rx="13" ry="9"/> <rect x="177" y="37" width="16" height="10" rx="2"/>
-        <ellipse cx="235" cy="44" rx="14" ry="10"/><rect x="227" y="38" width="16" height="10" rx="2"/>
-        <ellipse cx="285" cy="42" rx="12" ry="8"/> <rect x="278" y="37" width="14" height="9"  rx="2"/>
-        <ellipse cx="340" cy="45" rx="16" ry="11"/><rect x="330" y="38" width="20" height="10" rx="2"/>
-        <ellipse cx="395" cy="43" rx="13" ry="9"/> <rect x="387" y="37" width="16" height="10" rx="2"/>
-        <ellipse cx="445" cy="44" rx="14" ry="10"/><rect x="437" y="38" width="16" height="10" rx="2"/>
-        <ellipse cx="495" cy="42" rx="12" ry="9"/> <rect x="488" y="37" width="14" height="10" rx="2"/>
-        <ellipse cx="545" cy="45" rx="15" ry="10"/><rect x="536" y="38" width="18" height="10" rx="2"/>
-        <ellipse cx="600" cy="43" rx="13" ry="9"/> <rect x="592" y="37" width="16" height="10" rx="2"/>
-        <ellipse cx="655" cy="44" rx="14" ry="10"/><rect x="647" y="38" width="16" height="10" rx="2"/>
-        <ellipse cx="705" cy="42" rx="12" ry="8"/> <rect x="698" y="37" width="14" height="9"  rx="2"/>
-        <ellipse cx="755" cy="45" rx="16" ry="11"/><rect x="745" y="38" width="20" height="10" rx="2"/>
-        <ellipse cx="810" cy="43" rx="13" ry="9"/> <rect x="802" y="37" width="16" height="10" rx="2"/>
-        <ellipse cx="860" cy="44" rx="14" ry="10"/><rect x="852" y="38" width="16" height="10" rx="2"/>
-        <ellipse cx="910" cy="42" rx="12" ry="9"/> <rect x="903" y="37" width="14" height="10" rx="2"/>
-        <ellipse cx="960" cy="45" rx="15" ry="10"/><rect x="951" y="38" width="18" height="10" rx="2"/>
-        <ellipse cx="1015" cy="43" rx="13" ry="9"/><rect x="1007" y="37" width="16" height="10" rx="2"/>
-        <ellipse cx="1065" cy="44" rx="14" ry="10"/><rect x="1057" y="38" width="16" height="10" rx="2"/>
-        <ellipse cx="1115" cy="42" rx="12" ry="8"/><rect x="1108" y="37" width="14" height="9"  rx="2"/>
-        <ellipse cx="1170" cy="45" rx="16" ry="11"/><rect x="1160" y="38" width="20" height="10" rx="2"/>
-        <ellipse cx="1225" cy="43" rx="13" ry="9"/><rect x="1217" y="37" width="16" height="10" rx="2"/>
-        <ellipse cx="1275" cy="44" rx="14" ry="10"/><rect x="1267" y="38" width="16" height="10" rx="2"/>
-        <ellipse cx="1325" cy="42" rx="12" ry="9"/><rect x="1318" y="37" width="14" height="10" rx="2"/>
-        <ellipse cx="1380" cy="45" rx="15" ry="10"/><rect x="1371" y="38" width="18" height="10" rx="2"/>
-        <ellipse cx="1430" cy="43" rx="13" ry="9"/><rect x="1422" y="37" width="16" height="10" rx="2"/>
-      </g>
-    </svg>
-  </div>
 
-  <!-- ═══ NAV — hardcoded for SEO ═══ -->
+  <!-- NAV -->
   <nav role="navigation" aria-label="Main navigation">
     <div class="nav-inner">
       <a class="logo" href="/">Commish <span>Hub</span></a>
@@ -553,19 +282,15 @@
 
   <main id="main-content" class="page-wrap">
 
-    <!-- SEO H1 — present in DOM, visually hidden -->
     <h1 class="seo-h1">Fantasy Football Draft Order Randomizer</h1>
 
-    <!-- League name display above board -->
     <div class="above-board">
       <p class="above-board-text" id="board-title">CommishHub Draft Lottery</p>
     </div>
 
-    <!-- The Board -->
     <div class="board-wrap">
       <div class="board" id="board">
 
-        <!-- Mute button -->
         <button class="mute-btn" id="mute-btn" aria-label="Toggle audio" onclick="toggleMute()">
           <svg id="speaker-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -581,38 +306,23 @@
 
         <!-- INPUT STATE -->
         <div id="input-state">
-
-          <!-- Team count -->
           <div class="count-section">
             <span class="input-label">How many teams?</span>
-            <div class="count-btns" id="count-btns">
-              <!-- Rendered by JS -->
-            </div>
+            <div class="count-btns" id="count-btns"></div>
           </div>
-
-          <!-- Advanced options -->
           <div class="advanced-toggle">
             <button class="advanced-toggle-btn" onclick="toggleAdvanced()" aria-expanded="false" id="adv-btn">
-              Advanced Options
-              <span class="advanced-chevron" id="adv-chevron">▾</span>
+              Advanced Options <span class="advanced-chevron" id="adv-chevron">▾</span>
             </button>
             <div class="advanced-panel" id="advanced-panel">
               <div class="weighted-toggle-row">
-                <div class="toggle-switch" id="weighted-switch" onclick="toggleWeighted()">
-                  <div class="toggle-knob"></div>
-                </div>
+                <div class="toggle-switch" id="weighted-switch" onclick="toggleWeighted()"><div class="toggle-knob"></div></div>
                 <span class="weighted-label">Weighted lottery</span>
               </div>
               <p class="weighted-helper">Give last place more lottery balls for better draft position odds. Set ball counts per team below.</p>
             </div>
           </div>
-
-          <!-- Team name inputs -->
-          <div class="teams-grid" id="teams-grid">
-            <!-- Rendered by JS -->
-          </div>
-
-          <!-- Optional fields row -->
+          <div class="teams-grid" id="teams-grid"></div>
           <div class="optional-fields">
             <div class="optional-slot">
               <span class="input-label" style="margin-bottom:6px;">League name</span>
@@ -627,17 +337,11 @@
               </div>
             </div>
           </div>
-
-          <!-- Run button -->
           <div class="run-btn-wrap">
             <button class="run-btn" id="run-btn" onclick="runLottery()" disabled>Run the Lottery</button>
           </div>
-
-          <!-- Schedule option -->
           <div class="schedule-toggle-wrap">
-            <button class="schedule-toggle-btn" onclick="toggleSchedule()">
-              Want to reveal this with your league later? Schedule a reveal →
-            </button>
+            <button class="schedule-toggle-btn" onclick="toggleSchedule()">Want to reveal this with your league later? Schedule a reveal →</button>
           </div>
           <div class="schedule-panel" id="schedule-panel">
             <span class="input-label" style="margin-bottom:12px;">Schedule your reveal</span>
@@ -645,56 +349,33 @@
               <input class="schedule-input" type="datetime-local" id="reveal-time" />
               <input class="schedule-input" type="email" id="reveal-email" placeholder="Your email address" />
             </div>
-            <p style="font-size:.72rem;color:rgba(250,247,240,0.3);margin-bottom:12px;line-height:1.5;">
-              We'll notify you by email when automated reminders are live.
-            </p>
+            <p style="font-size:.72rem;color:rgba(250,247,240,0.3);margin-bottom:12px;line-height:1.5;">We'll notify you by email when automated reminders are live.</p>
             <button class="schedule-btn" onclick="scheduleReveal()">Schedule Reveal →</button>
             <div class="schedule-success" id="schedule-success">
               <p style="color:rgba(139,105,20,0.8);font-size:.82rem;margin-bottom:10px;">✓ Reveal scheduled. Share this link with your league:</p>
               <div style="display:flex;gap:8px;align-items:center;">
-                <input
-                  id="reveal-link-input"
-                  type="text"
-                  readonly
-                  style="flex:1;background:#0F0807;border:1px solid rgba(139,105,20,0.4);border-radius:5px;
-                         padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:.82rem;
-                         color:rgba(250,247,240,0.8);outline:none;cursor:text;"
-                />
-                <button
-                  onclick="copyRevealLink()"
-                  id="copy-reveal-btn"
-                  style="background:rgba(139,105,20,0.2);border:1px solid rgba(139,105,20,0.4);
-                         border-radius:5px;padding:9px 14px;font-family:'DM Sans',sans-serif;
-                         font-size:.78rem;font-weight:600;color:rgba(139,105,20,0.9);
-                         cursor:pointer;white-space:nowrap;transition:background .15s;"
-                >Copy</button>
+                <input id="reveal-link-input" type="text" readonly style="flex:1;background:#0F0807;border:1px solid rgba(139,105,20,0.4);border-radius:5px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:rgba(250,247,240,0.8);outline:none;cursor:text;" />
+                <button onclick="copyRevealLink()" id="copy-reveal-btn" style="background:rgba(139,105,20,0.2);border:1px solid rgba(139,105,20,0.4);border-radius:5px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;color:rgba(139,105,20,0.9);cursor:pointer;white-space:nowrap;transition:background .15s;">Copy</button>
               </div>
-              <a id="reveal-link" href="#" target="_blank"
-                 style="display:block;margin-top:8px;font-size:.72rem;
-                        color:rgba(139,105,20,0.5);word-break:break-all;">
-              </a>
+              <a id="reveal-link" href="#" target="_blank" style="display:block;margin-top:8px;font-size:.72rem;color:rgba(139,105,20,0.5);word-break:break-all;"></a>
             </div>
           </div>
-
         </div><!-- /input-state -->
 
-        <!-- REVEAL STATE (hidden until lottery runs) -->
+        <!-- REVEAL STATE -->
         <div id="reveal-state" style="display:none;">
-          <div class="picks-grid" id="picks-grid">
-            <!-- Rendered by JS at reveal time -->
-          </div>
+          <div class="picks-grid" id="picks-grid"></div>
         </div>
 
-        <!-- END STATE BUTTONS -->
+        <!-- END BUTTONS -->
         <div class="end-btns" id="end-btns">
           <button class="share-btn" onclick="shareImage()">Share Your Draft Order</button>
           <button class="run-again-btn" onclick="resetTool()">↻ Run Again</button>
         </div>
 
-      </div><!-- /board -->
-    </div><!-- /board-wrap -->
+      </div>
+    </div>
 
-    <!-- More tools -->
     <div class="more-tools-section">
       <p class="more-tools-eyebrow">More Tools</p>
       <h2 class="more-tools-title">Keep the league running.</h2>
@@ -713,18 +394,18 @@
           <p>Make finishing last mean something.</p>
           <span class="more-card-arrow">Spin it →</span>
         </a>
-        <div class="more-card">
+        <a href="/player-nickname-generator/" class="more-card live">
           <div class="more-card-icon" aria-hidden="true">🏷️</div>
-          <span class="badge-soon">Coming Soon</span>
+          <span class="badge-live">Live Now</span>
           <h3>Player Nickname Generator</h3>
           <p>Names that stick all season long.</p>
-        </div>
+          <span class="more-card-arrow">Try it →</span>
+        </a>
       </div>
     </div>
 
   </main>
 
-  <!-- ═══ FOOTER — hardcoded for SEO ═══ -->
   <footer>
     <div class="footer-inner">
       <div class="footer-grid">
@@ -744,7 +425,6 @@
   </footer>
 
   <script>
-    // ── Hamburger ──────────────────────────────────────────
     (function() {
       const btn = document.getElementById('hamburger');
       const panel = document.getElementById('mobile-nav');
@@ -765,31 +445,22 @@
   </script>
 
   <script>
-    // ══════════════════════════════════════════════════════
-    //  DRAFT ORDER RANDOMIZER — main logic
-    // ══════════════════════════════════════════════════════
-
-    // ── State ──────────────────────────────────────────────
-    let teamCount   = 12;
+    // ── State ──
+    let teamCount     = 12;
     let selectedSpeed = 'default';
-    let isMuted     = false;
-    let isWeighted  = false;
+    let isMuted       = false;
+    let isWeighted    = false;
     let shuffledOrder = [];
-
-    // Audio state
-    let audioCtx     = null;
-    let tickBuffer   = null;  // pre-loaded tick sound
-    let chimeAudio   = null;
+    let audioCtx      = null;
+    let chimeAudio    = null;
     let applauseAudio = null;
-
     const speedDelays = { fast: 1500, default: 3000, slow: 6000 };
 
-    // ── Init ───────────────────────────────────────────────
     buildCountButtons();
     buildTeamGrid(teamCount);
     preloadAudio();
 
-    // ── Team count buttons ─────────────────────────────────
+    // ── Input ──
     function buildCountButtons() {
       const wrap = document.getElementById('count-btns');
       wrap.innerHTML = '';
@@ -804,13 +475,10 @@
 
     function setTeamCount(n) {
       teamCount = n;
-      document.querySelectorAll('.count-btn').forEach(b => {
-        b.classList.toggle('active', parseInt(b.textContent) === n);
-      });
+      document.querySelectorAll('.count-btn').forEach(b => b.classList.toggle('active', parseInt(b.textContent) === n));
       buildTeamGrid(n);
     }
 
-    // ── Team input grid ────────────────────────────────────
     function buildTeamGrid(n) {
       const grid = document.getElementById('teams-grid');
       grid.innerHTML = '';
@@ -822,37 +490,26 @@
             <span class="slot-pick-label">Pick ${i}</span>
             <span class="slot-char-count" id="cc-${i}"></span>
           </div>
-          <input class="team-input" type="text" id="team-${i}"
-            placeholder="Team ${i}"
-            maxlength="20"
-            oninput="onTeamInput(${i}, this)"
-            autocomplete="off"
-          />
+          <input class="team-input" type="text" id="team-${i}" placeholder="Team ${i}" maxlength="20" oninput="onTeamInput(${i},this)" autocomplete="off" />
           <div class="balls-input-wrap ${isWeighted ? 'visible' : ''}" id="balls-wrap-${i}">
             <input class="balls-input" type="number" id="balls-${i}" min="1" max="20" value="1" />
             <span class="balls-label">lottery balls</span>
-          </div>
-        `;
+          </div>`;
         grid.appendChild(slot);
       }
       checkRunButton();
     }
 
     function onTeamInput(idx, input) {
-      const remaining = 20 - input.value.length;
+      const r = 20 - input.value.length;
       const cc = document.getElementById(`cc-${idx}`);
-      if (remaining <= 5) {
-        cc.style.display = 'block';
-        cc.textContent = remaining;
-      } else {
-        cc.style.display = 'none';
-      }
+      if (r <= 5) { cc.style.display = 'block'; cc.textContent = r; }
+      else cc.style.display = 'none';
       checkRunButton();
     }
 
     function checkRunButton() {
-      const filled = getTeamNames().filter(n => n.trim()).length;
-      document.getElementById('run-btn').disabled = filled < 2;
+      document.getElementById('run-btn').disabled = getTeamNames().filter(n => n.trim()).length < 2;
     }
 
     function getTeamNames() {
@@ -867,17 +524,16 @@
     function getTeamsWithBalls() {
       const teams = [];
       for (let i = 1; i <= teamCount; i++) {
-        const name = (document.getElementById(`team-${i}`)?.value.trim()) || `Team ${i}`;
-        const balls = parseInt(document.getElementById(`balls-${i}`)?.value) || 1;
-        teams.push({ name, balls });
+        teams.push({
+          name:  document.getElementById(`team-${i}`)?.value.trim() || `Team ${i}`,
+          balls: parseInt(document.getElementById(`balls-${i}`)?.value) || 1
+        });
       }
       return teams;
     }
 
-    // ── Optional fields ────────────────────────────────────
     function updateBoardTitle() {
-      const val = document.getElementById('league-name').value.trim();
-      document.getElementById('board-title').textContent = val || 'CommishHub Draft Lottery';
+      document.getElementById('board-title').textContent = document.getElementById('league-name').value.trim() || 'CommishHub Draft Lottery';
     }
 
     function setSpeed(btn) {
@@ -886,12 +542,11 @@
       selectedSpeed = btn.dataset.speed;
     }
 
-    // ── Advanced options ───────────────────────────────────
     function toggleAdvanced() {
-      const panel   = document.getElementById('advanced-panel');
+      const panel = document.getElementById('advanced-panel');
       const chevron = document.getElementById('adv-chevron');
-      const btn     = document.getElementById('adv-btn');
-      const isOpen  = panel.classList.toggle('open');
+      const btn = document.getElementById('adv-btn');
+      const isOpen = panel.classList.toggle('open');
       chevron.classList.toggle('open', isOpen);
       btn.setAttribute('aria-expanded', isOpen);
     }
@@ -899,114 +554,92 @@
     function toggleWeighted() {
       isWeighted = !isWeighted;
       document.getElementById('weighted-switch').classList.toggle('on', isWeighted);
-      document.querySelectorAll('[id^="balls-wrap-"]').forEach(w => {
-        w.classList.toggle('visible', isWeighted);
-      });
+      document.querySelectorAll('[id^="balls-wrap-"]').forEach(w => w.classList.toggle('visible', isWeighted));
     }
 
-    // ── Schedule panel ─────────────────────────────────────
-    function toggleSchedule() {
-      document.getElementById('schedule-panel').classList.toggle('open');
-    }
+    function toggleSchedule() { document.getElementById('schedule-panel').classList.toggle('open'); }
 
     async function scheduleReveal() {
       const revealTime = document.getElementById('reveal-time').value;
-      const email      = document.getElementById('reveal-email').value.trim();
+      const email = document.getElementById('reveal-email').value.trim();
       const leagueName = document.getElementById('league-name').value.trim();
-
-      if (!revealTime || !email) {
-        alert('Please enter both a reveal time and your email address.');
-        return;
-      }
-
+      if (!revealTime || !email) { alert('Please enter both a reveal time and your email address.'); return; }
       const teams = isWeighted ? getTeamsWithBalls() : getTeamNames().map(n => ({ name: n, balls: 1 }));
-
-      // datetime-local gives "YYYY-MM-DDTHH:MM" with no timezone info.
-      // Send raw value + browser UTC offset so server can reconstruct correct UTC time.
-      const rawTime      = document.getElementById('reveal-time').value;
       const utcOffsetMin = new Date().getTimezoneOffset();
-      const revealTimeISO = rawTime;
-
       try {
-        const res  = await fetch('/.netlify/functions/schedule-reveal', {
+        const res = await fetch('/.netlify/functions/schedule-reveal', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ teams, leagueName, revealTime: revealTimeISO, utcOffsetMin, email, speed: selectedSpeed, weighted: isWeighted })
+          body: JSON.stringify({ teams, leagueName, revealTime, utcOffsetMin, email, speed: selectedSpeed, weighted: isWeighted })
         });
         const data = await res.json();
         if (data.revealUrl) {
           document.getElementById('schedule-success').style.display = 'block';
           document.getElementById('reveal-link-input').value = data.revealUrl;
           const link = document.getElementById('reveal-link');
-          link.href        = data.revealUrl;
-          link.textContent = data.revealUrl;
+          link.href = data.revealUrl; link.textContent = data.revealUrl;
         }
-      } catch (err) {
-        alert('Something went wrong scheduling the reveal. Try again.');
-      }
+      } catch (err) { alert('Something went wrong scheduling the reveal. Try again.'); }
     }
 
     function copyRevealLink() {
       const input = document.getElementById('reveal-link-input');
-      const btn   = document.getElementById('copy-reveal-btn');
+      const btn = document.getElementById('copy-reveal-btn');
       navigator.clipboard.writeText(input.value).then(() => {
-        btn.textContent = 'Copied!';
-        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
-      }).catch(() => {
-        input.select();
-        document.execCommand('copy');
-        btn.textContent = 'Copied!';
-        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
-      });
+        btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      }).catch(() => { input.select(); document.execCommand('copy'); btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy'; }, 2000); });
     }
 
-    // ── Audio ──────────────────────────────────────────────
+    // ── Audio ──
     async function preloadAudio() {
-      try {
-        // Pre-load tick buffer via Web Audio API for rapid no-overlap playback
-        const tickRes = await fetch('/audio/tick.mp3');
-        const tickArr = await tickRes.arrayBuffer();
-        // AudioContext created lazily on first user interaction
-        // Store raw array buffer for now
-        window._tickArrayBuffer = tickArr;
-      } catch (e) {
-        console.warn('Audio preload failed:', e);
-      }
-
-      // Chime and applause via HTML audio (play once each, no overlap needed)
       chimeAudio    = new Audio('/audio/chime.mp3');
       applauseAudio = new Audio('/audio/applause.mp3');
-      chimeAudio.preload    = 'auto';
-      applauseAudio.preload = 'auto';
+      chimeAudio.preload = applauseAudio.preload = 'auto';
     }
 
     function ensureAudioCtx() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        // Decode the pre-fetched tick buffer now that we have a context
-        if (window._tickArrayBuffer) {
-          audioCtx.decodeAudioData(window._tickArrayBuffer.slice(0)).then(buf => {
-            tickBuffer = buf;
-          }).catch(() => {});
-        }
-      }
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') audioCtx.resume();
     }
 
-    function playTick() {
-      if (isMuted || !audioCtx || !tickBuffer) return;
-      const src  = audioCtx.createBufferSource();
-      const gain = audioCtx.createGain();
-      // Lower volume and apply a mild low-pass filter to soften the high end
-      gain.gain.value = 0.45;
+    // Synthesized pre-chime rumble — brown noise at low frequency
+    function playRumble(durationMs) {
+      if (isMuted || !audioCtx) return;
+      const dur = durationMs / 1000;
+      const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * dur, audioCtx.sampleRate);
+      const data = buf.getChannelData(0);
+      let last = 0;
+      for (let i = 0; i < data.length; i++) {
+        const w = Math.random() * 2 - 1;
+        last = (last + 0.02 * w) / 1.02;
+        data[i] = last * 3.5;
+      }
+      const src    = audioCtx.createBufferSource();
+      src.buffer   = buf;
       const filter = audioCtx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.value = 3200; // cut harsh highs above 3.2kHz
-      src.buffer = tickBuffer;
-      src.connect(filter);
-      filter.connect(gain);
-      gain.connect(audioCtx.destination);
-      src.start();
+      filter.type  = 'lowpass'; filter.frequency.value = 90; filter.Q.value = 0.8;
+      const gain   = audioCtx.createGain();
+      const now    = audioCtx.currentTime;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.18, now + 0.6);
+      gain.gain.linearRampToValueAtTime(0.12, now + dur - 0.3);
+      gain.gain.linearRampToValueAtTime(0, now + dur);
+      src.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+      src.start(); src.stop(now + dur);
+    }
+
+    // Synthesized card reveal tone — warm muted note
+    function playRevealTone() {
+      if (isMuted || !audioCtx) return;
+      const osc  = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine'; osc.frequency.value = 440;
+      const now = audioCtx.currentTime;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.22, now + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(now + 0.65);
     }
 
     function playChime() {
@@ -1017,27 +650,20 @@
 
     function playApplause() {
       if (isMuted || !applauseAudio) return;
-      applauseAudio.currentTime = 0;
-      applauseAudio.volume = 0;
+      applauseAudio.currentTime = 0; applauseAudio.volume = 0;
       applauseAudio.play().catch(() => {});
-      // Fade in to 0.55 max volume over 400ms, then fade out after 5s
-      const start = performance.now();
-      const maxVol = 0.55;
-      const holdMs = 5000;
-      const fadeInMs = 400;
-      const fadeOutMs = 800;
+      const start = performance.now(), maxVol = 0.55, fadeInMs = 400, holdMs = 5000, fadeOutMs = 800;
       function fadeIn(now) {
         const t = Math.min((now - start) / fadeInMs, 1);
         applauseAudio.volume = t * maxVol;
-        if (t < 1) { requestAnimationFrame(fadeIn); }
-        else { setTimeout(fadeOutApplause, holdMs); }
+        if (t < 1) requestAnimationFrame(fadeIn); else setTimeout(startFadeOut, holdMs);
       }
-      function fadeOutApplause() {
-        const fadeStart = performance.now();
+      function startFadeOut() {
+        const fs = performance.now();
         function fadeOut(now) {
-          const t = Math.min((now - fadeStart) / fadeOutMs, 1);
+          const t = Math.min((now - fs) / fadeOutMs, 1);
           if (applauseAudio) applauseAudio.volume = maxVol * (1 - t);
-          if (t < 1) { requestAnimationFrame(fadeOut); }
+          if (t < 1) requestAnimationFrame(fadeOut);
           else if (applauseAudio) { applauseAudio.pause(); applauseAudio.currentTime = 0; }
         }
         requestAnimationFrame(fadeOut);
@@ -1053,282 +679,227 @@
       if (chimeAudio)    chimeAudio.muted    = isMuted;
     }
 
-    // ── Fisher-Yates shuffle ───────────────────────────────
+    // ── Shuffle ──
     function shuffle(arr) {
       const a = [...arr];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
+      for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
       return a;
     }
 
     function weightedShuffle(teams) {
       const pool = [];
-      teams.forEach(t => {
-        const balls = Math.max(1, parseInt(t.balls) || 1);
-        for (let b = 0; b < balls; b++) pool.push(t.name);
-      });
-      for (let i = pool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [pool[i], pool[j]] = [pool[j], pool[i]];
-      }
+      teams.forEach(t => { const b = Math.max(1, parseInt(t.balls) || 1); for (let i = 0; i < b; i++) pool.push(t.name); });
+      for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
       const seen = new Set(), result = [];
-      for (const name of pool) {
-        if (!seen.has(name)) { seen.add(name); result.push(name); }
-      }
+      for (const name of pool) { if (!seen.has(name)) { seen.add(name); result.push(name); } }
       return result;
     }
 
-    // ── Run lottery ────────────────────────────────────────
+    // ── Run lottery ──
     function runLottery() {
-      // Activate audio context on this user gesture
       ensureAudioCtx();
+      shuffledOrder = isWeighted ? weightedShuffle(getTeamsWithBalls()) : shuffle(getTeamNames());
 
-      const names = getTeamNames();
-      shuffledOrder = isWeighted
-        ? weightedShuffle(getTeamsWithBalls())
-        : shuffle(names);
-
-      const board = document.getElementById('board');
       const inputState  = document.getElementById('input-state');
       const revealState = document.getElementById('reveal-state');
+      const board       = document.getElementById('board');
+      const overlay     = document.getElementById('theater-overlay');
 
-      // Build pick cards first (hidden)
       buildPickCards(shuffledOrder);
-      revealState.style.display = 'block';
 
-      // GSAP timeline: flicker → fade out inputs → fade in cards → push in board
-      const tl = gsap.timeline({
-        onComplete: () => {
+      // Theater lights down — overlay sweeps in
+      gsap.set(overlay, { opacity: 0, pointerEvents: 'auto' });
+      gsap.to(overlay, { opacity: 1, duration: 0.85, ease: 'power2.in' });
+
+      // Board flicker during the sweep
+      const tl = gsap.timeline();
+      tl.to(board, { opacity: 0.3, duration: 0.07 }, 0.15)
+        .to(board, { opacity: 1,   duration: 0.07 })
+        .to(board, { opacity: 0.2, duration: 0.07 })
+        .to(board, { opacity: 1,   duration: 0.07 })
+        .to(board, { opacity: 0.5, duration: 0.05 })
+        .to(board, { opacity: 1,   duration: 0.07 })
+        .to(inputState, { opacity: 0, duration: 0.25, onComplete: () => {
+          inputState.style.display = 'none';
+          revealState.style.display = 'block';
+        }}, '-=0.1');
+
+      // Overlay fully dark — switch page to dark mode, then lift overlay
+      setTimeout(() => {
+        document.body.classList.add('reveal-mode');
+        gsap.to(overlay, {
+          opacity: 0, duration: 0.6, ease: 'power2.out',
+          onComplete: () => { gsap.set(overlay, { pointerEvents: 'none' }); }
+        });
+        // Rumble starts as overlay lifts
+        playRumble(1600);
+        // Chime after rumble settles
+        setTimeout(() => {
           playChime();
-          // Wait for chime to finish before first card rolls
-          // Chime is ~1.5s, plus 300ms pause for effect
-          const chimeWait = chimeAudio ? Math.ceil((chimeAudio.duration || 1.5) * 1000) + 300 : 1800;
+          const chimeWait = chimeAudio
+            ? Math.ceil((chimeAudio.duration || 1.5) * 1000) + 2000
+            : 3500;
           setTimeout(startRevealSequence, chimeWait);
-        }
-      });
-
-      // Board flicker
-      tl.to(board, { opacity: 0.4, duration: 0.08 })
-        .to(board, { opacity: 1,   duration: 0.08 })
-        .to(board, { opacity: 0.3, duration: 0.08 })
-        .to(board, { opacity: 1,   duration: 0.08 })
-        .to(board, { opacity: 0.5, duration: 0.06 })
-        .to(board, { opacity: 1,   duration: 0.08 });
-
-      // Fade out inputs, board scales in slightly
-      tl.to(inputState,  { opacity: 0, duration: 0.2, onComplete: () => { inputState.style.display = 'none'; } }, '-=0.1')
-        .to(board, { scale: 1.015, duration: 0.4, ease: 'power2.out' }, '-=0.15')
-        .to(board, { scale: 1,     duration: 0.3, ease: 'power2.inOut' });
+        }, 900);
+      }, 850);
     }
 
-    // ── Build pick cards ───────────────────────────────────
+    // ── Build pick cards ──
     function buildPickCards(order) {
       const grid = document.getElementById('picks-grid');
       grid.innerHTML = '';
       order.forEach((name, i) => {
         const card = document.createElement('div');
-        card.className = 'pick-card';
+        card.className = 'pick-card waiting';
         card.id = `pick-card-${i}`;
         card.innerHTML = `
-          <div class="pick-num">Pick ${i + 1}</div>
-          <div class="pick-name" id="pick-name-${i}"></div>
-        `;
+          <div class="pick-card-sweep" id="sweep-${i}"></div>
+          <div class="pick-num" id="pick-num-${i}">Pick ${i + 1}</div>
+          <div class="pick-name${name.length > 14 ? ' long-name' : ''}" id="pick-name-${i}"></div>`;
         grid.appendChild(card);
       });
     }
 
-    // ── Reveal sequence ────────────────────────────────────
+    // ── Reveal sequence ──
+    // Picks fire one at a time at the betweenDelay interval
+    // Pick 1 gets 2000ms hold before name, decreasing 100ms per pick, floor 800ms
     function startRevealSequence() {
       const delay = speedDelays[selectedSpeed] || 3000;
+      let elapsed = 0;
 
       shuffledOrder.forEach((name, i) => {
-        setTimeout(() => revealPick(i, name), i * delay);
+        const holdMs = Math.max(800, 2000 - i * 100);
+        setTimeout(() => revealPick(i, name, holdMs), elapsed);
+        elapsed += delay;
+      });
 
-        // After last pick
-        if (i === shuffledOrder.length - 1) {
-          setTimeout(onAllRevealed, i * delay + 1200);
+      // After last card fully settled
+      const lastHold = Math.max(800, 2000 - (shuffledOrder.length - 1) * 100);
+      setTimeout(onAllRevealed, elapsed - delay + lastHold + 600);
+    }
+
+    function revealPick(idx, name, holdBeforeName) {
+      const card   = document.getElementById(`pick-card-${idx}`);
+      const nameEl = document.getElementById(`pick-name-${idx}`);
+      const sweep  = document.getElementById(`sweep-${idx}`);
+
+      // Card activates
+      card.classList.remove('waiting');
+      card.classList.add('active', 'lit');
+
+      // Light sweep across surface
+      gsap.fromTo(sweep,
+        { left: '-65%', opacity: 1 },
+        { left: '115%', duration: 0.6, ease: 'power2.inOut',
+          onComplete: () => { sweep.style.opacity = '0'; }
         }
-      });
-    }
+      );
 
-    function revealPick(idx, name) {
-      const card    = document.getElementById(`pick-card-${idx}`);
-      const nameEl  = document.getElementById(`pick-name-${idx}`);
-
-      // Card activates — glow brightens
-      gsap.to(card, { opacity: 1, duration: 0.25 });
-      card.classList.add('active');
-
-      // Split-flap scramble — 700ms
-      splitFlap(nameEl, name, 1400, () => {
-        // Land — text settles to warm white
-        nameEl.classList.add('settled');
-        card.classList.remove('active');
-        card.classList.add('settled');
-      });
-    }
-
-    // ── Split-flap text effect ─────────────────────────────
-    function splitFlap(el, finalText, duration, onComplete) {
-      const chars       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -';
-      const totalFrames = Math.floor(duration / 90); // slower scramble
-      let frame = 0;
-
-      function tick() {
-        frame++;
-        const progress = frame / totalFrames;
-        let display = '';
-        for (let i = 0; i < finalText.length; i++) {
-          if (i < Math.floor(progress * finalText.length * 1.5)) {
-            display += finalText[i].toUpperCase();
-          } else {
-            display += chars[Math.floor(Math.random() * chars.length)];
+      // After hold — name appears clean, no movement
+      setTimeout(() => {
+        nameEl.textContent = name.toUpperCase();
+        gsap.to(nameEl, {
+          opacity: 1, duration: 0.2, ease: 'power2.out',
+          onComplete: () => {
+            playRevealTone();
+            card.classList.remove('active');
+            card.classList.add('revealed');
           }
-        }
-        el.textContent = display;
-        playTick();
-
-        if (frame < totalFrames) {
-          requestAnimationFrame(tick);
-        } else {
-          el.textContent = finalText.toUpperCase();
-          if (onComplete) onComplete();
-        }
-      }
-      requestAnimationFrame(tick);
+        });
+      }, holdBeforeName);
     }
 
-    // ── All reveals complete ───────────────────────────────
+    // ── All revealed — house lights up ──
     function onAllRevealed() {
-      // Applause
       playApplause();
-
-      // Subtle brightness lift across all cards
-      gsap.to('.pick-card', {
-        boxShadow: '0 0 12px rgba(139,105,20,0.2)',
-        duration: 0.8,
-        stagger: 0.04
+      // All cards brighten together
+      gsap.to('.pick-card.revealed', {
+        borderColor: 'rgba(139,105,20,0.5)',
+        boxShadow: '0 0 18px rgba(139,105,20,0.2)',
+        duration: 1.0, ease: 'power2.out', stagger: 0.03
       });
-
-      // Fade in end buttons with stagger
-      const endBtns = document.getElementById('end-btns');
-      gsap.to(endBtns, { opacity: 1, duration: 0.5, delay: 0.4 });
+      // Board final glow
+      gsap.to('#board', {
+        boxShadow: '0 0 60px rgba(139,105,20,0.4), 0 0 120px rgba(139,105,20,0.14), inset 0 1px 0 rgba(139,105,20,0.28)',
+        duration: 1.0, ease: 'power2.out'
+      });
+      gsap.to('#end-btns', { opacity: 1, duration: 0.6, delay: 0.6 });
     }
 
-    // ── Share image via Canvas ────────────────────────────
+    // ── Share image ──
     function shareImage() {
       const leagueName = document.getElementById('league-name')?.value.trim() || 'CommishHub Draft Lottery';
       const canvas = document.createElement('canvas');
-      canvas.width  = 1200;
-      canvas.height = 630;
+      canvas.width = 1200; canvas.height = 630;
       const ctx = canvas.getContext('2d');
 
-      // Background
-      ctx.fillStyle = '#0A0705';
-      ctx.fillRect(0, 0, 1200, 630);
+      ctx.fillStyle = '#0A0705'; ctx.fillRect(0, 0, 1200, 630);
 
-      // Amber glow around board area
-      const glow = ctx.createRadialGradient(600, 315, 100, 600, 315, 500);
-      glow.addColorStop(0, 'rgba(139,105,20,0.12)');
+      const glow = ctx.createRadialGradient(600, 315, 0, 600, 315, 520);
+      glow.addColorStop(0, 'rgba(139,105,20,0.14)');
+      glow.addColorStop(0.5, 'rgba(139,105,20,0.06)');
       glow.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = glow;
-      ctx.fillRect(0, 0, 1200, 630);
+      ctx.fillStyle = glow; ctx.fillRect(0, 0, 1200, 630);
 
-      // Board background
-      ctx.fillStyle = '#1A0F07';
-      roundRect(ctx, 60, 60, 1080, 510, 8);
-      ctx.fill();
+      ctx.fillStyle = '#1A0F07'; roundRect(ctx, 48, 44, 1104, 542, 10); ctx.fill();
+      ctx.strokeStyle = 'rgba(139,105,20,0.65)'; ctx.lineWidth = 2;
+      roundRect(ctx, 48, 44, 1104, 542, 10); ctx.stroke();
+      ctx.strokeStyle = 'rgba(139,105,20,0.18)'; ctx.lineWidth = 1;
+      roundRect(ctx, 51, 47, 1098, 536, 9); ctx.stroke();
 
-      // Board border
-      ctx.strokeStyle = 'rgba(139,105,20,0.6)';
-      ctx.lineWidth = 2;
-      roundRect(ctx, 60, 60, 1080, 510, 8);
-      ctx.stroke();
-
-      // League name
       ctx.fillStyle = 'rgba(250,247,240,0.55)';
-      ctx.font = '600 13px DM Sans, sans-serif';
-      ctx.letterSpacing = '0.12em';
+      ctx.font = '600 12px "DM Sans", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(leagueName.toUpperCase(), 600, 106);
+      ctx.fillText(leagueName.toUpperCase(), 600, 88);
+      ctx.strokeStyle = 'rgba(139,105,20,0.2)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(80, 102); ctx.lineTo(1120, 102); ctx.stroke();
 
-      // Picks
-      const cols = 2;
-      const rows = Math.ceil(shuffledOrder.length / cols);
-      const cardW = 480, cardH = Math.min(60, (430 / rows) - 8);
-      const startX = 100, startY = 130;
-      const gapX = 520, gapY = cardH + 10;
+      const cols = 2, rows = Math.ceil(shuffledOrder.length / cols);
+      const padX = 72, padY = 120, gapX = 24, gapY = 12;
+      const cardW = (1200 - padX * 2 - gapX) / 2;
+      const cardH = Math.max(52, Math.min(72, (630 - padY - 60 - (rows - 1) * gapY) / rows));
 
       shuffledOrder.forEach((name, i) => {
-        const col  = i % cols;
-        const row  = Math.floor(i / cols);
-        const x    = startX + col * gapX;
-        const y    = startY + row * gapY;
-
-        // Card bg
-        ctx.fillStyle = '#0F0807';
-        roundRect(ctx, x, y, cardW, cardH, 4);
-        ctx.fill();
-
-        // Pick number
-        ctx.fillStyle = '#8B6914';
-        ctx.font = '600 10px DM Sans, sans-serif';
-        ctx.textAlign = 'left';
-        ctx.letterSpacing = '0.1em';
-        ctx.fillText(`PICK ${i + 1}`, x + 14, y + 16);
-
-        // Team name
+        const col = i % cols, row = Math.floor(i / cols);
+        const x = padX + col * (cardW + gapX), y = padY + row * (cardH + gapY);
+        ctx.fillStyle = '#0D0906'; roundRect(ctx, x, y, cardW, cardH, 5); ctx.fill();
+        ctx.fillStyle = 'rgba(139,105,20,0.5)'; roundRect(ctx, x, y, 3, cardH, 2); ctx.fill();
+        ctx.fillStyle = '#8B6914'; ctx.font = '600 10px "DM Sans", sans-serif';
+        ctx.textAlign = 'left'; ctx.fillText(`PICK ${i + 1}`, x + 16, y + 18);
+        const isLong = name.length > 14;
         ctx.fillStyle = '#FAF7F0';
-        ctx.font = `700 ${Math.min(18, cardH * 0.4)}px Lora, serif`;
-        ctx.letterSpacing = '0.02em';
-        ctx.fillText(name.toUpperCase(), x + 14, y + cardH - 14);
+        ctx.font = `700 ${isLong ? Math.min(16, cardH * 0.35) : Math.min(20, cardH * 0.42)}px "Lora", serif`;
+        ctx.fillText(name.toUpperCase(), x + 16, y + cardH - 14);
       });
 
-      // Watermark
-      ctx.fillStyle = 'rgba(139,105,20,0.4)';
-      ctx.font = '500 12px DM Sans, sans-serif';
-      ctx.letterSpacing = '0.04em';
-      ctx.textAlign = 'right';
-      ctx.fillText('commishhub.com', 1140, 590);
+      ctx.fillStyle = 'rgba(139,105,20,0.38)'; ctx.font = '500 11px "DM Sans", sans-serif';
+      ctx.textAlign = 'right'; ctx.fillText('commishhub.com', 1152, 612);
 
-      // Download
-      const slug = leagueName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g,'-');
+      const slug = leagueName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
       const link = document.createElement('a');
-      link.download = `draft-order-${slug}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      link.download = `draft-order-${slug}.png`; link.href = canvas.toDataURL('image/png'); link.click();
     }
 
     function roundRect(ctx, x, y, w, h, r) {
       ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.lineTo(x + w - r, y);
-      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-      ctx.lineTo(x + w, y + h - r);
-      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-      ctx.lineTo(x + r, y + h);
-      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-      ctx.lineTo(x, y + r);
-      ctx.quadraticCurveTo(x, y, x + r, y);
-      ctx.closePath();
+      ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+      ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+      ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+      ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y); ctx.closePath();
     }
 
-    // ── Reset ──────────────────────────────────────────────
+    // ── Reset ──
     function resetTool() {
       shuffledOrder = [];
       if (applauseAudio) { applauseAudio.pause(); applauseAudio.currentTime = 0; }
-
+      document.body.classList.remove('reveal-mode');
       document.getElementById('reveal-state').style.display = 'none';
       document.getElementById('picks-grid').innerHTML = '';
-      document.getElementById('end-btns').style.opacity = '0';
-
+      gsap.set('#end-btns', { opacity: 0 });
+      gsap.set('#board', { clearProps: 'boxShadow' });
       const inputState = document.getElementById('input-state');
       inputState.style.display = 'block';
-      gsap.fromTo(inputState, { opacity: 0 }, { opacity: 1, duration: 0.4 });
-      gsap.to('#board', { scale: 1, opacity: 1, duration: 0.3 });
-
+      gsap.fromTo(inputState, { opacity: 0 }, { opacity: 1, duration: 0.5 });
       checkRunButton();
     }
   </script>
