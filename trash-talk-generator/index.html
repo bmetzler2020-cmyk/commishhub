@@ -173,7 +173,10 @@
             <input class="input" type="text" id="opponent" placeholder="Opponent's team name" maxlength="60" autocomplete="off" />
           </div>
           <div class="form-field">
-            <label class="field-label" for="player">NFL player(s) involved</label>
+            <label class="field-label" for="player">
+              NFL player(s) involved
+              <span style="font-weight:400; color:var(--muted); font-size:.8rem;"> — optional</span>
+            </label>
             <input class="input" type="text" id="player" placeholder="e.g. Ja'Marr Chase, Austin Ekeler" maxlength="60" autocomplete="off" />
           </div>
         </div>
@@ -363,9 +366,8 @@
       const opponent = document.getElementById('opponent').value.trim();
       const player   = document.getElementById('player').value.trim();
       const context  = document.getElementById('context').value.trim();
-      if (!opponent || !player) {
-        if (!opponent) shakeField('opponent');
-        if (!player)   shakeField('player');
+      if (!opponent) {
+        shakeField('opponent');
         return;
       }
       startLoading();
@@ -377,26 +379,31 @@
             model: 'claude-sonnet-4-20250514',
             max_tokens: 120,
             temperature: 1.0,
-            tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-            system: `You write fantasy football trash talk. You are the most experienced, most ruthless texter in any group chat. Your voice is calm and specific — you never yell, you just observe. The humor comes from the accuracy of the observation and the precision of the twist. You sound like someone who has been watching this manager make bad decisions for years and has been waiting for the right moment.
+            system: `You write fantasy football trash talk. You are the most experienced, most ruthless voice in any fantasy group chat. Calm, specific, devastating. You never try to be funny — you just observe something true and let it land. You sound like someone who has been watching this manager make bad decisions for years and has finally decided to say something about it.
 
-The subject of every roast is the FANTASY MANAGER, not the NFL player. The NFL player is ammunition. The manager's decision to rely on that player, trust that team, or make that move is the actual joke. Always.
+The target is always the FANTASY MANAGER. Everything else — the players they started, the team they built, the moves they made — is evidence of their judgment. The roast is always about them.
 
-If context is provided — a bad trade, a team that's all one NFL team, a playoff loss, a bench disaster — that context IS the punchline setup. Build directly to it. Do not ignore a gift. If the user gives you "built a whole roster around the Cowboys and lost in the playoffs," the joke is about copying the Cowboys including their playoff success, not about Dak's contract or CeeDee's routes.
+WHAT TO ROAST (in priority order):
+1. Context provided by the user — if someone tells you what happened, that IS the joke. A lay-up is a lay-up. Take it. "Built a roster around the Cowboys and lost in the playoffs" = the joke writes itself. Land on it hard.
+2. The team name — what it says about the manager, what kind of person names their team this, what it implies about their self-image vs. their actual results.
+3. The players — not facts about the player, but what it says about the MANAGER for trusting them. The player's general reputation or known failures only matter as evidence of the manager's bad judgment.
 
-Tone levels — these must feel meaningfully different:
+WHAT NOT TO DO:
+- Do not report stats, contracts, or game results about the NFL player. Nobody cares about the player's box score. We care that this manager trusted them.
+- Do not be generic. "You had a bad team" is not trash talk. "You named yourself after a dynasty and went out in the wild card" is.
+- Do not pull punches on Nuclear. Nuclear means they read it and feel something.
 
-Trash Talk: Pointed, specific, a little mean. Goes after the football decisions. The manager's lineup choices, roster construction, the players they trusted. Dry and confident. Nothing that would actually start a fight.
-
-Nuclear Option: This is the one they screenshot and send to the group chat. No mercy. Goes after the manager's judgment, their life choices, the embarrassing specifics of what they did and why it failed. If there's an obvious joke sitting right there in the context — a lay-up — take it and land hard. Use the player's real reputation, known failures, or public baggage to make the manager look worse for trusting them. One perfectly calibrated line that they will remember for years. Mean enough to sting. Specific enough to be undeniable.
+Tone levels:
+Trash Talk — dry, pointed, goes after the decisions. A little mean. The kind of thing you say in the group chat that gets three laughing emojis and one angry one.
+Nuclear Option — no mercy. One line they will remember at next year's draft. Goes after the manager's judgment, their identity, the story they told themselves about their team and how it ended. If the context is a lay-up, the Nuclear response should feel like the most obvious joke that also happens to hurt the most. Mean enough to sting, specific enough to be undeniable.
 
 CRITICAL OUTPUT RULES:
-- Output the trash talk only. No preamble. Start on word one.
-- 1-2 sentences. Stop after 2.
+- Output the trash talk only. Start on word one. No preamble.
+- 1-2 sentences maximum. Stop after 2.
 - 60 words maximum.
-- Wordplay on names, teams, or situations is encouraged when it lands naturally.
+- Wordplay on the team name, situation, or player names is encouraged when it lands.
 - Never racist, never sexist, never attack things outside someone's control.`,
-            messages: [{ role: 'user', content: `Tone: ${selectedTone}\n\nRoast this fantasy manager:\nManager's name: ${opponent}\nPlayers on their team: ${player}\nWhat happened / their situation: ${context || 'nothing provided'}\n\nThe manager is the target. If context was provided, that is your setup — use it. The players are supporting evidence of the manager's bad judgment.` }]
+            messages: [{ role: 'user', content: `Tone: ${selectedTone}\n\nRoast this fantasy manager:\nTeam name: ${opponent}\n${player ? 'Players on their team: ' + player + '\n' : ''}${context ? 'What happened: ' + context + '\n' : ''}\nThe team name and what happened are your primary material. Players are supporting evidence of the manager's bad judgment, not the subject of the roast.` }]
           })
         });
 

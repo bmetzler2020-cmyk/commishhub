@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Fantasy Football Trash Talk Generator — CommishHub</title>
-  <meta name="description" content="Generate personalized AI-powered fantasy football trash talk in seconds. It knows the player, the baggage, and the reputation." />
-  <link rel="canonical" href="https://commishhub.com/trash-talk-generator/" />
+  <title>Fantasy Football Player Nickname Generator — CommishHub</title>
+  <meta name="description" content="Generate fantasy football nicknames for any NFL player. Dry, sharp, and occasionally inevitable. Enter a name and let CommishHub do the rest." />
+  <link rel="canonical" href="https://commishhub.com/player-nickname-generator/" />
 
   <!-- Favicons -->
   <link rel="icon" type="image/x-icon" href="/icons/favicon.ico" />
@@ -16,13 +16,13 @@
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://commishhub.com/trash-talk-generator/" />
-  <meta property="og:title" content="AI Fantasy Football Trash Talk Generator — CommishHub" />
-  <meta property="og:description" content="Generate personalized AI-powered fantasy football trash talk in seconds. It knows the player, the baggage, and the reputation." />
+  <meta property="og:url" content="https://commishhub.com/player-nickname-generator/" />
+  <meta property="og:title" content="Fantasy Football Player Nickname Generator — CommishHub" />
+  <meta property="og:description" content="Generate fantasy football nicknames for any NFL player. Dry, sharp, and occasionally inevitable. Enter a name and let CommishHub do the rest." />
   <meta property="og:image" content="https://commishhub.com/images/og-default.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AI Fantasy Football Trash Talk Generator — CommishHub" />
-  <meta name="twitter:description" content="Generate personalized AI-powered fantasy football trash talk in seconds. It knows the player, the baggage, and the reputation." />
+  <meta name="twitter:title" content="Fantasy Football Player Nickname Generator — CommishHub" />
+  <meta name="twitter:description" content="Generate fantasy football nicknames for any NFL player. Dry, sharp, and occasionally inevitable. Enter a name and let CommishHub do the rest." />
   <meta name="twitter:image" content="https://commishhub.com/images/og-default.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -31,32 +31,37 @@
   <link rel="stylesheet" href="/styles.css" />
 
   <style>
-    .tone-group { display: flex; gap: 10px; flex-wrap: wrap; }
-    .tone-btn {
-      flex: 1; min-width: 110px; padding: 10px 16px; border-radius: 8px;
-      border: 1.5px solid var(--border); background: transparent;
-      font-family: 'DM Sans', sans-serif; font-size: .9rem; font-weight: 600;
-      color: var(--muted); cursor: pointer;
-      transition: border-color .15s, background .15s, color .15s; text-align: center;
-    }
-    .tone-btn:hover { border-color: var(--gold); color: var(--gold); }
-    .tone-btn.active { background: var(--gold); border-color: var(--gold); color: #fff; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-    .form-field { display: flex; flex-direction: column; }
-    .form-field-full { margin-bottom: 20px; }
+    /* ── NICKNAME GENERATOR — page-scoped styles only ── */
+
+    .form-field { display: flex; flex-direction: column; margin-bottom: 20px; }
+    .form-field-optional .field-label { font-weight: 500; color: var(--muted); }
+
     .loading-state { display: none; text-align: center; padding: 32px 0 8px; color: var(--muted); font-style: italic; font-size: .95rem; }
     .loading-state.visible { display: block; }
     .loading-dots::after { content: ''; animation: dots 1.2s steps(3, end) infinite; }
     @keyframes dots { 0% { content: ''; } 33% { content: '.'; } 66% { content: '..'; } 100% { content: '...'; } }
-    .results-section { display: none; margin-top: 32px; border-top: 1px solid var(--border); padding-top: 28px; }
+
+    .results-section { display: none; margin-top: 32px; border-top: 1px solid var(--border); padding-top: 28px; text-align: center; }
     .results-section.visible { display: block; }
-    .result-card {
-      background: var(--bg); border: 1px solid var(--border);
-      border-left: 4px solid var(--gold); border-radius: 0 10px 10px 0;
-      padding: 24px; margin-bottom: 20px;
+
+    .nickname-display {
+      font-family: 'Lora', serif;
+      font-size: clamp(1.65rem, 4vw, 2rem);
+      font-weight: 700;
+      color: var(--brown);
+      line-height: 1.2;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
     }
-    .result-text { font-size: 1rem; line-height: 1.7; color: var(--text); }
-    .result-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    .nickname-explanation {
+      font-size: .95rem;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 460px;
+      margin: 0 auto 24px;
+    }
+
+    .result-actions { display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; justify-content: center; }
     .copy-btn {
       background: transparent; border: 1.5px solid var(--border); border-radius: 7px;
       padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: .82rem;
@@ -65,6 +70,7 @@
     }
     .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
     .copy-btn.copied { border-color: var(--sage); color: var(--sage); background: rgba(74,124,89,.06); }
+
     .more-tools { padding: 72px 28px; }
     .more-tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 36px; max-width: var(--max); margin-left: auto; margin-right: auto; }
     .more-tool-card {
@@ -79,9 +85,24 @@
     .more-tool-card h3 { font-family: 'Lora', serif; font-size: 1.05rem; font-weight: 700; color: var(--brown); }
     .more-tool-card p { font-size: .85rem; color: var(--muted); line-height: 1.55; flex: 1; }
     .more-tool-card .tool-arrow { font-size: .82rem; font-weight: 600; color: var(--gold); }
-    .small-print { text-align: center; font-size: .75rem; color: var(--muted); margin-top: 4px; }
-    @media (max-width: 700px) { .form-row { grid-template-columns: 1fr; } .more-tools-grid { grid-template-columns: 1fr; } }
+
+    .small-print { text-align: center; font-size: .75rem; color: var(--muted); margin-top: 20px; opacity: .8; }
+
     @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+    /* ── Mode toggle ── */
+    .mode-toggle { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+    .mode-btn {
+      flex: 1; padding: 10px 20px; border-radius: 100px;
+      border: 1.5px solid var(--border); background: transparent;
+      font-family: 'DM Sans', sans-serif; font-size: .88rem; font-weight: 600;
+      color: var(--muted); cursor: pointer; transition: all .2s; text-align: center;
+    }
+    .mode-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .mode-btn.active-nickname { background: var(--gold); border-color: var(--gold); color: #fff; }
+    .mode-btn.active-linkedin { background: #2C1A0E; border-color: #2C1A0E; color: #F0D080; }
+
+    @media (max-width: 700px) { .more-tools-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -155,11 +176,11 @@
     <section class="tool-hero">
       <div class="tool-hero-inner">
         <div class="tool-breadcrumb">
-          <a href="/">Home</a> › <a href="/#tools">Tools</a> › Trash Talk Generator
+          <a href="/">Home</a> › <a href="/#tools">Tools</a> › Player Nickname Generator
         </div>
         <span class="badge badge-gold fu" style="margin-bottom:14px; display:inline-flex;">Free Tool</span>
-        <h1 class="fu">Fantasy Football Trash Talk Generator</h1>
-        <p class="fu">It already knows what the internet thinks of that player.</p>
+        <h1 class="fu">Fantasy Football Player Nickname Generator</h1>
+        <p class="fu">Every player has a nickname they don't know about yet. Some are obvious. Some are inevitable. One sounds like a job title on a very impressive resume.</p>
       </div>
     </section>
 
@@ -167,51 +188,44 @@
     <div class="tool-body">
       <div class="tool-card-main">
 
-        <div class="form-row">
-          <div class="form-field">
-            <label class="field-label" for="opponent">Who are you talking trash to?</label>
-            <input class="input" type="text" id="opponent" placeholder="Opponent's team name" maxlength="60" autocomplete="off" />
-          </div>
-          <div class="form-field">
-            <label class="field-label" for="player">NFL player(s) involved</label>
-            <input class="input" type="text" id="player" placeholder="e.g. Ja'Marr Chase, Austin Ekeler" maxlength="60" autocomplete="off" />
-          </div>
+        <div class="form-field">
+          <label class="field-label" for="player-name">Player name</label>
+          <input class="input" type="text" id="player-name" placeholder="e.g. Patrick Mahomes" maxlength="40" autocomplete="off" autocorrect="off" spellcheck="false" />
         </div>
 
-        <div class="form-field-full">
-          <label class="field-label" id="tone-label">Tone</label>
-          <div class="tone-group" role="group" aria-labelledby="tone-label">
-            <button class="tone-btn active" data-tone="Talking Trash" onclick="setTone(this)" aria-pressed="true">🗑️ Talking Trash</button>
-            <button class="tone-btn" data-tone="Nuclear Option" onclick="setTone(this)" aria-pressed="false">💀 Nuclear Option</button>
-          </div>
-        </div>
-
-        <div class="form-field-full">
-          <label class="field-label" for="context">
-            Anything else?
+        <div class="form-field form-field-optional">
+          <label class="field-label" for="player-context">
+            Anything worth noting?
             <span style="font-weight:400; color:var(--muted); font-size:.8rem;"> — optional</span>
           </label>
-          <textarea class="textarea" id="context" placeholder="e.g. they benched their best player, started someone on bye..." style="min-height:80px;"></textarea>
+          <input class="input" type="text" id="player-context" placeholder="e.g. known for fumbles, recently benched, plays for a bad team" autocomplete="off" />
         </div>
 
-        <button class="btn-primary" id="generate-btn" onclick="generateTrashTalk()" aria-label="Generate trash talk" style="width:100%; font-size:1rem; padding:16px;">
-          Talk Some Trash →
+        <!-- Mode toggle -->
+        <div class="mode-toggle" role="group" aria-label="Nickname mode">
+          <button class="mode-btn active-nickname" id="btn-nickname" data-mode="nickname" onclick="setMode(this)">Nickname</button>
+          <button class="mode-btn" id="btn-linkedin" data-mode="linkedin" onclick="setMode(this)">LinkedIn Bio</button>
+        </div>
+
+        <button class="btn-primary" id="generate-btn" onclick="generateNickname()" aria-label="Generate player nickname" style="width:100%; font-size:1rem; padding:16px;">
+          Find the Nickname →
         </button>
 
         <div class="loading-state" id="loading" role="status" aria-live="polite">
-          <span id="loading-text">Consulting the injury report</span><span class="loading-dots" aria-hidden="true"></span>
+          <span id="loading-text">Checking the injury report</span><span class="loading-dots" aria-hidden="true"></span>
         </div>
 
         <div class="results-section" id="results">
-          <div class="result-card">
-            <p class="result-text" id="result-text"></p>
-            <div class="result-actions">
-              <button class="copy-btn" id="copy-btn" onclick="copyResult()" aria-label="Copy trash talk to clipboard">Copy →</button>
-              <button class="btn-ghost" onclick="generateTrashTalk()" style="padding:8px 16px; font-size:.82rem;">↻ Try Again</button>
-            </div>
+          <p class="nickname-display" id="result-nickname"></p>
+          <p class="nickname-explanation" id="result-explanation"></p>
+          <div class="result-actions">
+            <button class="copy-btn" id="copy-btn" onclick="copyNickname()" aria-label="Copy nickname to clipboard">Copy nickname →</button>
+            <button class="btn-ghost" onclick="tryAnother()" style="padding:8px 16px; font-size:.82rem;">↻ Try Another</button>
+            <button class="btn-ghost" onclick="resetTool()" style="padding:8px 16px; font-size:.82rem;">Different Player</button>
           </div>
-          <p class="small-print">Results are AI-generated. CommishHub is not responsible for damaged friendships.</p>
         </div>
+
+        <p class="small-print">CommishHub is not responsible for what happens when you use this in the group chat. The LinkedIn Bio mode especially.</p>
 
       </div>
     </div>
@@ -223,26 +237,26 @@
         <h2 class="section-title">Keep the league running.</h2>
       </div>
       <div class="more-tools-grid wrap">
-        <a href="/draft-order-randomizer/" class="more-tool-card">
-          <div class="tool-icon" aria-hidden="true">🎲</div>
+        <a href="/trash-talk-generator/" class="more-tool-card">
+          <div class="tool-icon" aria-hidden="true">🗣️</div>
           <span class="badge badge-gold">Live Now</span>
-          <h3>Draft Order Randomizer</h3>
-          <p>Enter your teams. Hit the button. Watch your league's draft fate get decided by something more official than pulling names from a hat.</p>
-          <span class="tool-arrow">Randomize →</span>
+          <h3>AI Trash Talk Generator</h3>
+          <p>It knows the player, the baggage, and exactly what the internet thinks of them.</p>
+          <span class="tool-arrow">Try it →</span>
         </a>
         <a href="/punishment-wheel/" class="more-tool-card">
           <div class="tool-icon" aria-hidden="true">🎡</div>
           <span class="badge badge-gold">Live Now</span>
           <h3>Loser Punishment Wheel</h3>
-          <p>Spin it. Accept the verdict. Or spin again and let fate decide if it gets worse.</p>
+          <p>Make finishing last mean something.</p>
           <span class="tool-arrow">Spin it →</span>
         </a>
-        <a href="/player-nickname-generator/" class="more-tool-card">
-          <div class="tool-icon" aria-hidden="true">🏷️</div>
+        <a href="/draft-order-randomizer/" class="more-tool-card">
+          <div class="tool-icon" aria-hidden="true">🎲</div>
           <span class="badge badge-gold">Live Now</span>
-          <h3>Player Nickname Generator</h3>
-          <p>Every player has a nickname they don't know about yet. Some are obvious. Some are inevitable. One sounds like a job title on a very impressive resume.</p>
-          <span class="tool-arrow">Find the nickname →</span>
+          <h3>Draft Order Randomizer</h3>
+          <p>Animated reveal. No arguments about the coin flip.</p>
+          <span class="tool-arrow">Randomize →</span>
         </a>
       </div>
     </section>
@@ -314,16 +328,29 @@
   </script>
 
   <script>
-    let selectedTone = 'Talking Trash';
-    const loadingMessages = ['Consulting the injury report','Checking his waiver wire history','Reviewing the tape','Reading the group chat','Polling the fantasy gods'];
-    let loadingInterval = null;
+    let selectedMode = 'nickname';
 
-    function setTone(btn) {
-      document.querySelectorAll('.tone-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
-      btn.classList.add('active');
-      btn.setAttribute('aria-pressed','true');
-      selectedTone = btn.dataset.tone;
+    function setMode(btn) {
+      document.querySelectorAll('.mode-btn').forEach(b => {
+        b.classList.remove('active-nickname', 'active-linkedin');
+      });
+      if (btn.dataset.mode === 'nickname') {
+        btn.classList.add('active-nickname');
+      } else {
+        btn.classList.add('active-linkedin');
+      }
+      selectedMode = btn.dataset.mode;
     }
+
+    const loadingMessages = [
+      'Checking the injury report',
+      'Reviewing the tape',
+      'Consulting the fantasy football gods',
+      'Looking up his Wikipedia page'
+    ];
+    let loadingInterval = null;
+    let lastPlayerName = '';
+    let lastContext = '';
 
     function startLoading() {
       const el = document.getElementById('loading-text');
@@ -333,7 +360,10 @@
       document.getElementById('results').classList.remove('visible');
       document.getElementById('generate-btn').disabled = true;
       document.getElementById('generate-btn').style.opacity = '.6';
-      loadingInterval = setInterval(() => { i = (i + 1) % loadingMessages.length; el.textContent = loadingMessages[i]; }, 1500);
+      loadingInterval = setInterval(function() {
+        i = (i + 1) % loadingMessages.length;
+        el.textContent = loadingMessages[i];
+      }, 1500);
     }
 
     function stopLoading() {
@@ -343,128 +373,186 @@
       document.getElementById('generate-btn').style.opacity = '1';
     }
 
-    function renderResult(text) {
-      document.getElementById('result-text').textContent = text;
+    function renderResult(nickname, explanation) {
+      const nicknameEl    = document.getElementById('result-nickname');
+      const explanationEl = document.getElementById('result-explanation');
+      nicknameEl.textContent    = nickname;
+      explanationEl.textContent = explanation;
+      // Reset styles in case of a previous error state
+      nicknameEl.style.color    = '';
+      nicknameEl.style.fontSize = '';
+      // Hide explanation element if empty — output is now nickname only
+      explanationEl.style.display = explanation ? '' : 'none';
       document.getElementById('results').classList.add('visible');
       document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    function copyResult() {
-      const text = document.getElementById('result-text').textContent;
+    function renderError(message) {
+      const nicknameEl = document.getElementById('result-nickname');
+      const explanationEl = document.getElementById('result-explanation');
+      nicknameEl.textContent = message;
+      nicknameEl.style.color = 'var(--muted)';
+      nicknameEl.style.fontSize = '1rem';
+      explanationEl.style.display = 'none';
+      document.getElementById('results').classList.add('visible');
+    }
+
+    function copyNickname() {
+      const nickname = document.getElementById('result-nickname').textContent;
       const btn = document.getElementById('copy-btn');
-      navigator.clipboard.writeText(text).then(() => {
+      navigator.clipboard.writeText(nickname).then(function() {
         btn.textContent = '✓ Copied!';
         btn.classList.add('copied');
-        setTimeout(() => { btn.textContent = 'Copy →'; btn.classList.remove('copied'); }, 2000);
+        setTimeout(function() { btn.textContent = 'Copy nickname →'; btn.classList.remove('copied'); }, 2000);
       });
     }
 
-    async function generateTrashTalk() {
-      const opponent = document.getElementById('opponent').value.trim();
-      const player   = document.getElementById('player').value.trim();
-      const context  = document.getElementById('context').value.trim();
-      if (!opponent || !player) {
-        if (!opponent) shakeField('opponent');
-        if (!player)   shakeField('player');
-        return;
-      }
-      startLoading();
-      try {
-        const response = await fetch('/.netlify/functions/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 120,
-            temperature: 1.0,
-            tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-            system: `You write fantasy football trash talk. You are the most experienced, most ruthless texter in any group chat. Your voice is calm and specific — you never yell, you just observe. The humor comes from the accuracy of the observation and the precision of the twist. You sound like someone who has been watching this manager make bad decisions for years and has been waiting for the right moment.
+    function tryAnother() {
+      if (!lastPlayerName) return;
+      generateNickname(true);
+    }
 
-The subject of every roast is the FANTASY MANAGER, not the NFL player. The NFL player is ammunition. The manager's decision to rely on that player, trust that team, or make that move is the actual joke. Always.
-
-If context is provided — a bad trade, a team that's all one NFL team, a playoff loss, a bench disaster — that context IS the punchline setup. Build directly to it. Do not ignore a gift. If the user gives you "built a whole roster around the Cowboys and lost in the playoffs," the joke is about copying the Cowboys including their playoff success, not about Dak's contract or CeeDee's routes.
-
-Tone levels — these must feel meaningfully different:
-
-Trash Talk: Pointed, specific, a little mean. Goes after the football decisions. The manager's lineup choices, roster construction, the players they trusted. Dry and confident. Nothing that would actually start a fight.
-
-Nuclear Option: This is the one they screenshot and send to the group chat. No mercy. Goes after the manager's judgment, their life choices, the embarrassing specifics of what they did and why it failed. If there's an obvious joke sitting right there in the context — a lay-up — take it and land hard. Use the player's real reputation, known failures, or public baggage to make the manager look worse for trusting them. One perfectly calibrated line that they will remember for years. Mean enough to sting. Specific enough to be undeniable.
-
-CRITICAL OUTPUT RULES:
-- Output the trash talk only. No preamble. Start on word one.
-- 1-2 sentences. Stop after 2.
-- 60 words maximum.
-- Wordplay on names, teams, or situations is encouraged when it lands naturally.
-- Never racist, never sexist, never attack things outside someone's control.`,
-            messages: [{ role: 'user', content: `Tone: ${selectedTone}\n\nRoast this fantasy manager:\nManager's name: ${opponent}\nPlayers on their team: ${player}\nWhat happened / their situation: ${context || 'nothing provided'}\n\nThe manager is the target. If context was provided, that is your setup — use it. The players are supporting evidence of the manager's bad judgment.` }]
-          })
-        });
-
-        if (response.status === 429) {
-          stopLoading();
-          renderResult("You've been talking too much trash. Come back in an hour.");
-          const el = document.getElementById('result-text');
-          el.style.color = 'var(--muted)'; el.style.textAlign = 'center'; el.style.fontStyle = 'italic';
-          return;
-        }
-        if (!response.ok) throw new Error('API error: ' + response.status);
-
-        const data = await response.json();
-        // Concatenate all text blocks — avoids truncation when model splits response across blocks
-        // Join all text blocks
-        let rawText = data.content.filter(b => b.type === 'text').map(b => b.text).join(' ').trim();
-        if (!rawText) throw new Error('No text in response');
-
-        // Strip model preamble — if the response starts with search narration,
-        // skip sentences until we reach the actual trash talk.
-        // Preamble indicators: starts with "Based on", "I now have", "Here's the trash talk", etc.
-        const preamblePatterns = [
-          /^based on/i, /^i now have/i, /^here('s| is) the trash talk/i,
-          /^after (searching|reviewing|checking)/i, /^the search results/i,
-          /^i('ve| have) (found|searched|looked)/i
-        ];
-        // Split into sentences, drop leading sentences that match preamble patterns
-        const sentences = rawText.match(/[^.!?]+[.!?]+/g) || [rawText];
-        const cleaned = [];
-        let foundStart = false;
-        for (const s of sentences) {
-          const trimmed = s.trim();
-          if (!foundStart && preamblePatterns.some(p => p.test(trimmed))) continue;
-          foundStart = true;
-          cleaned.push(trimmed);
-          if (cleaned.length >= 2) break; // hard cap at 2 sentences on the client side too
-        }
-        const finalText = (cleaned.length > 0 ? cleaned : [rawText]).join(' ').trim();
-
-        stopLoading();
-        const resultEl = document.getElementById('result-text');
-        resultEl.style.color = ''; resultEl.style.textAlign = ''; resultEl.style.fontStyle = '';
-        renderResult(finalText);
-
-      } catch (err) {
-        stopLoading();
-        console.error('Trash talk generation failed:', err);
-        renderResult('Something went wrong on our end. Refresh and run it back.');
-        const el = document.getElementById('result-text');
-        el.style.color = 'var(--muted)'; el.style.fontStyle = 'italic'; el.style.textAlign = 'center';
-      }
+    function resetTool() {
+      document.getElementById('player-name').value = '';
+      document.getElementById('player-context').value = '';
+      document.getElementById('results').classList.remove('visible');
+      document.getElementById('player-name').focus();
     }
 
     function shakeField(id) {
       const el = document.getElementById(id);
       el.style.borderColor = '#c0392b';
       el.style.animation = 'shake .3s ease';
-      setTimeout(() => { el.style.borderColor = ''; el.style.animation = ''; }, 800);
+      setTimeout(function() { el.style.borderColor = ''; el.style.animation = ''; }, 800);
     }
+
+    // Canonical nicknames — these fire instantly before any API call.
+    // Add players here when consensus is strong enough to hardcode.
+    const CANONICAL = {
+      'jaxon smith-njigba': { nickname: 'Emerald City Route Merchant', mode: 'linkedin' },
+      'jsn': { nickname: 'Emerald City Route Merchant', mode: 'linkedin' },
+    };
+
+    async function generateNickname(rerun) {
+      const playerName = rerun ? lastPlayerName : document.getElementById('player-name').value.trim();
+      const context    = rerun ? lastContext    : document.getElementById('player-context').value.trim();
+
+      if (!playerName) { shakeField('player-name'); return; }
+
+      // Check canonical lookup first — instant return, no API call
+      const canonical = CANONICAL[playerName.toLowerCase().trim()];
+      if (canonical && !rerun) {
+        lastPlayerName = playerName;
+        lastContext    = context;
+        stopLoading();
+        renderResult(canonical.nickname, '');
+        return;
+      }
+
+      lastPlayerName = playerName;
+      lastContext    = context;
+
+      startLoading();
+
+      try {
+        const response = await fetch('/.netlify/functions/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            tool: 'nickname',
+            max_tokens: 80,
+            temperature: 1.0,
+            system: selectedMode === 'nickname'
+              ? `You are a fantasy football nickname generator. Your job is to produce the single best nickname for an NFL player — the one that feels inevitable the moment you hear it. You have deep knowledge of NFL players, their personalities, playing styles, known controversies, public reputations, and fantasy football community perception.
+
+Priority order:
+1. Internet consensus — what does the fantasy football community already call this player? What's the running joke or established reputation?
+2. Known controversies or defining moments — what does everyone already know about this player that defines them?
+3. Wordplay on their name, position, or situation — only if genuinely earned. Can be witty or crudely observational. Never forced.
+
+The gold standard: "The Dick Print" for Woody Marks. Specific, observable, impossible to un-hear.
+
+CRITICAL: Output exactly one line — the nickname only. 2-5 words maximum. No quotes, no punctuation, no explanation, no preamble. Start immediately with the nickname and stop. Nothing else.
+
+Rules: never racist, never sexist, never genuinely private information. Crude is fine if earned. Generic is never acceptable. "The Beast" is not a nickname. "The Dick Print" is.`
+              : `You are generating a nickname in the style of "Emerald City Route Merchant" for Jaxon Smith-Njigba — the overwrought, grandiose AI nickname format that became a joke in fantasy football circles. The format works because it combines something hyper-specific about what the player actually does on the field with unnecessarily grand language.
+
+The formula: [Geographic or atmospheric modifier] + [Specific football skill or trait in elevated language]
+
+Examples of what makes this work:
+- "Route Merchant" — specific to JSN's skill set, sounds like a job title
+- "Red Zone Adjudicator" — for a goal line back
+- "Fourth Quarter Executor" — for a clutch receiver
+- "Pocket Sovereign" — for a statue QB
+
+Pick the ONE thing that most defines this player's football identity — their signature skill, their defining trait, what they're known for in fantasy circles — then describe it in the most unnecessarily formal language possible. 3-5 words. Commit fully to the bit.
+
+CRITICAL: Output exactly one line — the nickname only. No explanation, no punctuation after it, just the nickname.`,
+            messages: [{
+              role: 'user',
+              content: 'Player: ' + playerName + (context ? '\nContext: ' + context : '')
+            }]
+          })
+        });
+
+        if (response.status === 429) {
+          stopLoading();
+          renderError("You've been naming players faster than they can get drafted. Come back in an hour.");
+          return;
+        }
+        if (!response.ok) throw new Error('API error: ' + response.status);
+
+        const data = await response.json();
+
+        // Join all text content blocks
+        // Join all text content blocks
+        const fullText = data.content
+          .filter(function(b) { return b.type === 'text'; })
+          .map(function(b) { return b.text; })
+          .join('\n')
+          .trim();
+
+        if (!fullText) throw new Error('No text in response');
+
+        // Strip preamble lines — model sometimes narrates before answering.
+        // Take the first non-empty line that doesn't look like a preamble.
+        const preamblePatterns = [
+          /^based on/i, /^i('ve| have| now)/i, /^here('s| is)/i,
+          /^after (searching|reviewing)/i, /^the (search|internet|fantasy)/i,
+          /^looking at/i, /^from my/i
+        ];
+        const lines = fullText.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; });
+        const nickname = lines.find(function(l) { return !preamblePatterns.some(function(p) { return p.test(l); }); }) || lines[0] || '';
+
+        if (!nickname) throw new Error('Could not parse nickname from response');
+
+        stopLoading();
+        renderResult(nickname, '');
+
+      } catch (err) {
+        stopLoading();
+        console.error('Nickname generation failed:', err);
+        renderError('Something went wrong on our end. Refresh and run it back.');
+      }
+    }
+
+    // Allow Enter key to submit from either input field
+    document.getElementById('player-name').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') generateNickname();
+    });
+    document.getElementById('player-context').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') generateNickname();
+    });
   </script>
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "Fantasy Football Trash Talk Generator",
-    "url": "https://commishhub.com/trash-talk-generator/",
-    "description": "Generate personalized AI-powered fantasy football trash talk. Informed by real player news and reputation.",
+    "name": "Fantasy Football Player Nickname Generator",
+    "url": "https://commishhub.com/player-nickname-generator/",
+    "description": "Generate fantasy football nicknames for any NFL player. Dry, sharp, and occasionally inevitable.",
     "applicationCategory": "SportsApplication",
     "operatingSystem": "Web",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
