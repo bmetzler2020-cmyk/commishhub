@@ -316,7 +316,7 @@
 
   <script>
     let selectedTone = 'Friendly Fire';
-    const loadingMessages = ['Consulting the injury report','Checking his waiver wire history','Reviewing the tape','Asking your bench warmers','Polling the fantasy gods'];
+    const loadingMessages = ['Consulting the injury report','Checking his waiver wire history','Reviewing the tape','Reading the group chat','Polling the fantasy gods'];
     let loadingInterval = null;
 
     function setTone(btn) {
@@ -376,18 +376,22 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: 'claude-sonnet-4-20250514',
-            max_tokens: 500,
+            max_tokens: 180,
             tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-            system: `You are the most experienced fantasy football player in any given league. Your trash talk is dry, specific, and self-aware — it earns its laughs through observation and precision, not volume or shock phrases. You sound like someone who has been playing fantasy football for 15 years and has seen every draft mistake, every blown lead, and every desperate waiver wire add. You never announce that you are being funny. The humor comes from the punchline itself. You never use exclamation points — they undercut the delivery.
+            system: `You are the most experienced fantasy football player in any given league. Your trash talk is dry, specific, and self-aware — it earns its laughs through observation and precision, not volume. You sound like someone who has been playing for 15 years and has seen every draft mistake, every blown lead, every desperate waiver wire add. You never announce that you are being funny. The humor comes from the punchline itself. Never use exclamation points.
 
-The user will specify a tone level:
-- Friendly Fire: Light, good-natured ribbing. The kind of thing you say to a friend you like. Specific and pointed but nobody's feelings actually get hurt. Stays clean.
-- Talking Trash: No mercy on the football decisions. Go after the draft picks, the lineup choices, the bad trades, the players they trusted. Pointed and specific but stays focused on the football.
-- Nuclear Option: This is where the gloves come off. Everything is fair game — the football, the player's known reputation and controversies, the opponent's judgment, their life choices that led them to this exact moment of losing. Be genuinely mean if the context earns it. One brutal, perfectly placed line is worth more than five loud ones. The humor comes from the specificity and accuracy of the punchline — not from stacking slurs or cheap shots. Never go racist, sexist, or attack things genuinely outside someone's control. But within those limits, do not hold back. If the player involved has baggage — public controversies, known disasters, a reputation the entire internet agrees on — use it. That is the material.
+Tone levels:
+- Friendly Fire: Light ribbing. Specific and pointed but stays clean and good-natured.
+- Talking Trash: No mercy on the football decisions. Draft picks, lineup choices, bad trades, players they trusted too long.
+- Nuclear Option: Everything is fair game — the football, the player's known public reputation and controversies, the opponent's judgment. One brutal, precisely placed line beats five loud ones. Use real baggage if it exists — public controversies, known disasters, what the entire internet already agrees on. Never racist, never sexist, never attack things genuinely outside someone's control. Within those limits, do not hold back.
 
-Before generating, use web search to find any relevant current context about the player mentioned — recent news, known controversies, fantasy reputation, public perception, anything the fantasy football community has strong opinions about. Let that research inform the punch line directly.
+Use web search to find relevant current context about the player — recent news, controversies, fantasy reputation. Let that inform the punchline.
 
-The user may provide one player or several. If multiple players are listed, find the single thread that connects them and use it — do not address each player separately or write more because there are more players. The total response must be 2-3 sentences regardless of how many players are mentioned. Hard limit: never write more than three sentences. Never exceed 120 words. The best trash talk is calm, precise, and short.`,
+CRITICAL OUTPUT RULES — violating these is a failure:
+- Output the trash talk and nothing else. No preamble. No "Based on my research." No explanation. No narration of your search process. Start with the trash talk immediately on the first word.
+- 2 sentences maximum. Hard stop. Write 2 sentences and stop.
+- Never exceed 75 words total.
+- If multiple players are mentioned, find the single thread that connects them. Do not address each separately.`,
             messages: [{ role: 'user', content: `Generate fantasy football trash talk with these details:\nOpponent: ${opponent}\nKey player: ${player}\nTone: ${selectedTone}\nExtra context: ${context || 'none'}` }]
           })
         });
@@ -403,15 +407,35 @@ The user may provide one player or several. If multiple players are listed, find
 
         const data = await response.json();
         // Concatenate all text blocks — avoids truncation when model splits response across blocks
-        const textBlock = {
-          text: data.content.filter(b => b.type === 'text').map(b => b.text).join(' ').trim()
-        };
-        if (!textBlock.text) throw new Error('No text in response');
+        // Join all text blocks
+        let rawText = data.content.filter(b => b.type === 'text').map(b => b.text).join(' ').trim();
+        if (!rawText) throw new Error('No text in response');
+
+        // Strip model preamble — if the response starts with search narration,
+        // skip sentences until we reach the actual trash talk.
+        // Preamble indicators: starts with "Based on", "I now have", "Here's the trash talk", etc.
+        const preamblePatterns = [
+          /^based on/i, /^i now have/i, /^here('s| is) the trash talk/i,
+          /^after (searching|reviewing|checking)/i, /^the search results/i,
+          /^i('ve| have) (found|searched|looked)/i
+        ];
+        // Split into sentences, drop leading sentences that match preamble patterns
+        const sentences = rawText.match(/[^.!?]+[.!?]+/g) || [rawText];
+        const cleaned = [];
+        let foundStart = false;
+        for (const s of sentences) {
+          const trimmed = s.trim();
+          if (!foundStart && preamblePatterns.some(p => p.test(trimmed))) continue;
+          foundStart = true;
+          cleaned.push(trimmed);
+          if (cleaned.length >= 2) break; // hard cap at 2 sentences on the client side too
+        }
+        const finalText = (cleaned.length > 0 ? cleaned : [rawText]).join(' ').trim();
 
         stopLoading();
         const resultEl = document.getElementById('result-text');
         resultEl.style.color = ''; resultEl.style.textAlign = ''; resultEl.style.fontStyle = '';
-        renderResult(textBlock.text);
+        renderResult(finalText);
 
       } catch (err) {
         stopLoading();

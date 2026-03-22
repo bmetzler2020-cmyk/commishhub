@@ -461,19 +461,18 @@
           body: JSON.stringify({
             model: 'claude-sonnet-4-20250514',
             tool: 'nickname',
-            max_tokens: 100,
-            tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+            max_tokens: 80,
             system: selectedMode === 'nickname'
-              ? `You are a fantasy football nickname generator. Your job is to find the single best nickname for an NFL player — the one that feels inevitable the moment you hear it.
+              ? `You are a fantasy football nickname generator. Your job is to produce the single best nickname for an NFL player — the one that feels inevitable the moment you hear it. You have deep knowledge of NFL players, their personalities, playing styles, known controversies, public reputations, and fantasy football community perception.
 
 Priority order:
-1. Internet consensus — search for what the fantasy football community already calls this player. If there's an established nickname or running joke, use it.
-2. Recent news — on-field performance, controversies, current situation. Recent is better than old.
-3. Wordplay — only if genuinely earned. Can be witty or crudely observational. Never forced.
+1. Internet consensus — what does the fantasy football community already call this player? What's the running joke or established reputation?
+2. Known controversies or defining moments — what does everyone already know about this player that defines them?
+3. Wordplay on their name, position, or situation — only if genuinely earned. Can be witty or crudely observational. Never forced.
 
 The gold standard: "The Dick Print" for Woody Marks. Specific, observable, impossible to un-hear.
 
-Output exactly one line: the nickname only. 2-5 words maximum. No quotes, no punctuation, no explanation. Just the nickname.
+CRITICAL: Output exactly one line — the nickname only. 2-5 words maximum. No quotes, no punctuation, no explanation, no preamble. Start immediately with the nickname and stop. Nothing else.
 
 Rules: never racist, never sexist, never genuinely private information. Crude is fine if earned. Generic is never acceptable. "The Beast" is not a nickname. "The Dick Print" is.`
               : `You are generating an overwrought, grandiose nickname in the style that has become a joke in fantasy football circles — think "Emerald City Route Merchant" for Jaxon Smith-Njigba. 3-5 words. Unnecessarily poetic. Sounds like a fantasy novel character or a LinkedIn job title that takes itself very seriously. Reference the player's position, city, playing style, or traits but elevate them to absurd significance. Commit fully to the bit.
@@ -495,8 +494,8 @@ Output exactly one line: the nickname only. No explanation, no punctuation after
 
         const data = await response.json();
 
-        // Filter for text blocks only — web_search tool_use/tool_result blocks appear
-        // before the final answer. Join all text blocks, then extract nickname + explanation.
+        // Join all text content blocks
+        // Join all text content blocks
         const fullText = data.content
           .filter(function(b) { return b.type === 'text'; })
           .map(function(b) { return b.text; })
@@ -505,9 +504,15 @@ Output exactly one line: the nickname only. No explanation, no punctuation after
 
         if (!fullText) throw new Error('No text in response');
 
-        // Split on newlines, take first two non-empty lines
-        // Output is now nickname only — one line, no explanation
-        const nickname = fullText.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; })[0] || '';
+        // Strip preamble lines — model sometimes narrates before answering.
+        // Take the first non-empty line that doesn't look like a preamble.
+        const preamblePatterns = [
+          /^based on/i, /^i('ve| have| now)/i, /^here('s| is)/i,
+          /^after (searching|reviewing)/i, /^the (search|internet|fantasy)/i,
+          /^looking at/i, /^from my/i
+        ];
+        const lines = fullText.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; });
+        const nickname = lines.find(function(l) { return !preamblePatterns.some(function(p) { return p.test(l); }); }) || lines[0] || '';
 
         if (!nickname) throw new Error('Could not parse nickname from response');
 

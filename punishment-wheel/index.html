@@ -311,13 +311,14 @@
           <p>It already knows what the internet thinks of that player.</p>
           <span class="more-tool-arrow" aria-hidden="true">Try it →</span>
         </a>
-        <div class="more-tool-card">
+        <a href="/draft-order-randomizer/" class="more-tool-card live">
           <div class="tool-icon" aria-hidden="true">🎲</div>
-          <span class="badge badge-soon">Coming Soon</span>
+          <span class="badge badge-gold">Live Now</span>
           <h3>Draft Order Randomizer</h3>
           <p>Enter your teams. Hit the button. Watch your league's draft fate get decided by something more official than pulling names from a hat.</p>
-        </div>
-        <a href="/player-nickname-generator/" class="more-tool-card">
+          <span class="more-tool-arrow">Randomize →</span>
+        </a>
+        <a href="/player-nickname-generator/" class="more-tool-card live">
           <div class="tool-icon" aria-hidden="true">🏷️</div>
           <span class="badge badge-gold">Live Now</span>
           <h3>Player Nickname Generator</h3>
@@ -332,12 +333,12 @@
         <p class="section-eyebrow">Hall of Shame</p>
         <h2 class="section-title">The punishments your league will actually remember.</h2>
         <div class="shame-grid">
-          <div class="shame-card"><h3>Waffle House</h3><p>Twenty-four hours inside a Waffle House is not a punishment — it's a character study. You will see things. You will hear things. Every waffle eaten removes one hour from your sentence, which means you will eat a lot of waffles, and you will not enjoy a single one. The group chat gets updates.</p></div>
-          <div class="shame-card"><h3>The Waxing</h3><p>There is no clause in the rulebook that protects you from this. Full body wax, documented, shared with the league. Some leagues have done this once and never finished last again. The deterrent effect alone makes it worth keeping in rotation every year.</p></div>
-          <div class="shame-card"><h3>Full Autopick</h3><p>You spent hours on mock drafts. You had a board. You had a strategy. None of it matters — the algorithm gets the wheel next season and you get whatever it decides. This punishment hits hardest for the person who takes fantasy football the most seriously, which is usually the person who finished last.</p></div>
-          <div class="shame-card"><h3>The Essay</h3><p>Five hundred words. Written. Printed. Read aloud at the draft party in front of everyone who watched you lose. The essay must explain, in detail, what went wrong and why. No blaming injuries. No blaming the algorithm. The jokes are optional but the accountability is not.</p></div>
-          <div class="shame-card"><h3>The Sign</h3><p>One hour. A busy intersection. A sign that reads "I finished last in fantasy football." The sign must be legible from a moving vehicle. Photo evidence is required every fifteen minutes. Leagues that have done this report that the loser waves to approximately forty people, and about half of them honk in support.</p></div>
-          <div class="shame-card"><h3>The Honorary Bust</h3><p>The player who hurt you most this season — the one you drafted too early, trusted too long, kept on your roster through three straight goose eggs — now has a namesake. Honorary only. Not legally binding. But the league will remember the name, and so will you, every time someone brings it up at the draft for the next five years.</p></div>
+          <div class="shame-card"><h3>Waffle House</h3><p>Twenty-four hours at Waffle House. You will see things. You will hear things. Every waffle eaten removes one hour from your sentence — which means you will eat a lot of waffles. Whether you enjoy them is between you and the waffles. The group chat gets updates.</p></div>
+          <div class="shame-card"><h3>The Waxing</h3><p>No rulebook clause protects you from this. Full body wax — or at minimum, legs — documented and shared with the league. Some leagues have done this once and never finished last again. The deterrent effect alone makes it worth keeping in rotation.</p></div>
+          <div class="shame-card"><h3>Full Autopick</h3><p>You spent months on mock drafts. You had a board. You had a strategy. None of it matters — the algorithm picks next season and you get whatever it decides. This one hurts most for the person who takes fantasy football the most seriously. That's usually the person who finished last.</p></div>
+          <div class="shame-card"><h3>The Essay</h3><p>Five hundred words, written and printed, read aloud at the draft party. It must explain what went wrong and why — no blaming injuries, no blaming the algorithm. The jokes are optional. The accountability is not.</p></div>
+          <div class="shame-card"><h3>The Sign</h3><p>One hour. A busy intersection. A sign that reads "I finished last in fantasy football." Legible from a moving vehicle. Photo evidence required.</p></div>
+          <div class="shame-card"><h3>The Honorary Bust</h3><p>The player who cost you the most this season now has a namesake. Honorary only. Not legally binding. The league will remember, and so will you, every time someone brings it up at the draft for the next five years.</p></div>
         </div>
       </div>
     </section>
@@ -594,15 +595,15 @@
         const ly = cy + labelR * Math.sin(midAngle);
         const label = punishments[i].label.toUpperCase();
 
-        // Normalize midAngle to [0, 2*PI) — this is what determines the flip
-        const normMid = ((midAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-
-        // Right half [0, PI): +PI/2. Left half [PI, 2PI): -PI/2.
-        // These are geometrically equivalent for "base at center" orientation
-        // but the left-half formula keeps text right-side-up.
-        const rot = normMid < Math.PI
-          ? midAngle + Math.PI / 2
-          : midAngle - Math.PI / 2;
+        // Correct formula: base at center, tops at rim, never upside-down.
+        // Step 1: midAngle + PI/2 puts text perpendicular to spoke.
+        // Step 2: normalize that rotation. If it falls in the upside-down zone
+        //         (between PI/2 and 3PI/2), add PI to flip it right-way up.
+        let rot = midAngle + Math.PI / 2;
+        const rotNorm = ((rot % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        if (rotNorm > Math.PI / 2 && rotNorm < 3 * Math.PI / 2) {
+          rot += Math.PI;
+        }
 
         ctx.save();
         ctx.translate(lx, ly);
@@ -724,7 +725,7 @@
         flag.style.transform  = `rotate(${flagDeg + 12}deg) scale(0.8)`;
         // Result card appears after fade
         setTimeout(callback, 620);
-      }, 700 + 1400);
+      }, 700 + 900);
     }
 
     // ── Which segment is under the pointer ────────────────
