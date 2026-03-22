@@ -571,58 +571,62 @@
         ctx.stroke();
       }
 
-      // ── Spoke labels — base at center, tops pointing toward rim ──
+      // ── Spoke labels — radial text, reads outward from center ──
       //
-      // HOW THIS WORKS:
-      // 1. Translate canvas origin to the label's position on the spoke
-      // 2. Rotate so text is perpendicular to the spoke (base inward, top outward)
-      // 3. Normalize midAngle to [0, 2*PI) to reliably detect which half of the wheel
-      //    the segment is on — this is the ONLY variable used for the flip decision
-      // 4. Right half (normalized midAngle 0..PI): rotation = midAngle + PI/2
-      //    Left half (normalized midAngle PI..2PI): rotation = midAngle - PI/2
-      //    Both produce identical visual result — base inward, top at rim — but
-      //    the left-half formula prevents the text from being rendered upside-down
+      // Approach: translate to wheel center, rotate to midAngle of each segment,
+      // then draw text horizontally starting at innerR and reading outward.
+      // textAlign = 'left' so text naturally extends toward the rim.
+      // Zero flip logic — every segment uses identical math.
+      // Left-side segments appear upside-down when wheel is static, which is
+      // correct — this is how a real prize wheel works.
       //
-      const fontSize = Math.max(9, Math.min(11, size * 0.019));
-      ctx.font = `600 ${fontSize}px "DM Sans", sans-serif`;
-      ctx.textAlign    = 'center';
+      const fontSize  = Math.max(10, Math.min(13, size * 0.022));
+      const innerR    = radius * 0.22;  // text starts this far from center
+      const outerR    = radius * 0.82;  // text must fit before this radius
+      const pillPadV  = 4;              // vertical pill padding
+      const pillPadH  = 6;              // horizontal pill padding
+
+      ctx.font         = `700 ${fontSize}px "DM Sans", sans-serif`;
       ctx.textBaseline = 'middle';
+      ctx.textAlign    = 'left';
 
       for (let i = 0; i < n; i++) {
         const midAngle = currentAngle + i * arc + arc / 2;
-        const labelR   = radius * 0.65;
-        const lx = cx + labelR * Math.cos(midAngle);
-        const ly = cy + labelR * Math.sin(midAngle);
-        const label = punishments[i].label.toUpperCase();
+        const label    = punishments[i].label.toUpperCase();
 
-        // Correct formula: base at center, tops at rim, never upside-down.
-        // Step 1: midAngle + PI/2 puts text perpendicular to spoke.
-        // Step 2: normalize that rotation. If it falls in the upside-down zone
-        //         (between PI/2 and 3PI/2), add PI to flip it right-way up.
-        let rot = midAngle + Math.PI / 2;
-        const rotNorm = ((rot % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-        if (rotNorm > Math.PI / 2 && rotNorm < 3 * Math.PI / 2) {
-          rot += Math.PI;
+        // Measure — scale down font if text would overflow the available spoke length
+        let drawFont = fontSize;
+        let tw = ctx.measureText(label).width;
+        const maxW = outerR - innerR - pillPadH * 2;
+        if (tw > maxW) {
+          drawFont = Math.floor(fontSize * (maxW / tw));
+          drawFont = Math.max(8, drawFont);
+          ctx.font = `700 ${drawFont}px "DM Sans", sans-serif`;
+          tw = ctx.measureText(label).width;
         }
 
-        ctx.save();
-        ctx.translate(lx, ly);
-        ctx.rotate(rot);
+        const pillW = tw + pillPadH * 2;
+        const pillH = drawFont + pillPadV * 2;
 
-        // Pill background
-        const tw = ctx.measureText(label).width;
-        const pw = 8, ph = 4;
-        const pillW = tw + pw * 2;
-        const pillH = fontSize + ph * 2;
-        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.save();
+        // Move to wheel center, rotate to this segment's angle
+        ctx.translate(cx, cy);
+        ctx.rotate(midAngle);
+
+        // Pill background — starts at innerR, extends outward
+        ctx.fillStyle = 'rgba(0,0,0,0.50)';
         ctx.beginPath();
-        ctx.roundRect(-(pillW / 2), -(pillH / 2), pillW, pillH, 3);
+        ctx.roundRect(innerR, -(pillH / 2), pillW, pillH, 3);
         ctx.fill();
 
-        // Label text
+        // Label text — starts at innerR + horizontal padding
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(label, 0, 0);
+        ctx.fillText(label, innerR + pillPadH, 0);
+
         ctx.restore();
+
+        // Reset font for next iteration in case it was scaled down
+        ctx.font = `700 ${fontSize}px "DM Sans", sans-serif`;
       }
 
       // ── Outer ring — white stroke, dark backing ──

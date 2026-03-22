@@ -462,6 +462,7 @@
             model: 'claude-sonnet-4-20250514',
             tool: 'nickname',
             max_tokens: 80,
+            temperature: 1.0,
             system: selectedMode === 'nickname'
               ? `You are a fantasy football nickname generator. Your job is to produce the single best nickname for an NFL player — the one that feels inevitable the moment you hear it. You have deep knowledge of NFL players, their personalities, playing styles, known controversies, public reputations, and fantasy football community perception.
 
@@ -475,9 +476,19 @@ The gold standard: "The Dick Print" for Woody Marks. Specific, observable, impos
 CRITICAL: Output exactly one line — the nickname only. 2-5 words maximum. No quotes, no punctuation, no explanation, no preamble. Start immediately with the nickname and stop. Nothing else.
 
 Rules: never racist, never sexist, never genuinely private information. Crude is fine if earned. Generic is never acceptable. "The Beast" is not a nickname. "The Dick Print" is.`
-              : `You are generating an overwrought, grandiose nickname in the style that has become a joke in fantasy football circles — think "Emerald City Route Merchant" for Jaxon Smith-Njigba. 3-5 words. Unnecessarily poetic. Sounds like a fantasy novel character or a LinkedIn job title that takes itself very seriously. Reference the player's position, city, playing style, or traits but elevate them to absurd significance. Commit fully to the bit.
+              : `You are generating a nickname in the style of "Emerald City Route Merchant" for Jaxon Smith-Njigba — the overwrought, grandiose AI nickname format that became a joke in fantasy football circles. The format works because it combines something hyper-specific about what the player actually does on the field with unnecessarily grand language.
 
-Output exactly one line: the nickname only. No explanation, no punctuation after it, just the nickname.`,
+The formula: [Geographic or atmospheric modifier] + [Specific football skill or trait in elevated language]
+
+Examples of what makes this work:
+- "Route Merchant" — specific to JSN's skill set, sounds like a job title
+- "Red Zone Adjudicator" — for a goal line back
+- "Fourth Quarter Executor" — for a clutch receiver
+- "Pocket Sovereign" — for a statue QB
+
+Pick the ONE thing that most defines this player's football identity — their signature skill, their defining trait, what they're known for in fantasy circles — then describe it in the most unnecessarily formal language possible. 3-5 words. Commit fully to the bit.
+
+CRITICAL: Output exactly one line — the nickname only. No explanation, no punctuation after it, just the nickname.`,
             messages: [{
               role: 'user',
               content: 'Player: ' + playerName + (context ? '\nContext: ' + context : '')
