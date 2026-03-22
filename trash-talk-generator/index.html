@@ -181,8 +181,7 @@
         <div class="form-field-full">
           <label class="field-label" id="tone-label">Tone</label>
           <div class="tone-group" role="group" aria-labelledby="tone-label">
-            <button class="tone-btn active" data-tone="Friendly Fire" onclick="setTone(this)" aria-pressed="true">😏 Friendly Fire</button>
-            <button class="tone-btn" data-tone="Talking Trash" onclick="setTone(this)" aria-pressed="false">🗑️ Talking Trash</button>
+            <button class="tone-btn active" data-tone="Talking Trash" onclick="setTone(this)" aria-pressed="true">🗑️ Talking Trash</button>
             <button class="tone-btn" data-tone="Nuclear Option" onclick="setTone(this)" aria-pressed="false">💀 Nuclear Option</button>
           </div>
         </div>
@@ -315,7 +314,7 @@
   </script>
 
   <script>
-    let selectedTone = 'Friendly Fire';
+    let selectedTone = 'Talking Trash';
     const loadingMessages = ['Consulting the injury report','Checking his waiver wire history','Reviewing the tape','Reading the group chat','Polling the fantasy gods'];
     let loadingInterval = null;
 
@@ -379,26 +378,25 @@
             max_tokens: 120,
             temperature: 1.0,
             tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-            system: `You write fantasy football trash talk. Your voice is the most experienced person in the league — dry, specific, calm. You never try to be funny. You just are. The humor lives in the accuracy of the observation, not in the delivery. You sound like someone who has been watching this opponent make bad decisions for 15 years and has finally decided to say something about it.
+            system: `You write fantasy football trash talk. You are the most experienced, most ruthless texter in any group chat. Your voice is calm and specific — you never yell, you just observe. The humor comes from the accuracy of the observation and the precision of the twist. You sound like someone who has been watching this manager make bad decisions for years and has been waiting for the right moment.
 
-The structure of good trash talk: name something specific and true about the opponent's situation, then twist it once. Not twice. Once. The twist is the punchline. Everything after that is ego.
+The subject of every roast is the FANTASY MANAGER, not the NFL player. The NFL player is ammunition. The manager's decision to rely on that player, trust that team, or make that move is the actual joke. Always.
 
-Calibration examples by tone:
-- Friendly Fire: "Starting [player] this week was brave. I respect the commitment to losing with style."
-- Talking Trash: "Three waiver wire pickups this week, zero of them started. The scouting report on [opponent] is that they do their best work on Tuesdays."
-- Nuclear Option: "[Player]'s reputation for [known thing] and [opponent] trusted them — which tells you everything you need to know about [opponent]'s judgment going into the playoffs."
+If context is provided — a bad trade, a team that's all one NFL team, a playoff loss, a bench disaster — that context IS the punchline setup. Build directly to it. Do not ignore a gift. If the user gives you "built a whole roster around the Cowboys and lost in the playoffs," the joke is about copying the Cowboys including their playoff success, not about Dak's contract or CeeDee's routes.
 
-The player field is ammunition. It exists to make the roast about the opponent's decision to trust that player, not a character study of the player themselves. The opponent is always the primary target. The player is just evidence of the opponent's bad judgment.
+Tone levels — these must feel meaningfully different:
 
-If context is provided about the opponent's team situation, use it. If context mentions something about the player's off-field life or recent news, use that to make the opponent look worse for starting them — not to roast the player directly.
+Trash Talk: Pointed, specific, a little mean. Goes after the football decisions. The manager's lineup choices, roster construction, the players they trusted. Dry and confident. Nothing that would actually start a fight.
+
+Nuclear Option: This is the one they screenshot and send to the group chat. No mercy. Goes after the manager's judgment, their life choices, the embarrassing specifics of what they did and why it failed. If there's an obvious joke sitting right there in the context — a lay-up — take it and land hard. Use the player's real reputation, known failures, or public baggage to make the manager look worse for trusting them. One perfectly calibrated line that they will remember for years. Mean enough to sting. Specific enough to be undeniable.
 
 CRITICAL OUTPUT RULES:
 - Output the trash talk only. No preamble. Start on word one.
-- 1-2 sentences maximum. If you have written 2 sentences, stop.
-- Never exceed 60 words.
-- Wordplay on the player's name or situation is encouraged when it lands naturally.
+- 1-2 sentences. Stop after 2.
+- 60 words maximum.
+- Wordplay on names, teams, or situations is encouraged when it lands naturally.
 - Never racist, never sexist, never attack things outside someone's control.`,
-            messages: [{ role: 'user', content: `Roast this fantasy football opponent:\nOpponent's name: ${opponent}\nPlayer they are starting or relying on: ${player}\nTone: ${selectedTone}\nContext about their team or situation: ${context || 'none'}\n\nTarget the opponent. Use the player as evidence of their bad judgment.` }]
+            messages: [{ role: 'user', content: `Tone: ${selectedTone}\n\nRoast this fantasy manager:\nManager's name: ${opponent}\nPlayers on their team: ${player}\nWhat happened / their situation: ${context || 'nothing provided'}\n\nThe manager is the target. If context was provided, that is your setup — use it. The players are supporting evidence of the manager's bad judgment.` }]
           })
         });
 

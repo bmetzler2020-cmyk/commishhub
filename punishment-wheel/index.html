@@ -63,7 +63,7 @@
       font-size: .88rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .2s;
     }
     .mode-btn.active-standard { background: var(--gold); border-color: var(--gold); color: #fff; }
-    .mode-btn.active-commish  { background: var(--brown); border-color: var(--brown); color: var(--gold-lt); }
+    .mode-btn.active-commish  { background: var(--brown); border-color: var(--brown); color: #ffffff; }
 
     /* Wheel layout */
     .wheel-outer { max-width: var(--max); margin: 0 auto; padding: 0 16px; }
@@ -574,15 +574,15 @@
       // ── Spoke labels — radial text, reads outward from center ──
       //
       // Approach: translate to wheel center, rotate to midAngle of each segment,
-      // then draw text horizontally starting at innerR and reading outward.
+      // then draw text horizontally, right-aligned toward the rim.
       // textAlign = 'left' so text naturally extends toward the rim.
       // Zero flip logic — every segment uses identical math.
       // Left-side segments appear upside-down when wheel is static, which is
       // correct — this is how a real prize wheel works.
       //
       const fontSize  = Math.max(10, Math.min(13, size * 0.022));
-      const innerR    = radius * 0.22;  // text starts this far from center
-      const outerR    = radius * 0.82;  // text must fit before this radius
+      const outerR    = radius * 0.88;  // pill right edge sits here (near rim)
+      const safeGap   = 6;              // gap between pill right edge and outerR
       const pillPadV  = 4;              // vertical pill padding
       const pillPadH  = 6;              // horizontal pill padding
 
@@ -597,7 +597,7 @@
         // Measure — scale down font if text would overflow the available spoke length
         let drawFont = fontSize;
         let tw = ctx.measureText(label).width;
-        const maxW = outerR - innerR - pillPadH * 2;
+        const maxW = radius * 0.66;  // max label width — leaves room from hub to rim
         if (tw > maxW) {
           drawFont = Math.floor(fontSize * (maxW / tw));
           drawFont = Math.max(8, drawFont);
@@ -613,15 +613,17 @@
         ctx.translate(cx, cy);
         ctx.rotate(midAngle);
 
-        // Pill background — starts at innerR, extends outward
+        // Pill background — right edge anchored near rim
+        const pillRight = outerR - safeGap;
+        const pillLeft  = pillRight - pillW;
         ctx.fillStyle = 'rgba(0,0,0,0.50)';
         ctx.beginPath();
-        ctx.roundRect(innerR, -(pillH / 2), pillW, pillH, 3);
+        ctx.roundRect(pillLeft, -(pillH / 2), pillW, pillH, 3);
         ctx.fill();
 
-        // Label text — starts at innerR + horizontal padding
+        // Label text — starts at pillLeft + horizontal padding
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(label, innerR + pillPadH, 0);
+        ctx.fillText(label, pillLeft + pillPadH, 0);
 
         ctx.restore();
 
