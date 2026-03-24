@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO -->
+  <title>Dynasty League Finder — CommishHub</title>
+  <meta name="description" content="Find an open dynasty fantasy football league or post your available team spot. CommishHub's dynasty league finder connects commissioners and players — no more Reddit threads and Discord servers." />
+  <link rel="canonical" href="https://commishhub.com/dynasty-league-finder/" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Dynasty League Finder — CommishHub" />
+  <meta property="og:description" content="Dynasty leagues are a 10-year commitment. Finding one shouldn't take that long." />
+  <meta property="og:url" content="https://commishhub.com/dynasty-league-finder/" />
+  <meta property="og:type" content="website" />
+
+  <!-- JSON-LD: WebPage (not WebApplication — no tool yet) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Dynasty League Finder",
+    "description": "Find open dynasty fantasy football leagues or post available team spots. A purpose-built tool for commissioners and players — no more Reddit threads.",
+    "url": "https://commishhub.com/dynasty-league-finder/",
+    "publisher": {
+      "@type": "Organization",
+      "name": "CommishHub",
+      "url": "https://commishhub.com"
+    }
+  }
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+
+  <!-- Global styles -->
+  <link rel="stylesheet" href="/styles.css" />
+
+  <!-- Page-specific styles (only what styles.css doesn't cover) -->
+  <style>
+    /* Constrain card width for this content-focused page */
+    .page-content {
+      max-width: 680px;
+    }
+
+    /* Prose blocks inside the card */
+    .prose-block {
+      margin-bottom: 32px;
+    }
+    .prose-block:last-of-type {
+      margin-bottom: 0;
+    }
+    .prose-block h2 {
+      font-family: 'Lora', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--brown);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+    .prose-block p {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    /* Divider between prose and email form */
+    .card-rule {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 36px 0;
+    }
+
+    /* Email capture */
+    .email-section h2 {
+      font-family: 'Lora', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--brown);
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+    .email-section p.email-sub {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .email-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .email-row .input {
+      flex: 1;
+      min-width: 200px;
+    }
+    .email-row .btn-primary {
+      white-space: nowrap;
+      padding: 11px 26px;
+      font-size: 0.92rem;
+    }
+    .form-note {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .form-error {
+      margin-top: 10px;
+      font-size: 0.84rem;
+      color: #b84040;
+      display: none;
+    }
+
+    /* Success state */
+    .success-state {
+      display: none;
+      align-items: center;
+      gap: 14px;
+      padding: 4px 0;
+    }
+    .success-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--sage);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .success-text strong {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--brown);
+      margin-bottom: 2px;
+    }
+    .success-text span {
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    /* Input validation error state */
+    .input-error {
+      border-color: #b84040 !important;
+      box-shadow: 0 0 0 3px rgba(184,64,64,.1) !important;
+    }
+
+    /* Soft redirect */
+    .soft-redirect {
+      margin-top: 48px;
+      text-align: center;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+    .soft-redirect a {
+      color: var(--gold);
+      font-weight: 500;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .soft-redirect a:hover { color: #a07820; }
+
+    @media (max-width: 600px) {
+      .email-row { flex-direction: column; }
+      .email-row .btn-primary { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ── Nav ── -->
+  <nav>
+    <div class="nav-inner">
+      <a class="logo" href="/">Commish <span>Hub</span></a>
+      <ul class="nav-links">
+        <li>
+          <button>Tools <span class="chevron">▾</span></button>
+          <div class="drop">
+            <a href="/trash-talk-generator/"><span class="di">🗣️</span> AI Trash Talk Generator</a>
+            <a href="/draft-order-randomizer/"><span class="di">🎲</span> Draft Order Randomizer</a>
+            <a href="/punishment-wheel/"><span class="di">🎡</span> Loser Punishment Wheel</a>
+            <a href="/player-nickname-generator/"><span class="di">🏷️</span> Player Nickname Generator</a>
+          </div>
+        </li>
+        <li>
+          <button>Commissioner <span class="chevron">▾</span></button>
+          <div class="drop">
+            <a href="/new-commissioner-guide/"><span class="di">📋</span> New Commissioner Wizard</a>
+            <a href="/league-rules-generator/"><span class="di">📜</span> League Rules Generator</a>
+            <a href="/commissioner-ruling-assistant/"><span class="di">⚖️</span> AI Ruling Assistant</a>
+            <a href="/fantasy-football-platform-comparison/"><span class="di">🔍</span> Platform Comparison</a>
+          </div>
+        </li>
+        <li>
+          <button>Dynasty <span class="chevron">▾</span></button>
+          <div class="drop">
+            <a href="/dynasty-league-finder/"><span class="di">🏆</span> Dynasty League Finder</a>
+            <a href="/orphan-team-matchmaker/"><span class="di">🤝</span> Orphan Team Matchmaker</a>
+            <a href="/small-league-dynasty-formats/"><span class="di">📐</span> Small League Formats</a>
+          </div>
+        </li>
+        <li><a href="/blog/">Blog</a></li>
+      </ul>
+      <a class="nav-cta" href="/#find-league">Find a League →</a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile nav panel -->
+  <div class="mobile-nav" id="mobile-nav">
+    <div class="mobile-section-label">Tools</div>
+    <a href="/trash-talk-generator/">🗣️ AI Trash Talk Generator</a>
+    <a href="/draft-order-randomizer/">🎲 Draft Order Randomizer</a>
+    <a href="/punishment-wheel/">🎡 Loser Punishment Wheel</a>
+    <a href="/player-nickname-generator/">🏷️ Player Nickname Generator</a>
+    <div class="mobile-section-label">Commissioner</div>
+    <a href="/new-commissioner-guide/">📋 New Commissioner Wizard</a>
+    <a href="/league-rules-generator/">📜 League Rules Generator</a>
+    <a href="/commissioner-ruling-assistant/">⚖️ AI Ruling Assistant</a>
+    <a href="/fantasy-football-platform-comparison/">🔍 Platform Comparison</a>
+    <div class="mobile-section-label">Dynasty</div>
+    <a href="/dynasty-league-finder/">🏆 Dynasty League Finder</a>
+    <a href="/orphan-team-matchmaker/">🤝 Orphan Team Matchmaker</a>
+    <a href="/small-league-dynasty-formats/">📐 Small League Formats</a>
+    <div class="mobile-section-label">More</div>
+    <a href="/blog/">Blog</a>
+    <a class="mobile-cta" href="/#find-league">Find a League →</a>
+  </div>
+
+  <!-- Gold rule under nav -->
+  <div class="hero-rule"></div>
+
+  <main id="main">
+
+    <!-- ── Hero ── -->
+    <div class="tool-hero">
+      <div class="tool-hero-inner">
+        <span class="badge badge-soon fu">Coming Soon</span>
+        <h1 class="fu">Dynasty League Finder</h1>
+        <p class="fu">Dynasty leagues are a 10-year commitment.<br>Finding one shouldn't take that long.</p>
+      </div>
+    </div>
+
+    <!-- ── Body ── -->
+    <div class="tool-body">
+      <div class="tool-card-main page-content fu">
+
+        <div class="prose-block">
+          <h2>The current experience is embarrassing</h2>
+          <p>
+            A Reddit thread from 2023. A Discord server nobody can find. A group chat where someone maybe knows someone. For the most committed format in fantasy football, the entry process is completely ad hoc — no central place to post open spots, no way to search open leagues, no system at all. You either get lucky or you don't play.
+          </p>
+        </div>
+
+        <div class="prose-block">
+          <h2>What's coming</h2>
+          <p>
+            A purpose-built tool where commissioners post open spots and players find them. Searchable, filterable, and not buried on page four of a subreddit. If you have an orphan team or an open expansion spot, you'll be able to list it. If you want in on a dynasty league, you'll be able to find one.
+          </p>
+        </div>
+
+        <hr class="card-rule" />
+
+        <div class="email-section">
+          <h2>Get notified when leagues go live</h2>
+          <p class="email-sub">Be first to know when the first open spots are listed. One email when it's ready.</p>
+
+          <div id="form-wrapper">
+            <div class="email-row">
+              <input
+                type="email"
+                id="email-input"
+                class="input"
+                placeholder="Your email"
+                autocomplete="email"
+                aria-label="Your email address"
+              />
+              <button class="btn-primary" id="submit-btn" onclick="handleSubmit()">Notify Me</button>
+            </div>
+            <p class="form-note">No spam. No newsletter. Just the one email when leagues go live.</p>
+            <p class="form-error" id="form-error">Something went wrong — try again or come back later.</p>
+          </div>
+
+          <div class="success-state" id="success-state">
+            <div class="success-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M4 10.5L8.5 15L16 7" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="success-text">
+              <strong>You're on the list.</strong>
+              <span>We'll let you know when leagues go live.</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.tool-card-main -->
+
+      <p class="soft-redirect">
+        In the meantime, <a href="/">the rest of the commissioner toolkit is already here</a>.
+      </p>
+    </div><!-- /.tool-body -->
+
+  </main>
+
+  <!-- ── Related tools strip ── -->
+  <section class="related-tools" aria-label="Other tools">
+    <div class="wrap">
+      <p class="section-eyebrow">While You Wait</p>
+      <p class="section-title" style="font-size:1.4rem; margin-bottom:28px;">The rest of the toolkit is ready</p>
+      <div class="related-grid">
+        <a href="/trash-talk-generator/" class="related-card">
+          <div class="tool-icon">🗣️</div>
+          <h3>Trash Talk Generator</h3>
+          <p>AI-written trash talk calibrated to exactly how badly they lost.</p>
+        </a>
+        <a href="/draft-order-randomizer/" class="related-card">
+          <div class="tool-icon">🎲</div>
+          <h3>Draft Order Randomizer</h3>
+          <p>Cinematic reveal with scheduling, shareable results, and real drama.</p>
+        </a>
+        <a href="/punishment-wheel/" class="related-card">
+          <div class="tool-icon">🎡</div>
+          <h3>Loser Punishment Wheel</h3>
+          <p>Spin to determine what happens to whoever finished last.</p>
+        </a>
+        <a href="/player-nickname-generator/" class="related-card">
+          <div class="tool-icon">🏷️</div>
+          <h3>Player Nickname Generator</h3>
+          <p>AI-generated nicknames and LinkedIn bios for your roster.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="logo" href="/">Commish <span>Hub</span></a>
+          <p>Free tools for fantasy football commissioners and the leagues they keep running against their better judgment.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Tools</h4>
+          <ul>
+            <li><a href="/trash-talk-generator/">Trash Talk Generator</a></li>
+            <li><a href="/draft-order-randomizer/">Draft Order Randomizer</a></li>
+            <li><a href="/punishment-wheel/">Punishment Wheel</a></li>
+            <li><a href="/player-nickname-generator/">Nickname Generator</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Commissioner</h4>
+          <ul>
+            <li><a href="/new-commissioner-guide/">New Commissioner Wizard</a></li>
+            <li><a href="/league-rules-generator/">Rules Generator</a></li>
+            <li><a href="/commissioner-ruling-assistant/">Ruling Assistant</a></li>
+            <li><a href="/fantasy-football-platform-comparison/">Platform Comparison</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Dynasty</h4>
+          <ul>
+            <li><a href="/dynasty-league-finder/">League Finder</a></li>
+            <li><a href="/orphan-team-matchmaker/">Orphan Matchmaker</a></li>
+            <li><a href="/small-league-dynasty-formats/">Small League Formats</a></li>
+            <li><a href="/blog/">Blog</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Commish Hub. All rights reserved.</span>
+        <span>Built for the league, not the algorithm.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ── Hamburger ──
+    (function() {
+      const btn = document.getElementById('hamburger');
+      const panel = document.getElementById('mobile-nav');
+      if (!btn || !panel) return;
+      btn.addEventListener('click', function() {
+        btn.classList.toggle('open');
+        panel.classList.toggle('open');
+      });
+      panel.querySelectorAll('a').forEach(function(link) {
+        link.addEventListener('click', function() {
+          btn.classList.remove('open');
+          panel.classList.remove('open');
+        });
+      });
+    })();
+
+    // ── Email form ──
+    async function handleSubmit() {
+      const emailInput = document.getElementById('email-input');
+      const submitBtn  = document.getElementById('submit-btn');
+      const errorEl    = document.getElementById('form-error');
+      const email      = emailInput.value.trim();
+
+      // Validate
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        emailInput.classList.add('input-error');
+        emailInput.focus();
+        setTimeout(() => emailInput.classList.remove('input-error'), 2000);
+        return;
+      }
+
+      // Loading state
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving…';
+      errorEl.style.display = 'none';
+
+      try {
+        const res = await fetch('/.netlify/functions/save-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email:    email,
+            source:   'dynasty-teaser',
+            metadata: { page: '/dynasty-league-finder/' }
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error('Server error');
+
+        // Show success
+        document.getElementById('form-wrapper').style.display = 'none';
+        const successEl = document.getElementById('success-state');
+        successEl.style.display = 'flex';
+
+      } catch (err) {
+        errorEl.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Notify Me';
+      }
+    }
+
+    // Enter key submits
+    document.getElementById('email-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleSubmit();
+    });
+  </script>
+
+</body>
+</html>
