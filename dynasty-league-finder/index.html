@@ -4,24 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- SEO -->
   <title>Dynasty League Finder — CommishHub</title>
-  <meta name="description" content="Find an open dynasty fantasy football league or post your available team spot. CommishHub's dynasty league finder connects commissioners and players — no more Reddit threads and Discord servers." />
+  <meta name="description" content="Find an open dynasty fantasy football league or post your available team spot. No Reddit threads, no Discord servers. CommishHub's dynasty league finder is coming soon." />
   <link rel="canonical" href="https://commishhub.com/dynasty-league-finder/" />
 
-  <!-- Open Graph -->
   <meta property="og:title" content="Dynasty League Finder — CommishHub" />
-  <meta property="og:description" content="Dynasty leagues are a 10-year commitment. Finding one shouldn't take that long." />
+  <meta property="og:description" content="Dynasty leagues are a long-term commitment. Finding one shouldn't be." />
   <meta property="og:url" content="https://commishhub.com/dynasty-league-finder/" />
   <meta property="og:type" content="website" />
 
-  <!-- JSON-LD: WebPage (not WebApplication — no tool yet) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "Dynasty League Finder",
-    "description": "Find open dynasty fantasy football leagues or post available team spots. A purpose-built tool for commissioners and players — no more Reddit threads.",
+    "description": "Find open dynasty fantasy football leagues or post available team spots. No Reddit threads required.",
     "url": "https://commishhub.com/dynasty-league-finder/",
     "publisher": {
       "@type": "Organization",
@@ -31,53 +28,79 @@
   }
   </script>
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
-
-  <!-- Global styles -->
   <link rel="stylesheet" href="/styles.css" />
 
-  <!-- Page-specific styles (only what styles.css doesn't cover) -->
   <style>
-    /* Constrain card width for this content-focused page */
-    .page-content {
-      max-width: 680px;
+    /* ── Dark hero ── */
+    .dynasty-hero {
+      background: var(--brown);
+      padding: 72px 28px 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .dynasty-hero::after {
+      content: '';
+      position: absolute;
+      top: -40px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse at center, rgba(139,105,20,.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .dynasty-hero-inner {
+      position: relative; z-index: 1;
+      max-width: 680px; margin: 0 auto;
+    }
+    .dynasty-hero .badge {
+      margin-bottom: 22px;
+    }
+    .dynasty-hero h1 {
+      font-family: 'Lora', serif;
+      font-size: clamp(2rem, 4.5vw, 3rem);
+      font-weight: 700; line-height: 1.15;
+      letter-spacing: -0.015em;
+      color: var(--gold-lt);
+      margin-bottom: 16px;
+    }
+    .dynasty-hero p {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.6);
+      line-height: 1.7;
     }
 
-    /* Prose blocks inside the card */
+    /* ── Card ── */
+    .page-content { max-width: 680px; }
+
     .prose-block {
-      margin-bottom: 32px;
-    }
-    .prose-block:last-of-type {
-      margin-bottom: 0;
+      margin-bottom: 28px;
     }
     .prose-block h2 {
       font-family: 'Lora', serif;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 600;
       color: var(--brown);
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       letter-spacing: -0.01em;
     }
     .prose-block p {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       color: var(--muted);
       line-height: 1.75;
     }
 
-    /* Divider between prose and email form */
     .card-rule {
       border: none;
       border-top: 1px solid var(--border);
-      margin: 36px 0;
+      margin: 32px 0;
     }
 
     /* Email capture */
     .email-section h2 {
       font-family: 'Lora', serif;
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 700;
       color: var(--brown);
       margin-bottom: 6px;
@@ -93,10 +116,7 @@
       gap: 10px;
       flex-wrap: wrap;
     }
-    .email-row .input {
-      flex: 1;
-      min-width: 200px;
-    }
+    .email-row .input { flex: 1; min-width: 200px; }
     .email-row .btn-primary {
       white-space: nowrap;
       padding: 11px 26px;
@@ -114,7 +134,7 @@
       display: none;
     }
 
-    /* Success state */
+    /* Success */
     .success-state {
       display: none;
       align-items: center;
@@ -122,28 +142,19 @@
       padding: 4px 0;
     }
     .success-icon {
-      width: 40px;
-      height: 40px;
+      width: 40px; height: 40px;
       background: var(--sage);
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
     .success-text strong {
       display: block;
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--brown);
-      margin-bottom: 2px;
+      font-size: 0.95rem; font-weight: 600;
+      color: var(--brown); margin-bottom: 2px;
     }
-    .success-text span {
-      font-size: 0.84rem;
-      color: var(--muted);
-    }
+    .success-text span { font-size: 0.84rem; color: var(--muted); }
 
-    /* Input validation error state */
     .input-error {
       border-color: #b84040 !important;
       box-shadow: 0 0 0 3px rgba(184,64,64,.1) !important;
@@ -157,14 +168,14 @@
       color: var(--muted);
     }
     .soft-redirect a {
-      color: var(--gold);
-      font-weight: 500;
+      color: var(--gold); font-weight: 500;
       text-decoration: underline;
       text-underline-offset: 2px;
     }
     .soft-redirect a:hover { color: #a07820; }
 
     @media (max-width: 600px) {
+      .dynasty-hero { padding: 52px 20px 48px; }
       .email-row { flex-direction: column; }
       .email-row .btn-primary { width: 100%; text-align: center; }
     }
@@ -180,29 +191,29 @@
       <a class="logo" href="/">Commish <span>Hub</span></a>
       <ul class="nav-links">
         <li>
-          <button>Tools <span class="chevron">▾</span></button>
+          <button aria-haspopup="true">Tools <span class="chevron" aria-hidden="true">▾</span></button>
           <div class="drop">
-            <a href="/trash-talk-generator/"><span class="di">🗣️</span> AI Trash Talk Generator</a>
-            <a href="/draft-order-randomizer/"><span class="di">🎲</span> Draft Order Randomizer</a>
-            <a href="/punishment-wheel/"><span class="di">🎡</span> Loser Punishment Wheel</a>
-            <a href="/player-nickname-generator/"><span class="di">🏷️</span> Player Nickname Generator</a>
+            <a href="/trash-talk-generator/"><span class="di" aria-hidden="true">🗣️</span> AI Trash Talk Generator</a>
+            <a href="/draft-order-randomizer/"><span class="di" aria-hidden="true">🎲</span> Draft Order Randomizer</a>
+            <a href="/punishment-wheel/"><span class="di" aria-hidden="true">🎡</span> Loser Punishment Wheel</a>
+            <a href="/player-nickname-generator/"><span class="di" aria-hidden="true">🏷️</span> Player Nickname Generator</a>
           </div>
         </li>
         <li>
-          <button>Commissioner <span class="chevron">▾</span></button>
+          <button aria-haspopup="true">Commissioner <span class="chevron" aria-hidden="true">▾</span></button>
           <div class="drop">
-            <a href="/new-commissioner-guide/"><span class="di">📋</span> New Commissioner Wizard</a>
-            <a href="/league-rules-generator/"><span class="di">📜</span> League Rules Generator</a>
-            <a href="/commissioner-ruling-assistant/"><span class="di">⚖️</span> AI Ruling Assistant</a>
-            <a href="/fantasy-football-platform-comparison/"><span class="di">🔍</span> Platform Comparison</a>
+            <a href="/new-commissioner-guide/"><span class="di" aria-hidden="true">📋</span> New Commissioner Wizard</a>
+            <a href="/league-rules-generator/"><span class="di" aria-hidden="true">📜</span> League Rules Generator</a>
+            <a href="/commissioner-ruling-assistant/"><span class="di" aria-hidden="true">⚖️</span> AI Ruling Assistant</a>
+            <a href="/fantasy-football-platform-comparison/"><span class="di" aria-hidden="true">🔍</span> Platform Comparison</a>
           </div>
         </li>
         <li>
-          <button>Dynasty <span class="chevron">▾</span></button>
+          <button aria-haspopup="true">Dynasty <span class="chevron" aria-hidden="true">▾</span></button>
           <div class="drop">
-            <a href="/dynasty-league-finder/"><span class="di">🏆</span> Dynasty League Finder</a>
-            <a href="/orphan-team-matchmaker/"><span class="di">🤝</span> Orphan Team Matchmaker</a>
-            <a href="/small-league-dynasty-formats/"><span class="di">📐</span> Small League Formats</a>
+            <a href="/dynasty-league-finder/"><span class="di" aria-hidden="true">🏆</span> Dynasty League Finder</a>
+            <a href="/orphan-team-matchmaker/"><span class="di" aria-hidden="true">🤝</span> Orphan Team Matchmaker</a>
+            <a href="/small-league-dynasty-formats/"><span class="di" aria-hidden="true">📐</span> Small League Formats</a>
           </div>
         </li>
         <li><a href="/blog/">Blog</a></li>
@@ -214,7 +225,7 @@
     </div>
   </nav>
 
-  <!-- Mobile nav panel -->
+  <!-- Mobile nav -->
   <div class="mobile-nav" id="mobile-nav">
     <div class="mobile-section-label">Tools</div>
     <a href="/trash-talk-generator/">🗣️ AI Trash Talk Generator</a>
@@ -235,14 +246,11 @@
     <a class="mobile-cta" href="/#find-league">Find a League →</a>
   </div>
 
-  <!-- Gold rule under nav -->
-  <div class="hero-rule"></div>
-
   <main id="main">
 
-    <!-- ── Hero ── -->
-    <div class="tool-hero">
-      <div class="tool-hero-inner">
+    <!-- ── Dark hero ── -->
+    <div class="dynasty-hero">
+      <div class="dynasty-hero-inner">
         <span class="badge badge-soon fu">Coming Soon</span>
         <h1 class="fu">Dynasty League Finder</h1>
         <p class="fu">Dynasty leagues are a long-term commitment. Finding one shouldn't be.</p>
@@ -254,14 +262,21 @@
       <div class="tool-card-main page-content fu">
 
         <div class="prose-block">
-          <h2>The current experience</h2>
+          <h2>Finding a Dynasty League</h2>
           <p>
-            You dig through Reddit threads, find a Discord server that hasn't been active since 2022, and eventually post something hoping the right person sees it. For the most serious format in fantasy football, the entry process is basically word of mouth. You either know someone or you don't play.
+            A Reddit thread from 2022. An inactive Discord server. Hoping your friends decide to open a new league. For the committed fantasy football fan, getting into a dynasty league is the wild west — pay a handsome fee, or pray you aren't getting scammed.
           </p>
         </div>
 
         <div class="prose-block">
-          <h2>What's coming</h2>
+          <h2>Filling an Open Dynasty Team Spot</h2>
+          <p>
+            Finding a dynasty fantasy football league or filling an open dynasty team spot shouldn't require this much effort. Commissioners need a place to post. Players need a place to search. That's what this is.
+          </p>
+        </div>
+
+        <div class="prose-block">
+          <h2>What's Coming</h2>
           <p>
             A place where commissioners post open spots and players actually find them. If you have an orphan team or an expansion opening, you'll be able to list it. If you're looking to get into a dynasty league, you'll be able to search for one. No forum posts required.
           </p>
@@ -269,6 +284,7 @@
 
         <hr class="card-rule" />
 
+        <!-- Email capture -->
         <div class="email-section">
           <h2>Get notified when leagues go live</h2>
           <p class="email-sub">Be first to know when the first open spots are listed. One email when it's ready.</p>
@@ -311,7 +327,7 @@
 
   </main>
 
-  <!-- ── Related tools strip ── -->
+  <!-- ── Related tools ── -->
   <section class="related-tools" aria-label="Other tools">
     <div class="wrap">
       <p class="section-eyebrow">While You Wait</p>
@@ -391,13 +407,15 @@
       const panel = document.getElementById('mobile-nav');
       if (!btn || !panel) return;
       btn.addEventListener('click', function() {
-        btn.classList.toggle('open');
+        const isOpen = btn.classList.toggle('open');
         panel.classList.toggle('open');
+        btn.setAttribute('aria-expanded', isOpen);
       });
       panel.querySelectorAll('a').forEach(function(link) {
         link.addEventListener('click', function() {
           btn.classList.remove('open');
           panel.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
         });
       });
     })();
@@ -409,7 +427,6 @@
       const errorEl    = document.getElementById('form-error');
       const email      = emailInput.value.trim();
 
-      // Validate
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         emailInput.classList.add('input-error');
         emailInput.focus();
@@ -417,7 +434,6 @@
         return;
       }
 
-      // Loading state
       submitBtn.disabled = true;
       submitBtn.textContent = 'Saving…';
       errorEl.style.display = 'none';
@@ -436,10 +452,8 @@
         const data = await res.json();
         if (!res.ok || !data.success) throw new Error('Server error');
 
-        // Show success
         document.getElementById('form-wrapper').style.display = 'none';
-        const successEl = document.getElementById('success-state');
-        successEl.style.display = 'flex';
+        document.getElementById('success-state').style.display = 'flex';
 
       } catch (err) {
         errorEl.style.display = 'block';
@@ -448,7 +462,6 @@
       }
     }
 
-    // Enter key submits
     document.getElementById('email-input').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') handleSubmit();
     });
