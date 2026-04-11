@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The CommishHub Blog | CommishHub</title>
-  <meta name="description" content="Guides for fantasy football commissioners who want their league to actually work." />
-  <link rel="canonical" href="https://commishhub.com/blog/" />
+  <title>How to Be a Fantasy Football Commissioner | CommishHub</title>
+  <meta name="description" content="The practical guide to running a fantasy football league — platform setup, league rules, draft day, and keeping it together all season." />
+  <link rel="canonical" href="https://commishhub.com/blog/how-to-be-a-fantasy-football-commissioner/" />
+
+  <!-- Publish date in metadata only — not displayed to readers -->
+  <meta name="article:published_time" content="2026-04-09" />
 
   <!-- Favicons -->
   <link rel="icon" type="image/x-icon" href="/icons/favicon.ico" />
@@ -15,136 +18,486 @@
   <link rel="manifest" href="/site.webmanifest" />
 
   <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://commishhub.com/blog/" />
-  <meta property="og:title" content="The CommishHub Blog | CommishHub" />
-  <meta property="og:description" content="Guides for fantasy football commissioners who want their league to actually work." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://commishhub.com/blog/how-to-be-a-fantasy-football-commissioner/" />
+  <meta property="og:title" content="How to Be a Fantasy Football Commissioner | CommishHub" />
+  <meta property="og:description" content="The practical guide to running a fantasy football league — platform setup, league rules, draft day, and keeping it together all season." />
   <meta property="og:image" content="https://commishhub.com/assets/images/og-default.jpg" />
+  <meta property="article:author" content="Brady Metzler" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="The CommishHub Blog | CommishHub" />
-  <meta name="twitter:description" content="Guides for fantasy football commissioners who want their league to actually work." />
+  <meta name="twitter:title" content="How to Be a Fantasy Football Commissioner | CommishHub" />
+  <meta name="twitter:description" content="The practical guide to running a fantasy football league — platform setup, league rules, draft day, and keeping it together all season." />
   <meta name="twitter:image" content="https://commishhub.com/assets/images/og-default.jpg" />
 
   <link rel="alternate" type="application/rss+xml" title="CommishHub Blog" href="/blog/feed.xml" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
 
   <style>
-    /* ── BLOG INDEX — page-scoped styles only ── */
+    /* ── BLOG POST — page-scoped styles only ── */
 
-    .blog-hero {
+    /* ── Post hero ── */
+    .post-hero {
       background: var(--bg);
       border-bottom: 1px solid var(--border);
-      padding: 64px 28px 52px;
+      padding: 56px 28px 48px;
     }
-    .blog-hero-inner {
-      max-width: var(--max);
+    .post-hero-inner {
+      max-width: 760px;
       margin: 0 auto;
     }
-    .blog-hero .section-eyebrow { margin-bottom: 12px; }
-    .blog-hero h1 {
-      font-family: 'Lora', serif;
-      font-size: clamp(2rem, 4.5vw, 3rem);
-      font-weight: 700;
-      line-height: 1.15;
-      letter-spacing: -0.015em;
-      color: var(--brown);
-      margin-bottom: 16px;
-      max-width: 640px;
-    }
-    .blog-hero p {
-      font-size: 1.05rem;
-      color: var(--muted);
-      line-height: 1.7;
-      max-width: 560px;
-    }
-
-    .blog-body {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 56px 28px 80px;
-    }
-
-    .post-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .post-card {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: start;
-      gap: 24px;
-      padding: 36px 0;
-      border-bottom: 1px solid var(--border);
-      text-decoration: none;
-      transition: none;
-    }
-    .post-card:first-child { border-top: 1px solid var(--border); }
-
-    .post-card-meta {
+    .post-breadcrumb {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
+      gap: 8px;
+      font-size: .8rem;
+      color: var(--muted);
+      margin-bottom: 20px;
     }
-    .post-card-meta .badge { flex-shrink: 0; }
+    .post-breadcrumb a {
+      color: var(--muted);
+      transition: color .15s;
+    }
+    .post-breadcrumb a:hover { color: var(--gold); }
+    .post-breadcrumb .crumb-sep { color: var(--border); }
+
+    .post-hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
     .post-read-time {
-      font-size: .78rem;
+      font-size: .8rem;
       color: var(--muted);
       font-weight: 500;
     }
 
-    .post-card h2 {
+    /* Last updated — hidden until Brady populates it */
+    .post-last-updated {
+      display: none; /* Remove this line when adding a date */
+      font-size: .78rem;
+      color: var(--muted);
+    }
+    /* To activate: remove display:none above and set content via data attribute or inline */
+
+    .post-hero h1 {
       font-family: 'Lora', serif;
-      font-size: clamp(1.2rem, 2.5vw, 1.45rem);
+      font-size: clamp(1.9rem, 4.5vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.015em;
+      color: var(--brown);
+      margin-bottom: 20px;
+      max-width: 680px;
+    }
+
+    .post-intro {
+      font-size: 1.08rem;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 640px;
+      margin-bottom: 0;
+    }
+
+    /* ── Layout: sidebar TOC + main content ── */
+    .post-layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 52px 28px 80px;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    /* ── TOC (sticky sidebar) ── */
+    .post-toc {
+      position: sticky;
+      top: 88px; /* nav height + breathing room */
+    }
+    .post-toc-label {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .post-toc ol {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      border-left: 2px solid var(--border);
+      padding-left: 0;
+    }
+    .post-toc ol li a {
+      display: block;
+      padding: 6px 0 6px 14px;
+      font-size: .82rem;
+      color: var(--muted);
+      line-height: 1.4;
+      border-left: 2px solid transparent;
+      margin-left: -2px;
+      transition: color .15s, border-color .15s;
+    }
+    .post-toc ol li a:hover,
+    .post-toc ol li a.active {
+      color: var(--gold);
+      border-left-color: var(--gold);
+    }
+
+    /* ── Post body prose ── */
+    .post-content {
+      min-width: 0; /* prevents grid blowout */
+    }
+
+    .post-content h2 {
+      font-family: 'Lora', serif;
+      font-size: clamp(1.35rem, 2.8vw, 1.7rem);
       font-weight: 700;
       color: var(--brown);
-      line-height: 1.25;
-      margin-bottom: 10px;
+      line-height: 1.2;
+      margin: 52px 0 18px;
+      padding-top: 8px;
+    }
+    .post-content h2:first-child { margin-top: 0; }
+
+    .post-content h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--brown);
+      margin: 28px 0 10px;
+      letter-spacing: .01em;
+    }
+
+    .post-content p {
+      font-size: .97rem;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 18px;
+      max-width: 660px;
+    }
+
+    .post-content a {
+      color: var(--gold);
+      text-decoration: underline;
+      text-underline-offset: 3px;
       transition: color .15s;
     }
-    .post-card:hover h2 { color: var(--gold); }
+    .post-content a:hover { color: #a07820; }
 
-    .post-card p {
-      font-size: .93rem;
-      color: var(--muted);
-      line-height: 1.65;
-      max-width: 640px;
+    /* ── Inline CTA blocks ── */
+    .post-tool-cta {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--gold);
+      border-radius: 0 10px 10px 0;
+      padding: 18px 22px;
+      margin: 28px 0;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      max-width: 580px;
     }
-
-    .post-card-arrow {
-      font-size: .85rem;
+    .post-tool-cta .cta-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .post-tool-cta-text p {
+      margin: 0;
+      font-size: .88rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .post-tool-cta-text strong {
+      display: block;
+      font-size: .93rem;
+      color: var(--brown);
+      margin-bottom: 3px;
+    }
+    .post-tool-cta a.cta-link {
+      flex-shrink: 0;
+      font-size: .84rem;
       font-weight: 600;
       color: var(--gold);
+      text-decoration: none;
       white-space: nowrap;
-      padding-top: 4px;
-      transition: transform .15s;
     }
-    .post-card:hover .post-card-arrow { transform: translateX(3px); }
+    .post-tool-cta a.cta-link:hover { color: #a07820; }
 
-    /* PAGINATION PLACEHOLDER */
-    /* <!-- PAGINATION_PLACEHOLDER --> */
+    /* ── Share buttons ── */
+    .post-share {
+      margin: 44px 0 0;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+    .post-share-label {
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .post-share-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 16px;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .83rem;
+      font-weight: 600;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color .15s, background .15s, color .15s;
+      text-decoration: none;
+    }
+    .share-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(139,105,20,.04); }
+    .share-btn.copied { border-color: var(--sage); color: var(--sage); background: rgba(74,124,89,.06); }
+    .share-btn svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
 
+    /* ── Author bio ── */
+    .post-author {
+      margin-top: 44px;
+      padding: 28px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .author-avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: rgba(139,105,20,.1);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Lora', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+    .author-info { min-width: 0; }
+    .author-label {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .author-name {
+      font-family: 'Lora', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--brown);
+      margin-bottom: 8px;
+    }
+    .author-bio {
+      font-size: .87rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* ── Related posts placeholder ── */
+    /* <!-- RELATED_POSTS_PLACEHOLDER — populate manually as archive grows --> */
+    .post-related {
+      display: none; /* Remove when populating */
+      margin-top: 56px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Bottom CTA section ── */
+    /* <!-- MORE_FROM_COMMISHHUB_CTA --> */
+    .post-cta-section {
+      background: var(--brown);
+      padding: 64px 28px;
+    }
+    .post-cta-inner {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .post-cta-section .section-eyebrow { color: rgba(240,208,128,.5); margin-bottom: 10px; }
+    .post-cta-section h2 {
+      font-family: 'Lora', serif;
+      font-size: clamp(1.4rem, 3vw, 1.9rem);
+      font-weight: 700;
+      color: var(--gold-lt);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+    .post-cta-section p {
+      font-size: .95rem;
+      color: rgba(255,255,255,.55);
+      margin-bottom: 32px;
+      line-height: 1.7;
+      max-width: 520px;
+    }
+    .post-cta-tools {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+    .cta-tool-card {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      padding: 18px 20px;
+      text-decoration: none;
+      transition: background .15s, transform .2s;
+    }
+    .cta-tool-card:hover { background: rgba(255,255,255,.1); transform: translateY(-2px); }
+    .cta-tool-card .tool-icon { font-size: 1.3rem; margin-bottom: 8px; }
+    .cta-tool-card h3 {
+      font-family: 'Lora', serif;
+      font-size: .95rem;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+    .cta-tool-card p {
+      font-size: .8rem;
+      color: rgba(255,255,255,.45);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    /* Dynasty finder email capture — secondary CTA */
+    /* <!-- DYNASTY_FINDER_EMAIL_CAPTURE --> */
+    .dynasty-capture {
+      border-top: 1px solid rgba(255,255,255,.1);
+      padding-top: 32px;
+    }
+    .dynasty-capture p {
+      font-size: .9rem;
+      color: rgba(255,255,255,.5);
+      margin-bottom: 14px;
+    }
+    .dynasty-capture-form {
+      display: flex;
+      gap: 10px;
+      max-width: 420px;
+      flex-wrap: wrap;
+    }
+    .dynasty-capture-form input {
+      flex: 1;
+      min-width: 200px;
+      background: rgba(255,255,255,.08);
+      border: 1.5px solid rgba(255,255,255,.15);
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      color: #fff;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .dynasty-capture-form input::placeholder { color: rgba(255,255,255,.3); }
+    .dynasty-capture-form input:focus { border-color: var(--gold-lt); }
+    .dynasty-capture-form button {
+      background: var(--gold);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: .88rem;
+      padding: 11px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+    .dynasty-capture-form button:hover { background: #a07820; }
+    .dynasty-capture-note {
+      font-size: .74rem;
+      color: rgba(255,255,255,.3);
+      margin-top: 8px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 860px) {
+      .post-layout {
+        grid-template-columns: 1fr;
+        gap: 0;
+        padding: 36px 20px 60px;
+      }
+      .post-toc {
+        position: static;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px 22px;
+        margin-bottom: 44px;
+      }
+      .post-hero { padding: 40px 20px 36px; }
+    }
     @media (max-width: 600px) {
-      .blog-hero { padding: 44px 20px 36px; }
-      .blog-body { padding: 36px 20px 56px; }
-      .post-card { grid-template-columns: 1fr; gap: 8px; padding: 28px 0; }
-      .post-card-arrow { display: none; }
+      .post-cta-tools { grid-template-columns: 1fr 1fr; }
     }
   </style>
 
+  <!-- BlogPosting schema -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "CommishHub",
-    "url": "https://commishhub.com",
-    "description": "Free fantasy football commissioner toolkit."
+    "@type": "BlogPosting",
+    "headline": "How to Be a Fantasy Football Commissioner",
+    "description": "The practical guide to running a fantasy football league — platform setup, league rules, draft day, and keeping it together all season.",
+    "url": "https://commishhub.com/blog/how-to-be-a-fantasy-football-commissioner/",
+    "datePublished": "2026-04-09",
+    "dateModified": "2026-04-09",
+    "author": {
+      "@type": "Person",
+      "name": "Brady Metzler"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "CommishHub",
+      "url": "https://commishhub.com"
+    },
+    "image": "https://commishhub.com/assets/images/og-default.jpg",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://commishhub.com/blog/how-to-be-a-fantasy-football-commissioner/"
+    }
+  }
+  </script>
+
+  <!-- BreadcrumbList schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Blog",
+        "item": "https://commishhub.com/blog/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "How to Be a Fantasy Football Commissioner",
+        "item": "https://commishhub.com/blog/how-to-be-a-fantasy-football-commissioner/"
+      }
+    ]
   }
   </script>
 </head>
@@ -183,7 +536,7 @@
             <a href="/small-league-dynasty-formats/"><span class="di" aria-hidden="true">📐</span> Small League Formats</a>
           </div>
         </li>
-        <li><a href="/blog/" aria-current="page">Blog</a></li>
+        <li><a href="/blog/">Blog</a></li>
       </ul>
       <a class="nav-cta" href="/#find-league">Find a League →</a>
       <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false">
@@ -217,37 +570,278 @@
 
   <main id="main-content">
 
-    <div class="blog-hero">
-      <div class="blog-hero-inner">
-        <p class="section-eyebrow">The CommishHub Blog</p>
-        <h1>Running a league is mostly thankless work.</h1>
-        <p>These guides are for the commissioners who do it anyway. Besides, who else is going to keep your trades fair and your league dues paid?</p>
+    <!-- ── Post hero ── -->
+    <div class="post-hero">
+      <div class="post-hero-inner">
+
+        <!-- Breadcrumb navigation -->
+        <nav class="post-breadcrumb" aria-label="Breadcrumb">
+          <a href="/blog/">Blog</a>
+          <span class="crumb-sep" aria-hidden="true">›</span>
+          <span aria-current="page">How to Be a Fantasy Football Commissioner</span>
+        </nav>
+
+        <div class="post-hero-meta">
+          <span class="badge badge-gold">Commissioner</span>
+          <span class="post-read-time">8 min read</span>
+          <!-- Last updated — remove display:none in CSS and set date when updating post -->
+          <span class="post-last-updated" id="post-last-updated">Last updated: <!-- DATE --></span>
+        </div>
+
+        <h1>How to Be a Fantasy Football Commissioner</h1>
+
+        <!-- Intro paragraph — primary keyword appears naturally here -->
+        <p class="post-intro">Being a fantasy football commissioner means setting up the league, writing the rules, running the draft, managing disputes, and somehow keeping everyone engaged through a seventeen-week season. This guide covers each part of the job in order: setup, rules, draft day, in-season management, and the offseason work most commissioner guides never mention.</p>
+
       </div>
     </div>
 
-    <div class="blog-body">
+    <!-- ── Post layout: TOC sidebar + content ── -->
+    <div class="post-layout">
 
-      <!-- POST LIST — hub post always first regardless of date -->
-      <div class="post-list" role="list">
+      <!-- Table of Contents — sticky sidebar on desktop, card on mobile -->
+      <aside class="post-toc" aria-label="Table of contents">
+        <p class="post-toc-label">In this guide</p>
+        <ol>
+          <li><a href="#set-up-the-league">Set Up the League</a></li>
+          <li><a href="#write-the-rules">Write the Rules</a></li>
+          <li><a href="#run-a-draft">Run a Draft</a></li>
+          <li><a href="#manage-the-season">Manage the Season</a></li>
+          <li><a href="#give-last-place-something-to-lose">Give Last Place Something to Lose</a></li>
+          <li><a href="#the-offseason">The Offseason</a></li>
+        </ol>
+      </aside>
 
-        <a href="/blog/how-to-be-a-fantasy-football-commissioner/" class="post-card" role="listitem">
-          <div>
-            <div class="post-card-meta">
-              <span class="badge badge-gold">Commissioner</span>
-              <span class="post-read-time">8 min read</span>
-            </div>
-            <h2>How to Be a Fantasy Football Commissioner</h2>
-            <p>Everything you need to set up, run, and survive your first season as commish.</p>
+      <!-- Post content -->
+      <article class="post-content" itemscope itemtype="https://schema.org/BlogPosting">
+
+        <h2 id="set-up-the-league">Set Up the League Before You Invite Anyone</h2>
+
+        <p>The first mistake new commissioners make is sending out the invite link before touching a single setting. Now you have multiple people in a league with default scoring, no agreed-upon rules, and a draft date nobody confirmed. Start with the infrastructure. Invite people when it's ready.</p>
+
+        <h3>Platform choice</h3>
+
+        <p>For casual redraft leagues, ESPN and Yahoo are both fine. They're familiar, free, and most of your league mates have used one before. Yahoo has slightly better commissioner tools. ESPN has a better mobile experience. Neither will make or break your season.</p>
+
+        <p>If you're running a dynasty league, use Sleeper. The commissioner controls are more flexible, the interface is cleaner, and it's where dynasty players already are.</p>
+
+        <h3>Scoring format</h3>
+
+        <p>The scoring decisions that cause the most arguments later are the ones nobody agreed on in August. A few that matter more than the rest.</p>
+
+        <p>Half PPR is the current competitive standard. Full PPR tilts the balance heavily toward receivers in ways that affect how every position drafts. Standard scoring no longer reflects how the NFL actually plays. If your league is experienced, half PPR is the right default. If it's a casual group playing together for the first time, pick whatever format they'll actually understand and commit to it.</p>
+
+        <p>Passing touchdowns are either four points or six. Six makes quarterbacks significantly more valuable and changes how the entire league approaches the draft. Pick one before the season, not during it.</p>
+
+        <p>Scoring settings have enough moving parts to warrant a breakdown of their own. <!-- TODO: add link to /blog/fantasy-football-scoring-settings/ when live --></p>
+
+        <!-- TODO: update href when Commissioner Wizard is live -->
+        <div class="post-tool-cta">
+          <span class="cta-icon" aria-hidden="true">📋</span>
+          <div class="post-tool-cta-text">
+            <strong>Commissioner Wizard</strong>
+            <p>Walks through every setup decision in sequence.</p>
           </div>
-          <span class="post-card-arrow" aria-hidden="true">Read →</span>
-        </a>
+          <a href="/new-commissioner-guide/" class="cta-link">Try it →</a>
+        </div>
 
-        <!-- FUTURE POSTS GO HERE — add above this comment, hub post stays first -->
+        <h2 id="write-the-rules">Write the Rules Before Anyone Asks a Question</h2>
+
+        <p>Most commissioner disputes that turn ugly follow the same pattern: something happened that the rules didn't cover, two owners have opposite interpretations, and now you're making a ruling someone will carry a grudge about into next season. Most of this is preventable. Write the rules before the draft.</p>
+
+        <p>Your league constitution doesn't need to be a legal document. It needs to answer the questions that cause problems.</p>
+
+        <h3>Trades and vetoes</h3>
+
+        <p>Trades help keep leagues exciting, yet nothing sucks the life out of a fantasy football league quicker than trade disputes. When starting a league, you'll have to choose between commissioner approval, league vote, or auto-approve for trade requests.</p>
+
+        <p>The standard that holds up best over time is a collusion standard, not a fairness standard. Your job as commissioner isn't to protect owners from making bad trades. It's to identify when two teams are coordinating to manipulate standings. Those are different problems, and conflating them is how commissioners end up arbitrating every transaction in the league.</p>
+
+        <p>A lopsided trade where one owner misjudged value isn't your problem to fix. Write that distinction into your rules, and set your league settings to auto-approve.</p>
+
+        <h3>Waivers</h3>
+
+        <p><a href="/fantasy-football-glossary/#faab">FAAB</a> gives every team a budget to bid on free agents, which creates more competition and fewer complaints about waiver order. Standard priority is simpler to explain to new players. Either works. Decide before the season and write it down, as waiver rules are the second most common source of commissioner complaints after trades.</p>
+
+        <h3>Inactive teams</h3>
+
+        <p>This one needs a written policy before you have a specific person in mind, because enforcing it against someone you know personally is harder than it sounds. Define the threshold and the consequence for signs of blatant inactivity. Communicate these with the league before week one to avoid conflicts later in the season.</p>
+
+        <p>Give your managers some grace here. It's natural for interest to wane as the season goes on. Forgetting to check a single game-time lineup decision is much different than weeks of untouched lineups.</p>
+
+        <h3>Playoff tiebreakers</h3>
+
+        <p>How do you seed teams with identical records? Total points scored is the most common answer and a good one. Write it down before someone finishes 8-5 in a three-way tie and you're trying to remember what you said in the preseason chat.</p>
+
+        <!-- TODO: update href when Rules Generator is live -->
+        <!-- TODO: add link to /blog/fantasy-football-league-rules-template/ when live -->
+        <div class="post-tool-cta">
+          <span class="cta-icon" aria-hidden="true">📜</span>
+          <div class="post-tool-cta-text">
+            <strong>League Rules Generator</strong>
+            <p>A full rules template that covers the structure.</p>
+          </div>
+          <a href="/league-rules-generator/" class="cta-link">Try it →</a>
+        </div>
+
+        <h2 id="run-a-draft">Run a Draft People Actually Show Up For</h2>
+
+        <p>The draft is the one event in your fantasy season where everyone is paying attention at the same time. It's also the single most impactful part of the football year for anyone serious about winning. It's worth getting right.</p>
+
+        <h3>Set the date early</h3>
+
+        <p>This is the most commonly botched commissioner task, and it has nothing to do with settings. August fills up fast. People have weddings, vacations, and family obligations locked in months in advance. Get a date on the calendar by June. A league where half the teams autodraft because the commissioner waited until August 15th is a waste of everyone's time.</p>
+
+        <h3>Format</h3>
+
+        <p>Live snake drafts are more fun. Slow drafts are more practical for leagues that run into scheduling issues. Pick based on what your league can actually commit to, not what sounds better in the abstract. A live draft that three people miss is worse than a slow draft everyone participates in.</p>
+
+        <p>If you're running a live draft, set a pick clock. Sixty seconds for early rounds, ninety for later ones. Without one, a single distracted owner can turn a two-hour draft into a four-hour endurance test.</p>
+
+        <h3>Draft order</h3>
+
+        <p>Random is the right call. There are real advantages and disadvantages to each draft position, and they shift year to year based on roster construction and player value. A random draw is both the fairest and the hardest to argue with. If you want to make the reveal worth showing up for, rather than a shared spreadsheet, there are ways to do that. <!-- TODO: add link to /blog/fantasy-football-draft-order/ when live --></p>
+
+        <!-- Draft Order Randomizer inline CTA -->
+        <div class="post-tool-cta">
+          <span class="cta-icon" aria-hidden="true">🎲</span>
+          <div class="post-tool-cta-text">
+            <strong>Draft Order Randomizer</strong>
+            <p>Handles the draw in about thirty seconds. No spreadsheet, no accusations of favoritism.</p>
+          </div>
+          <a href="/draft-order-randomizer/" class="cta-link">Try it →</a>
+        </div>
+
+        <h2 id="manage-the-season">Manage the Season Without Becoming a Referee</h2>
+
+        <p>Setup is done. Your job shifts from builder to manager, and the biggest in-season mistake commissioners make is disappearing.</p>
+
+        <h3>Communicate more than you think you need to</h3>
+
+        <p>Waiver deadlines, trade windows, lineup lock reminders before Thursday night games: a quick message in the group chat prevents an inbox full of direct messages asking the same question. Commissioners who generate the most complaints aren't usually the ones who made bad rulings. They're the ones who went quiet and let confusion fill the space.</p>
+
+        <h3>Handle trade complaints correctly</h3>
+
+        <p>When an owner comes to you upset about a trade, your first question should be: is there actual evidence of collusion, or do they just think the deal was unfair?</p>
+
+        <p>If it's the latter, the answer is no. A lopsided trade where one owner misjudged value isn't a commissioner problem. Overturning trades on fairness grounds sets a precedent that turns every transaction into a negotiation with you in the middle. Once you've done it once, every owner who loses a trade expects the same consideration. Don't give the mouse a cookie.</p>
+
+        <p>Rule based on the collusion standard you wrote in August. Explain your reasoning in one sentence. Move on. The owners who disagree will get over it faster than they'd get over an inconsistent commish.</p>
+
+        <h3>Deal with inactive teams before they become a problem</h3>
+
+        <p>By week ten, every league has at least one owner who has mentally checked out. Their lineup hasn't been touched since the bye week, and they're playing your playoff contenders down the stretch with a running back who's been on IR for three weeks. It affects every matchup they're involved in for the rest of the season. Follow the policy you wrote in August. The competitive owners are expecting you to handle it, even if they don't say anything.</p>
+
+        <h2 id="give-last-place-something-to-lose">Give Last Place Something to Lose</h2>
+
+        <p>A team that's 2-9 in week twelve with nothing at stake has no reason to set a lineup. That's a problem for every owner on their remaining schedule and for the league culture you're trying to carry into next year.</p>
+
+        <p>Last place punishments solve this. Not because humiliation is the point, but because they give every team a reason to compete through week seventeen. The owner who can't make the playoffs is still trying to avoid the punishment. That effort keeps matchups honest and keeps people engaged long enough to want to come back.</p>
+
+        <p>Set the punishment before the season. One written into the league rules in August is just part of how the league works.</p>
+
+        <!-- Punishment Wheel inline CTA -->
+        <div class="post-tool-cta">
+          <span class="cta-icon" aria-hidden="true">🎡</span>
+          <div class="post-tool-cta-text">
+            <strong>Punishment Wheel</strong>
+            <p>Options ranging from uncomfortable to genuinely regrettable.</p>
+          </div>
+          <a href="/punishment-wheel/" class="cta-link">Try it →</a>
+        </div>
+
+        <h2 id="the-offseason">The Offseason Is Part of the Job Too</h2>
+
+        <p>Most commissioner guides end when the season does. That's part of why some leagues quietly fall apart between January and August.</p>
+
+        <p>Run a rules vote after the championship. Ask what worked, what caused friction, and what people want to change. A Google Form costs nothing and surfaces problems before they become mid-season disputes.</p>
+
+        <p>Handle roster and ownership issues early. In dynasty leagues, an orphaned team posted in February is a much easier sell than one sitting vacant until July. And confirm everyone is returning before you assume they are. Finding out in August that two owners aren't coming back is a solvable problem. Finding out the week before the draft is not.</p>
+
+        <!-- TODO: add link to /blog/fantasy-football-offseason-commissioner-checklist/ when live -->
+        <p>The offseason commissioner checklist deserves its own breakdown.</p>
+
+        <p>The commissioners who make this look effortless did the work before week one. They locked the draft date before August, wrote the trade policy before the first complaint, and set the punishment before anyone knew who'd be stuck with it. The season runs itself when the infrastructure is right.</p>
+
+        <p>The tools on CommishHub are built for the parts that shouldn't take up your time. The league culture is still on you.</p>
+
+        <!-- ── Share buttons ── -->
+        <div class="post-share">
+          <p class="post-share-label">Share this guide</p>
+          <div class="post-share-buttons">
+            <a class="share-btn" id="share-twitter" href="https://twitter.com/intent/tweet?text=How+to+Be+a+Fantasy+Football+Commissioner&url=https%3A%2F%2Fcommishhub.com%2Fblog%2Fhow-to-be-a-fantasy-football-commissioner%2F" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.26 5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              Share on X
+            </a>
+            <a class="share-btn" id="share-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcommishhub.com%2Fblog%2Fhow-to-be-a-fantasy-football-commissioner%2F" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+              Share on Facebook
+            </a>
+            <button class="share-btn" id="share-copy" onclick="copyPostLink()">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+              Copy link
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Author bio ── -->
+        <div class="post-author" itemscope itemtype="https://schema.org/Person">
+          <div class="author-avatar" aria-hidden="true">BM</div>
+          <div class="author-info">
+            <p class="author-label">Written by</p>
+            <p class="author-name" itemprop="name">Brady Metzler</p>
+            <p class="author-bio" itemprop="description">Brady Metzler has played fantasy football for over a decade, won six championships, and currently runs a dynasty league while competing in another. He built CommishHub because the tools commissioners actually need have always been an afterthought.</p>
+          </div>
+        </div>
+
+        <!-- RELATED_POSTS_PLACEHOLDER — populate manually as archive grows, remove display:none in CSS -->
+        <div class="post-related" aria-label="Related posts">
+          <!-- Add related post cards here when archive grows -->
+        </div>
+
+      </article>
+    </div>
+
+    <!-- ── MORE FROM COMMISHHUB CTA SECTION ── -->
+    <!-- MORE_FROM_COMMISHHUB_CTA -->
+    <section class="post-cta-section" aria-label="More from CommishHub">
+      <div class="post-cta-inner">
+        <p class="section-eyebrow">More from CommishHub</p>
+        <h2>The tools your platform doesn't build.</h2>
+        <p>Free commissioner tools for the parts of running a league that ESPN and Yahoo gave up on.</p>
+
+        <!-- Primary CTAs: commissioner tools -->
+        <div class="post-cta-tools">
+          <a href="/draft-order-randomizer/" class="cta-tool-card">
+            <div class="tool-icon" aria-hidden="true">🎲</div>
+            <h3>Draft Order Randomizer</h3>
+            <p>A fair draw your league can't argue with.</p>
+          </a>
+          <a href="/punishment-wheel/" class="cta-tool-card">
+            <div class="tool-icon" aria-hidden="true">🎡</div>
+            <h3>Punishment Wheel</h3>
+            <p>Give last place something to think about.</p>
+          </a>
+          <a href="/fantasy-football-glossary/" class="cta-tool-card">
+            <div class="tool-icon" aria-hidden="true">📖</div>
+            <h3>Fantasy Football Glossary</h3>
+            <p>Every term your new managers are afraid to ask about.</p>
+          </a>
+        </div>
+
+        <!-- Secondary CTA: Dynasty Finder email capture -->
+        <!-- DYNASTY_FINDER_EMAIL_CAPTURE -->
+        <div class="dynasty-capture">
+          <p>Looking for a dynasty league? We're building a finder. Get early access.</p>
+          <form class="dynasty-capture-form" id="dynasty-form" onsubmit="submitDynastyEmail(event)">
+            <input type="email" id="dynasty-email" placeholder="your@email.com" required autocomplete="email" />
+            <button type="submit">Notify me</button>
+          </form>
+          <p class="dynasty-capture-note">No spam. One email when it's ready.</p>
+        </div>
 
       </div>
-      <!-- END POST LIST -->
-
-    </div>
+    </section>
 
   </main>
 
@@ -295,6 +889,7 @@
   </footer>
 
   <script>
+    // ── Hamburger ──
     (function() {
       const btn = document.getElementById('hamburger');
       const panel = document.getElementById('mobile-nav');
@@ -311,6 +906,69 @@
           btn.setAttribute('aria-expanded', 'false');
         });
       });
+    })();
+
+    // ── Copy link ──
+    function copyPostLink() {
+      const btn = document.getElementById('share-copy');
+      navigator.clipboard.writeText(window.location.href).then(function() {
+        btn.classList.add('copied');
+        btn.innerHTML = btn.innerHTML.replace('Copy link', 'Copied!');
+        setTimeout(function() {
+          btn.classList.remove('copied');
+          btn.innerHTML = btn.innerHTML.replace('Copied!', 'Copy link');
+        }, 2000);
+      });
+    }
+
+    // ── Dynasty email capture ──
+    function submitDynastyEmail(e) {
+      e.preventDefault();
+      const email = document.getElementById('dynasty-email').value.trim();
+      const btn = e.target.querySelector('button');
+      if (!email) return;
+      btn.textContent = 'Saving...';
+      btn.disabled = true;
+      fetch('/.netlify/functions/save-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, source: 'blog-commissioner-post' })
+      })
+      .then(function(res) {
+        if (res.ok) {
+          btn.textContent = "You're on the list";
+          document.getElementById('dynasty-email').disabled = true;
+        } else {
+          btn.textContent = 'Try again';
+          btn.disabled = false;
+        }
+      })
+      .catch(function() {
+        btn.textContent = 'Try again';
+        btn.disabled = false;
+      });
+    }
+
+    // ── Active TOC link on scroll ──
+    (function() {
+      const headings = document.querySelectorAll('.post-content h2[id]');
+      const tocLinks = document.querySelectorAll('.post-toc a');
+      if (!headings.length || !tocLinks.length) return;
+
+      function onScroll() {
+        let current = '';
+        headings.forEach(function(h) {
+          if (window.scrollY >= h.offsetTop - 120) {
+            current = h.getAttribute('id');
+          }
+        });
+        tocLinks.forEach(function(link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+        });
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
     })();
   </script>
 
