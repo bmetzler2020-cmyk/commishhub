@@ -42,27 +42,37 @@
     /* ── Post hero ── */
     .post-hero {
       background: var(--bg);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
       border-bottom: 1px solid var(--border);
-      padding: 56px 28px 48px;
+      padding: 40px 28px 48px;
     }
     .post-hero-inner {
       max-width: 760px;
       margin: 0 auto;
     }
+
+    /* Breadcrumb — pill on warm background, no dark bar */
     .post-breadcrumb {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: .8rem;
+      font-size: .78rem;
       color: var(--muted);
-      margin-bottom: 20px;
+      margin-bottom: 24px;
+      padding: 7px 12px;
+      background: rgba(139,105,20,.06);
+      border-radius: 6px;
+      width: fit-content;
     }
     .post-breadcrumb a {
       color: var(--muted);
       transition: color .15s;
     }
     .post-breadcrumb a:hover { color: var(--gold); }
-    .post-breadcrumb .crumb-sep { color: var(--border); }
+    .post-breadcrumb .crumb-sep {
+      color: rgba(139,105,20,.3);
+      font-size: .7rem;
+    }
 
     .post-hero-meta {
       display: flex;
@@ -79,11 +89,10 @@
 
     /* Last updated — hidden until Brady populates it */
     .post-last-updated {
-      display: none; /* Remove this line when adding a date */
+      display: none;
       font-size: .78rem;
       color: var(--muted);
     }
-    /* To activate: remove display:none above and set content via data attribute or inline */
 
     .post-hero h1 {
       font-family: 'Lora', serif;
@@ -92,16 +101,24 @@
       line-height: 1.15;
       letter-spacing: -0.015em;
       color: var(--brown);
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       max-width: 680px;
     }
 
+    /* Intro paragraph — gold left accent marks it as the lede */
     .post-intro {
-      font-size: 1.08rem;
-      color: var(--muted);
-      line-height: 1.75;
+      font-size: 1.05rem;
+      color: var(--text);
+      line-height: 1.8;
       max-width: 640px;
       margin-bottom: 0;
+      padding-left: 16px;
+      border-left: 3px solid var(--gold);
+    }
+
+    /* Scroll offset — fixes TOC links and anchor links landing behind sticky nav */
+    h2[id], h3[id], [id] {
+      scroll-margin-top: 88px;
     }
 
     /* ── Layout: sidebar TOC + main content ── */
@@ -445,10 +462,12 @@
         padding: 20px 22px;
         margin-bottom: 44px;
       }
-      .post-hero { padding: 40px 20px 36px; }
+      .post-hero { padding: 32px 20px 36px; }
+      .post-intro { font-size: 1rem; }
     }
     @media (max-width: 600px) {
       .post-cta-tools { grid-template-columns: 1fr 1fr; }
+      .post-breadcrumb { font-size: .74rem; }
     }
   </style>
 
@@ -566,7 +585,6 @@
     <a class="mobile-cta" href="/#find-league">Find a League →</a>
   </div>
 
-  <div class="hero-rule"></div>
 
   <main id="main-content">
 
