@@ -443,6 +443,9 @@ hr.rule {
   padding: 12px 0 20px;
   z-index: 199;
   box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  max-height: calc(100vh - 68px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .mobile-nav.open { display: block; }
 .mobile-nav a {
@@ -481,11 +484,11 @@ hr.rule {
 @media (max-width: 860px) {
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .tool-card-main { padding: 28px 20px; }
-}
-@media (max-width: 600px) {
   .nav-links { display: none; }
   .nav-cta { display: none; }
   .hamburger { display: flex; }
+}
+@media (max-width: 600px) {
   .footer-grid { grid-template-columns: 1fr; }
   .tool-hero-inner { padding: 40px 20px 36px; }
   .tool-body { padding: 36px 20px 52px; }

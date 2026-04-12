@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>The CommishHub Blog</title>
+    <link>https://commishhub.com/blog/</link>
+    <description>Guides for fantasy football commissioners who want their league to actually work.</description>
+    <language>en-us</language>
+    <copyright>© 2026 CommishHub</copyright>
+    <lastBuildDate>Wed, 09 Apr 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://commishhub.com/blog/feed.xml" rel="self" type="application/rss+xml" />
+
+    <item>
+      <title>How to Be a Fantasy Football Commissioner</title>
+      <link>https://commishhub.com/blog/how-to-be-a-fantasy-football-commissioner/</link>
+      <guid isPermaLink="true">https://commishhub.com/blog/how-to-be-a-fantasy-football-commissioner/</guid>
+      <pubDate>Wed, 09 Apr 2026 00:00:00 +0000</pubDate>
+      <description>The practical guide to running a fantasy football league — platform setup, league rules, draft day, and keeping it together all season.</description>
+    </item>
+
+    <!-- ADD NEW POSTS ABOVE THIS LINE — most recent first -->
+
+  </channel>
+</rss>
