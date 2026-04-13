@@ -89,9 +89,69 @@
       color: #FAF7F0; line-height: 1.15; letter-spacing: .01em; min-height: 1.3em; opacity: 0;
     }
     .pick-name.long-name { font-size: clamp(1.2rem, 2.8vw, 1.8rem); }
+    .pick-tagline {
+      font-size: .72rem; color: rgba(250,247,240,0.3);
+      font-style: italic; margin-top: 6px; line-height: 1.4; opacity: 0;
+    }
     .pick-card.waiting  { opacity: 1; border-color: rgba(139,105,20,0.12); box-shadow: none; }
     .pick-card.active   { border-color: rgba(139,105,20,0.65); box-shadow: 0 0 22px rgba(139,105,20,0.28), inset 0 0 20px rgba(139,105,20,0.04); }
     .pick-card.revealed { border-color: rgba(139,105,20,0.32); border-left: 3px solid rgba(139,105,20,0.55); box-shadow: 0 0 10px rgba(139,105,20,0.1); }
+
+    /* Pick counter */
+    .pick-counter {
+      text-align: center; margin-bottom: 20px;
+      font-size: .7rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(139,105,20,0.5);
+      opacity: 0; transition: opacity .3s;
+    }
+    .pick-counter.visible { opacity: 1; }
+
+    /* Spotlight overlay */
+    #spotlight-overlay {
+      position: fixed; inset: 0; z-index: 800;
+      background: #070503;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 24px;
+      pointer-events: none; opacity: 0;
+    }
+    #spotlight-overlay.active { pointer-events: auto; }
+    .spotlight-pick-label {
+      font-size: .7rem; font-weight: 600; letter-spacing: .14em;
+      text-transform: uppercase; color: rgba(139,105,20,0.55);
+      margin-bottom: 28px; opacity: 0;
+    }
+    .spotlight-name {
+      font-family: 'Lora', serif;
+      font-size: clamp(2.8rem, 8vw, 5.2rem);
+      font-weight: 700; color: #FAF7F0;
+      letter-spacing: .02em; line-height: 1.1;
+      text-align: center; opacity: 0;
+    }
+    .spotlight-bio {
+      margin-top: 28px; text-align: center;
+      display: flex; flex-direction: column; gap: 10px; opacity: 0;
+    }
+    .spotlight-bio-line {
+      font-size: clamp(.88rem, 2.2vw, 1.05rem);
+      color: rgba(250,247,240,0.5); line-height: 1.5;
+    }
+    .spotlight-bio-tagline {
+      font-size: clamp(.9rem, 2.4vw, 1.1rem);
+      color: rgba(240,208,128,0.75); font-style: italic; line-height: 1.5;
+    }
+    .spotlight-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at 50% 40%, rgba(139,105,20,0.08) 0%, transparent 65%);
+      opacity: 0;
+    }
+
+    /* Countdown idle pulse on board border */
+    @keyframes countdownBorderPulse {
+      0%, 100% { box-shadow: 0 0 40px rgba(139,105,20,0.2), 0 0 80px rgba(139,105,20,0.08), inset 0 1px 0 rgba(139,105,20,0.18); }
+      50%       { box-shadow: 0 0 65px rgba(139,105,20,0.38), 0 0 120px rgba(139,105,20,0.18), inset 0 1px 0 rgba(139,105,20,0.28); }
+    }
+    .board.countdown-idle { animation: countdownBorderPulse 4s ease-in-out infinite; }
 
     /* Loading */
     #loading-state { position:relative;z-index:1;text-align:center;color:rgba(250,247,240,0.3);font-size:.88rem;font-style:italic; }
@@ -101,10 +161,76 @@
     #error-state h2 { font-family:'Lora',serif;color:#F0D080;margin-bottom:12px;font-size:1.4rem; }
     #error-state a { color:#8B6914;text-decoration:none; }
 
+    /* ── End card ── */
+    #end-card {
+      display: none; opacity: 0;
+      position: relative; z-index: 1;
+      width: min(960px, 92vw); margin: 32px auto 0;
+      background: #1A0F07;
+      border: 1px solid rgba(139,105,20,0.3);
+      border-radius: 8px;
+      padding: 32px 36px 36px;
+      text-align: center;
+    }
+    #end-card.visible { display: block; }
+    .end-card-divider {
+      width: 48px; height: 2px;
+      background: rgba(139,105,20,0.4);
+      margin: 0 auto 24px;
+      border-radius: 2px;
+    }
+    .end-card-label {
+      font-size: .7rem; font-weight: 600; letter-spacing: .12em;
+      text-transform: uppercase; color: rgba(139,105,20,0.6);
+      margin-bottom: 20px;
+    }
+    .end-card-picks {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 8px 16px; margin-bottom: 28px; text-align: left;
+    }
+    .end-card-pick-row {
+      display: flex; align-items: baseline; gap: 10px;
+      padding: 6px 0; border-bottom: 1px solid rgba(139,105,20,0.08);
+    }
+    .end-card-pick-num {
+      font-size: .68rem; font-weight: 700; letter-spacing: .09em;
+      text-transform: uppercase; color: rgba(139,105,20,0.5);
+      flex-shrink: 0; width: 36px;
+    }
+    .end-card-pick-name {
+      font-family: 'Lora', serif; font-size: .95rem;
+      color: #FAF7F0; line-height: 1.3;
+    }
+    .end-card-actions {
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      margin-bottom: 24px;
+    }
+    .end-copy-btn {
+      background: #8B6914; color: #fff;
+      font-family: 'DM Sans', sans-serif; font-size: .92rem; font-weight: 600;
+      padding: 12px 32px; border-radius: 7px; border: none; cursor: pointer;
+      box-shadow: 0 2px 12px rgba(139,105,20,0.3);
+      transition: background .15s, transform .1s;
+      min-width: 200px;
+    }
+    .end-copy-btn:hover { background: #a07820; transform: translateY(-1px); }
+    .end-copy-btn.copied { background: rgba(139,105,20,0.4); cursor: default; transform: none; }
+    .end-card-cta {
+      font-size: .82rem; color: rgba(250,247,240,0.3);
+      font-style: italic; line-height: 1.6;
+    }
+    .end-card-cta a {
+      color: rgba(139,105,20,0.6); text-decoration: none;
+      transition: color .15s;
+    }
+    .end-card-cta a:hover { color: #8B6914; }
+
     @media (max-width:600px) {
       .board { padding:20px 16px; }
       .picks-grid { grid-template-columns:1fr; }
       .atmo-left, .atmo-right { display:none; }
+      #end-card { padding: 24px 20px 28px; }
+      .end-card-picks { grid-template-columns: 1fr; }
     }
 
     /* ── Tap to reveal overlay ── */
@@ -145,6 +271,14 @@
     <p class="tap-sub">The pick is in.</p>
   </div>
 
+  <!-- Spotlight overlay — fires per pick -->
+  <div id="spotlight-overlay" aria-live="polite">
+    <div class="spotlight-glow" id="spotlight-glow"></div>
+    <p class="spotlight-pick-label" id="spotlight-pick-label">Pick 1</p>
+    <p class="spotlight-name"      id="spotlight-name"></p>
+    <div class="spotlight-bio"     id="spotlight-bio"></div>
+  </div>
+
   <div class="atmo-left"  aria-hidden="true"></div>
   <div class="atmo-right" aria-hidden="true"></div>
 
@@ -165,6 +299,7 @@
       </div>
 
       <!-- Pick cards — built by JS when ready -->
+      <div class="pick-counter" id="pick-counter"></div>
       <div class="picks-grid" id="picks-grid" style="display:none;"></div>
 
     </div>
@@ -176,6 +311,17 @@
     <p>This link may have expired or the ID is incorrect.<br/>
        <a href="/draft-order-randomizer/">Create a new one →</a>
     </p>
+  </div>
+
+  <!-- End card — fades in after reveal completes -->
+  <div id="end-card">
+    <div class="end-card-divider"></div>
+    <p class="end-card-label">Final Draft Order</p>
+    <div class="end-card-picks" id="end-card-picks"></div>
+    <div class="end-card-actions">
+      <button class="end-copy-btn" id="end-copy-btn" onclick="copyRevealLink()">Copy Reveal Link</button>
+    </div>
+    <p class="end-card-cta">Run your own draft lottery at <a href="/draft-order-randomizer/">CommishHub.com</a></p>
   </div>
 
   <script>
@@ -334,6 +480,9 @@
       if (isNaN(revealAt)) { showError(); return; }
       if (Date.now() >= revealAt) { loadReveal(); return; }
 
+      // Idle animation — slow breathing glow while waiting
+      document.getElementById('board').classList.add('countdown-idle');
+
       function tick() {
         const remaining = revealAt - Date.now();
         if (remaining <= 0) {
@@ -354,42 +503,128 @@
     function buildPickCards(order) {
       const grid = document.getElementById('picks-grid');
       grid.innerHTML = '';
-      order.forEach((name, i) => {
+      order.forEach((team, i) => {
+        const name = team.name || team;
         const card = document.createElement('div');
         card.className = 'pick-card waiting';
         card.id = `pick-card-${i}`;
         card.innerHTML = `
           <div class="pick-card-sweep" id="sweep-${i}"></div>
           <div class="pick-num" id="pick-num-${i}">Pick ${i + 1}</div>
-          <div class="pick-name${name.length > 14 ? ' long-name' : ''}" id="pick-name-${i}"></div>`;
+          <div class="pick-name${name.length > 14 ? ' long-name' : ''}" id="pick-name-${i}"></div>
+          <div class="pick-tagline" id="pick-tagline-${i}"></div>`;
         grid.appendChild(card);
       });
     }
 
-    // ── Reveal sequence — identical to main tool ──
+    // ── Reveal sequence ──
     const speedDelays = { fast: 1500, default: 3000, slow: 6000 };
 
     function startRevealSequence(shuffled, speed) {
-      // Hide countdown if showing
       document.getElementById('countdown-overlay').classList.remove('visible');
       document.getElementById('picks-grid').style.display = 'grid';
+      document.getElementById('board').classList.remove('countdown-idle');
+
+      const counter = document.getElementById('pick-counter');
+      counter.classList.add('visible');
 
       const delay = speedDelays[speed] || 3000;
-      let elapsed = 0;
+      const speedKey = speed || 'default';
+      const suspenseMs = speedKey === 'fast' ? 1200 : speedKey === 'slow' ? 3200 : 2000;
 
-      shuffled.forEach((name, i) => {
-        const holdMs = Math.max(800, 2000 - i * 100);
-        setTimeout(() => revealPick(i, name, holdMs), elapsed);
-        elapsed += delay;
+      // Calculate per-pick total duration so we can schedule accurately
+      function pickDuration(team) {
+        const hasBio = (team.hometown || team.record || team.tagline);
+        const holdMs = hasBio
+          ? (speedKey === 'fast' ? 2200 : speedKey === 'slow' ? 4500 : 3200)
+          : (speedKey === 'fast' ? 1400 : speedKey === 'slow' ? 3000 : 2000);
+        // total: fade-in(350ms) + suspense + name-anim(600ms) + hold + fade-out(450ms) + board(400ms) + gap
+        return 350 + suspenseMs + 600 + holdMs + 450 + 400 + (delay * 0.3);
+      }
+
+      let elapsed = 0;
+      shuffled.forEach((team, i) => {
+        setTimeout(() => {
+          document.getElementById('pick-counter').textContent = `Pick ${i + 1} of ${shuffled.length}`;
+          revealPick(i, team, speedKey);
+        }, elapsed);
+        elapsed += pickDuration(team);
       });
 
-      const lastHold = Math.max(800, 2000 - (shuffled.length - 1) * 100);
-      setTimeout(onAllRevealed, elapsed - delay + lastHold + 600);
+      // After all picks finish
+      setTimeout(onAllRevealed, elapsed + 600);
     }
 
-    function revealPick(idx, name, holdBeforeName) {
+    function revealPick(idx, team, speedKey) {
+      const name     = (team.name || team).toUpperCase();
+      const hometown = team.hometown || '';
+      const record   = team.record   || '';
+      const tagline  = team.tagline  || '';
+      const hasBio   = hometown || record || tagline;
+
+      const overlay  = document.getElementById('spotlight-overlay');
+      const labelEl  = document.getElementById('spotlight-pick-label');
+      const nameEl   = document.getElementById('spotlight-name');
+      const bioEl    = document.getElementById('spotlight-bio');
+      const glowEl   = document.getElementById('spotlight-glow');
+
+      const totalPicks = document.querySelectorAll('[id^="pick-card-"]').length;
+      labelEl.textContent = `Pick ${idx + 1} of ${totalPicks}`;
+
+      bioEl.innerHTML = '';
+      if (hometown || record) {
+        const line = document.createElement('p');
+        line.className = 'spotlight-bio-line';
+        line.textContent = [hometown, record].filter(Boolean).join('  ·  ');
+        bioEl.appendChild(line);
+      }
+      if (tagline) {
+        const tl = document.createElement('p');
+        tl.className = 'spotlight-bio-tagline';
+        tl.textContent = `"${tagline}"`;
+        bioEl.appendChild(tl);
+      }
+
+      nameEl.textContent = '';
+      gsap.set([overlay, labelEl, nameEl, bioEl, glowEl], { opacity: 0 });
+      overlay.classList.add('active');
+
+      const suspenseMs = speedKey === 'fast' ? 1200 : speedKey === 'slow' ? 3200 : 2000;
+      const holdMs = hasBio
+        ? (speedKey === 'fast' ? 2200 : speedKey === 'slow' ? 4500 : 3200)
+        : (speedKey === 'fast' ? 1400 : speedKey === 'slow' ? 3000 : 2000);
+
+      gsap.to(overlay, { opacity: 1, duration: 0.35, ease: 'power2.out', onComplete: () => {
+        gsap.to(labelEl, { opacity: 1, duration: 0.4 });
+        gsap.to(glowEl,  { opacity: 1, duration: suspenseMs / 1000 * 0.5, ease: 'power2.inOut', yoyo: true, repeat: 1 });
+
+        setTimeout(() => {
+          nameEl.textContent = name;
+          gsap.fromTo(nameEl,
+            { opacity: 0, y: 18 },
+            { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', onComplete: () => { playRevealTone(); } }
+          );
+          gsap.to(glowEl, { opacity: 0.9, duration: 0.3, yoyo: true, repeat: 1 });
+
+          if (hasBio) {
+            setTimeout(() => { gsap.to(bioEl, { opacity: 1, duration: 0.5, ease: 'power2.out' }); }, 500);
+          }
+
+          setTimeout(() => {
+            gsap.to(overlay, { opacity: 0, duration: 0.45, ease: 'power2.in', onComplete: () => {
+              overlay.classList.remove('active');
+              populateBoardCard(idx, name, tagline);
+            }});
+          }, holdMs);
+
+        }, suspenseMs);
+      }});
+    }
+
+    function populateBoardCard(idx, name, tagline) {
       const card   = document.getElementById(`pick-card-${idx}`);
       const nameEl = document.getElementById(`pick-name-${idx}`);
+      const tagEl  = document.getElementById(`pick-tagline-${idx}`);
       const sweep  = document.getElementById(`sweep-${idx}`);
 
       card.classList.remove('waiting');
@@ -397,30 +632,28 @@
 
       gsap.fromTo(sweep,
         { left: '-65%', opacity: 1 },
-        { left: '120%', duration: 1.1, ease: 'power1.inOut',
+        { left: '120%', duration: 0.9, ease: 'power1.inOut',
           onComplete: () => { gsap.to(sweep, { opacity: 0, duration: 0.3 }); }
         }
       );
 
+      nameEl.textContent = name;
+      gsap.fromTo(nameEl, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' });
+
+      if (tagline) {
+        tagEl.textContent = `"${tagline}"`;
+        gsap.fromTo(tagEl, { opacity: 0 }, { opacity: 1, duration: 0.4, delay: 0.25, ease: 'power2.out' });
+      }
+
       setTimeout(() => {
-        nameEl.textContent = name.toUpperCase();
-        gsap.fromTo(nameEl,
-          { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out',
-            onComplete: () => {
-              playRevealTone();
-              setTimeout(() => {
-                card.classList.remove('active');
-                card.classList.add('revealed');
-              }, 600);
-            }
-          }
-        );
-      }, holdBeforeName);
+        card.classList.remove('active');
+        card.classList.add('revealed');
+      }, 700);
     }
 
     function onAllRevealed() {
       document.getElementById('board').classList.remove('pulsing');
+      document.getElementById('pick-counter').classList.remove('visible');
       playApplause();
       gsap.to('.pick-card.revealed', {
         borderColor: 'rgba(139,105,20,0.52)',
@@ -430,6 +663,54 @@
       gsap.to('#board', {
         boxShadow: '0 0 70px rgba(139,105,20,0.45), 0 0 130px rgba(139,105,20,0.18), inset 0 1px 0 rgba(139,105,20,0.3)',
         duration: 1.6, ease: 'power2.out'
+      });
+
+      // Build end card from the stored reveal data
+      setTimeout(() => {
+        const endCard        = document.getElementById('end-card');
+        const picksContainer = document.getElementById('end-card-picks');
+        picksContainer.innerHTML = '';
+
+        document.querySelectorAll('[id^="pick-name-"]').forEach((el, i) => {
+          const tagEl  = document.getElementById(`pick-tagline-${i}`);
+          const tagText = tagEl ? tagEl.textContent : '';
+          const row = document.createElement('div');
+          row.className = 'end-card-pick-row';
+          row.innerHTML = `
+            <span class="end-card-pick-num">Pick ${i + 1}</span>
+            <span class="end-card-pick-name">${el.textContent}${tagText ? `<span style="display:block;font-family:'DM Sans',sans-serif;font-size:.72rem;color:rgba(250,247,240,0.3);font-style:italic;font-weight:400;margin-top:2px;">${tagText}</span>` : ''}</span>`;
+          picksContainer.appendChild(row);
+        });
+
+        endCard.classList.add('visible');
+        gsap.to(endCard, { opacity: 1, duration: 0.9, ease: 'power2.out' });
+        setTimeout(() => { endCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 300);
+      }, 2200);
+    }
+
+    function copyRevealLink() {
+      const url = window.location.href;
+      const btn = document.getElementById('end-copy-btn');
+      navigator.clipboard.writeText(url).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy Reveal Link';
+          btn.classList.remove('copied');
+        }, 2500);
+      }).catch(() => {
+        // Fallback for older mobile browsers
+        const ta = document.createElement('textarea');
+        ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy Reveal Link';
+          btn.classList.remove('copied');
+        }, 2500);
       });
     }
 

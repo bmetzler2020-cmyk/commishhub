@@ -36,12 +36,26 @@ exports.handler = async function(event, context) {
   const isReady  = now >= revealAt;
 
   if (isReady) {
+    // Normalize shuffled entries — handles old string-array format gracefully
+    // so reveals created before the bio update still work
+    const shuffled = (data.shuffled || []).map(entry => {
+      if (typeof entry === 'string') {
+        return { name: entry, hometown: '', record: '', tagline: '' };
+      }
+      return {
+        name:     entry.name     || '',
+        hometown: entry.hometown || '',
+        record:   entry.record   || '',
+        tagline:  entry.tagline  || ''
+      };
+    });
+
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ready: true,
-        shuffled: data.shuffled,
+        shuffled,
         leagueName: data.leagueName,
         speed: data.speed
       })

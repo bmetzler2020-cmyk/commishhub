@@ -11,21 +11,40 @@ function shuffle(arr) {
   return a;
 }
 
+// Weighted shuffle returns full team objects, not just names
 function weightedShuffle(teams) {
   const pool = [];
   teams.forEach(t => {
     const balls = Math.max(1, parseInt(t.balls) || 1);
-    for (let b = 0; b < balls; b++) pool.push(t.name);
+    for (let b = 0; b < balls; b++) pool.push(t);
   });
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
   const seen = new Set(), result = [];
-  for (const name of pool) {
-    if (!seen.has(name)) { seen.add(name); result.push(name); }
+  for (const team of pool) {
+    if (!seen.has(team.name)) {
+      seen.add(team.name);
+      result.push(team);
+    }
   }
   return result;
+}
+
+// Normalize a team entry into a full bio object
+// Handles both old string format and new object format gracefully
+function normalizeTeam(t) {
+  if (typeof t === 'string') {
+    return { name: t, hometown: '', record: '', tagline: '' };
+  }
+  return {
+    name:     (t.name     || '').trim(),
+    hometown: (t.hometown || '').trim(),
+    record:   (t.record   || '').trim(),
+    tagline:  (t.tagline  || '').trim(),
+    balls:    t.balls
+  };
 }
 
 exports.handler = async function(event, context) {
@@ -46,29 +65,31 @@ exports.handler = async function(event, context) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Email and reveal time required' }) };
   }
 
+  // Normalize all teams to full objects before shuffling
+  const normalizedTeams = teams.map(normalizeTeam);
+
   let shuffled;
   if (weighted) {
-    shuffled = weightedShuffle(teams);
+    shuffled = weightedShuffle(normalizedTeams);
   } else {
-    const names = teams.map(t => typeof t === 'string' ? t : t.name);
-    shuffled = shuffle(names);
+    shuffled = shuffle(normalizedTeams);
   }
 
+  // Strip balls field from stored payload — not needed after shuffle
+  shuffled = shuffled.map(({ name, hometown, record, tagline }) => ({
+    name, hometown, record, tagline
+  }));
+
   // Convert local datetime string to UTC using the browser's offset
-  // revealTime = "YYYY-MM-DDTHH:MM" (no tz), utcOffsetMin = browser getTimezoneOffset()
-  // getTimezoneOffset() returns minutes BEHIND UTC (positive = west of UTC)
-  // e.g. EST = 300, so local time is UTC - 300min = UTC + offset
   let revealTimeUTC = revealTime;
   try {
     if (revealTime && typeof utcOffsetMin === 'number') {
-      // Parse as if UTC, then add the offset back to get true UTC
-      const localMs  = new Date(revealTime + ':00Z').getTime(); // treat as UTC first
-      const offsetMs = utcOffsetMin * 60 * 1000;               // convert mins to ms
+      const localMs  = new Date(revealTime + ':00Z').getTime();
+      const offsetMs = utcOffsetMin * 60 * 1000;
       revealTimeUTC  = new Date(localMs + offsetMs).toISOString();
     }
   } catch (e) {
     console.error('Time conversion error:', e.message);
-    // Fall back to raw string — better than crashing
     revealTimeUTC = revealTime;
   }
 
@@ -94,8 +115,7 @@ exports.handler = async function(event, context) {
     return { statusCode: 500, body: JSON.stringify({ error: 'Failed to store reveal data', detail: err.message }) };
   }
 
-  // Also save email to email-signups store for future outreach
-  // This runs independently — if it fails, the reveal still works
+  // Save email for future outreach — non-fatal if it fails
   try {
     const emailStore = getStore({
       name: 'email-signups',
@@ -112,12 +132,11 @@ exports.handler = async function(event, context) {
     }));
     console.log(`Email saved for future outreach: ${email}`);
   } catch (err) {
-    // Non-fatal — log but continue
     console.error('Email save error (non-fatal):', err.message);
   }
 
-  const revealUrl    = `https://commishhub.com/draft-order-randomizer/reveal/?id=${revealId}`;
-  const displayName  = leagueName || 'CommishHub Draft Lottery';
+  const revealUrl   = `https://commishhub.com/draft-order-randomizer/reveal/?id=${revealId}`;
+  const displayName = leagueName || 'CommishHub Draft Lottery';
 
   let revealDisplay = revealTime;
   try {

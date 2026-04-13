@@ -198,6 +198,12 @@
     }
     .pick-name.long-name { font-size: clamp(1.2rem, 2.8vw, 1.8rem); }
 
+    .pick-tagline {
+      font-size: .72rem; color: rgba(250,247,240,0.3);
+      font-style: italic; margin-top: 6px; line-height: 1.4;
+      opacity: 0;
+    }
+
     /* Card state transitions */
     .pick-card.waiting  { opacity: 1; border-color: rgba(139,105,20,0.12); box-shadow: none; }
     .pick-card.active   { border-color: rgba(139,105,20,0.65); box-shadow: 0 0 22px rgba(139,105,20,0.28), inset 0 0 20px rgba(139,105,20,0.04); }
@@ -226,6 +232,81 @@
     .badge-soon { background:rgba(255,255,255,0.06);color:rgba(250,247,240,0.35);font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:100px;width:fit-content; }
 
     footer { position:relative;z-index:2; }
+
+    /* Bio fields inside team slots */
+    .bio-fields {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(139,105,20,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .bio-input {
+      width: 100%; background: transparent; border: none;
+      border-bottom: 1px solid rgba(139,105,20,0.12);
+      outline: none; padding: 4px 0;
+      font-family: 'DM Sans', sans-serif; font-size: .78rem;
+      color: rgba(250,247,240,0.6); caret-color: #8B6914;
+      transition: border-color .15s;
+    }
+    .bio-input:focus { border-bottom-color: rgba(139,105,20,0.45); color: rgba(250,247,240,0.85); }
+    .bio-input::placeholder { color: rgba(250,247,240,0.18); }
+    body.input-mode .bio-input { color: rgba(44,26,14,0.5); border-bottom-color: rgba(139,105,20,0.15); }
+    body.input-mode .bio-input:focus { border-bottom-color: rgba(139,105,20,0.4); color: rgba(44,26,14,0.8); }
+    body.input-mode .bio-input::placeholder { color: rgba(44,26,14,0.2); }
+    body.input-mode .bio-fields { border-top-color: rgba(139,105,20,0.12); }
+
+    /* Pick counter */
+    .pick-counter {
+      position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+      font-size: .7rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(139,105,20,0.5);
+      opacity: 0; transition: opacity .3s; white-space: nowrap; z-index: 10;
+    }
+    .pick-counter.visible { opacity: 1; }
+
+    /* Spotlight overlay — full screen, fires per pick */
+    #spotlight-overlay {
+      position: fixed; inset: 0; z-index: 800;
+      background: #070503;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 24px;
+      pointer-events: none; opacity: 0;
+    }
+    #spotlight-overlay.active { pointer-events: auto; }
+    .spotlight-pick-label {
+      font-size: .7rem; font-weight: 600; letter-spacing: .14em;
+      text-transform: uppercase; color: rgba(139,105,20,0.55);
+      margin-bottom: 28px; opacity: 0;
+    }
+    .spotlight-name {
+      font-family: 'Lora', serif;
+      font-size: clamp(2.8rem, 8vw, 5.2rem);
+      font-weight: 700; color: #FAF7F0;
+      letter-spacing: .02em; line-height: 1.1;
+      text-align: center; opacity: 0;
+    }
+    .spotlight-bio {
+      margin-top: 28px; text-align: center;
+      display: flex; flex-direction: column; gap: 10px;
+      opacity: 0;
+    }
+    .spotlight-bio-line {
+      font-size: clamp(.88rem, 2.2vw, 1.05rem);
+      color: rgba(250,247,240,0.5); line-height: 1.5;
+    }
+    .spotlight-bio-tagline {
+      font-size: clamp(.9rem, 2.4vw, 1.1rem);
+      color: rgba(240,208,128,0.75);
+      font-style: italic; line-height: 1.5;
+    }
+    .spotlight-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at 50% 40%, rgba(139,105,20,0.08) 0%, transparent 65%);
+      opacity: 0;
+    }
 
     @media (max-width: 600px) {
       .board { padding:20px 16px; }
@@ -357,6 +438,14 @@
   <div id="theater-overlay" aria-hidden="true"></div>
   <div class="atmo-cone-left"  aria-hidden="true"></div>
   <div class="atmo-cone-right" aria-hidden="true"></div>
+
+  <!-- Spotlight overlay — fires per pick during reveal -->
+  <div id="spotlight-overlay" aria-live="polite">
+    <div class="spotlight-glow" id="spotlight-glow"></div>
+    <p class="spotlight-pick-label" id="spotlight-pick-label">Pick 1 of 12</p>
+    <p class="spotlight-name"      id="spotlight-name"></p>
+    <div class="spotlight-bio"     id="spotlight-bio"></div>
+  </div>
 
   <!-- NAV -->
   <nav role="navigation" aria-label="Main navigation">
@@ -508,6 +597,7 @@
 
         <!-- REVEAL STATE -->
         <div id="reveal-state" style="display:none;">
+          <div class="pick-counter" id="pick-counter"></div>
           <div class="picks-grid" id="picks-grid"></div>
         </div>
 
@@ -676,6 +766,11 @@
           <div class="balls-input-wrap ${isWeighted ? 'visible' : ''}" id="balls-wrap-${i}">
             <input class="balls-input" type="number" id="balls-${i}" min="1" max="20" value="1" />
             <span class="balls-label">lottery balls</span>
+          </div>
+          <div class="bio-fields" id="bio-fields-${i}">
+            <input class="bio-input" type="text" id="bio-hometown-${i}" placeholder="Hometown (optional)" maxlength="40" autocomplete="off" />
+            <input class="bio-input" type="text" id="bio-record-${i}"   placeholder="Record / experience (optional)" maxlength="50" autocomplete="off" />
+            <input class="bio-input" type="text" id="bio-tagline-${i}"  placeholder="Trash talk / tagline (optional)" maxlength="80" autocomplete="off" />
           </div>`;
         grid.appendChild(slot);
       }
@@ -701,6 +796,20 @@
         names.push(el ? el.value.trim() || `Team ${i}` : `Team ${i}`);
       }
       return names;
+    }
+
+    function getTeamsWithBios() {
+      const teams = [];
+      for (let i = 1; i <= teamCount; i++) {
+        teams.push({
+          name:     document.getElementById(`team-${i}`)?.value.trim()           || `Team ${i}`,
+          hometown: document.getElementById(`bio-hometown-${i}`)?.value.trim()   || '',
+          record:   document.getElementById(`bio-record-${i}`)?.value.trim()     || '',
+          tagline:  document.getElementById(`bio-tagline-${i}`)?.value.trim()    || '',
+          balls:    parseInt(document.getElementById(`balls-${i}`)?.value)       || 1
+        });
+      }
+      return teams;
     }
 
     function getTeamsWithBalls() {
@@ -751,7 +860,7 @@
       const email = document.getElementById('reveal-email').value.trim();
       const leagueName = document.getElementById('league-name').value.trim();
       if (!revealTime || !email) { alert('Please enter both a reveal time and your email address.'); return; }
-      const teams = isWeighted ? getTeamsWithBalls() : getTeamNames().map(n => ({ name: n, balls: 1 }));
+      const teams = getTeamsWithBios();
       const utcOffsetMin = new Date().getTimezoneOffset();
       try {
         const res = await fetch('/.netlify/functions/schedule-reveal', {
@@ -885,7 +994,31 @@
     // ── Run lottery ──
     function runLottery() {
       ensureAudioCtx();
-      shuffledOrder = isWeighted ? weightedShuffle(getTeamsWithBalls()) : shuffle(getTeamNames());
+
+      // Always use full bio objects — name + optional bio fields
+      const teams = getTeamsWithBios();
+      if (isWeighted) {
+        const pool = [];
+        teams.forEach(t => {
+          const b = Math.max(1, t.balls || 1);
+          for (let i = 0; i < b; i++) pool.push(t);
+        });
+        for (let i = pool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+        const seen = new Set();
+        shuffledOrder = [];
+        for (const t of pool) {
+          if (!seen.has(t.name)) { seen.add(t.name); shuffledOrder.push(t); }
+        }
+      } else {
+        shuffledOrder = [...teams];
+        for (let i = shuffledOrder.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledOrder[i], shuffledOrder[j]] = [shuffledOrder[j], shuffledOrder[i]];
+        }
+      }
 
       const inputState  = document.getElementById('input-state');
       const revealState = document.getElementById('reveal-state');
@@ -894,11 +1027,10 @@
 
       buildPickCards(shuffledOrder);
 
-      // Theater lights down — overlay sweeps in
+      // Theater lights down
       gsap.set(overlay, { opacity: 0, pointerEvents: 'auto' });
       gsap.to(overlay, { opacity: 1, duration: 0.85, ease: 'power2.in' });
 
-      // Board flicker during the sweep
       const tl = gsap.timeline();
       tl.to(board, { opacity: 0.3, duration: 0.07 }, 0.15)
         .to(board, { opacity: 1,   duration: 0.07 })
@@ -911,7 +1043,6 @@
           revealState.style.display = 'block';
         }}, '-=0.1');
 
-      // Overlay fully dark — switch page to dark mode, then lift overlay
       setTimeout(() => {
         document.body.classList.remove('input-mode');
         document.body.classList.add('reveal-mode');
@@ -919,13 +1050,8 @@
           opacity: 0, duration: 0.6, ease: 'power2.out',
           onComplete: () => { gsap.set(overlay, { pointerEvents: 'none' }); }
         });
-        // Board starts breathing — slow ambient glow pulse
         document.getElementById('board').classList.add('pulsing');
-        // Board starts breathing
-        document.getElementById('board').classList.add('pulsing');
-        // Rumble starts as overlay lifts
         playRumble(1600);
-        // Chime after rumble settles
         setTimeout(() => {
           playChime();
           const chimeWait = chimeAudio
@@ -936,91 +1062,182 @@
       }, 850);
     }
 
-    // ── Build pick cards ──
+    // ── Build pick cards — board record (name only, tagline if exists) ──
     function buildPickCards(order) {
       const grid = document.getElementById('picks-grid');
       grid.innerHTML = '';
-      order.forEach((name, i) => {
+      order.forEach((team, i) => {
+        const name = team.name || team;
         const card = document.createElement('div');
         card.className = 'pick-card waiting';
         card.id = `pick-card-${i}`;
         card.innerHTML = `
           <div class="pick-card-sweep" id="sweep-${i}"></div>
           <div class="pick-num" id="pick-num-${i}">Pick ${i + 1}</div>
-          <div class="pick-name${name.length > 14 ? ' long-name' : ''}" id="pick-name-${i}"></div>`;
+          <div class="pick-name${name.length > 14 ? ' long-name' : ''}" id="pick-name-${i}"></div>
+          <div class="pick-tagline" id="pick-tagline-${i}"></div>`;
         grid.appendChild(card);
       });
     }
 
     // ── Reveal sequence ──
-    // Picks fire one at a time at the betweenDelay interval
-    // Pick 1 gets 2000ms hold before name, decreasing 100ms per pick, floor 800ms
     function startRevealSequence() {
       const delay = speedDelays[selectedSpeed] || 3000;
-      let elapsed = 0;
+      // delay here is the pause between spotlight closing and next pick firing
+      // Spotlight itself adds time — sequence is: suspense → spotlight → collapse → pause → next
+      const counter = document.getElementById('pick-counter');
+      counter.classList.add('visible');
 
-      shuffledOrder.forEach((name, i) => {
-        const holdMs = Math.max(800, 2000 - i * 100);
-        setTimeout(() => revealPick(i, name, holdMs), elapsed);
+      let elapsed = 0;
+      shuffledOrder.forEach((team, i) => {
+        setTimeout(() => {
+          updatePickCounter(i + 1, shuffledOrder.length);
+          revealPick(i, team);
+        }, elapsed);
+        // Total time per pick: suspense (2s) + spotlight hold + collapse — approximated here
+        // The spotlight itself calls the next pick via callback, but we schedule loosely
+        // to keep the board in sync. Spotlight blocks user input so overlap is fine.
         elapsed += delay;
       });
 
-      // After last card fully settled
-      const lastHold = Math.max(800, 2000 - (shuffledOrder.length - 1) * 100);
-      setTimeout(onAllRevealed, elapsed - delay + lastHold + 600);
+      const lastHold = 800;
+      setTimeout(onAllRevealed, elapsed - delay + lastHold + 2400);
     }
 
-    function revealPick(idx, name, holdBeforeName) {
+    function updatePickCounter(current, total) {
+      const el = document.getElementById('pick-counter');
+      el.textContent = `Pick ${current} of ${total}`;
+    }
+
+    // ── Spotlight reveal — fires for each pick ──
+    function revealPick(idx, team) {
+      const name     = (team.name || team).toUpperCase();
+      const hometown = team.hometown || '';
+      const record   = team.record   || '';
+      const tagline  = team.tagline  || '';
+      const hasBio   = hometown || record || tagline;
+
+      const overlay   = document.getElementById('spotlight-overlay');
+      const labelEl   = document.getElementById('spotlight-pick-label');
+      const nameEl    = document.getElementById('spotlight-name');
+      const bioEl     = document.getElementById('spotlight-bio');
+      const glowEl    = document.getElementById('spotlight-glow');
+
+      // Set pick label
+      labelEl.textContent = `Pick ${idx + 1} of ${shuffledOrder.length}`;
+
+      // Reset bio
+      bioEl.innerHTML = '';
+      if (hometown || record) {
+        const line = document.createElement('p');
+        line.className = 'spotlight-bio-line';
+        line.textContent = [hometown, record].filter(Boolean).join('  ·  ');
+        bioEl.appendChild(line);
+      }
+      if (tagline) {
+        const tl = document.createElement('p');
+        tl.className = 'spotlight-bio-tagline';
+        tl.textContent = `"${tagline}"`;
+        bioEl.appendChild(tl);
+      }
+
+      // Reset name
+      nameEl.textContent = '';
+      gsap.set([overlay, labelEl, nameEl, bioEl, glowEl], { opacity: 0 });
+      overlay.classList.add('active');
+
+      // Speed-aware timing
+      const speedKey = selectedSpeed || 'default';
+      const suspenseMs = speedKey === 'fast' ? 1200 : speedKey === 'slow' ? 3200 : 2000;
+      const holdMs     = hasBio
+        ? (speedKey === 'fast' ? 2200 : speedKey === 'slow' ? 4500 : 3200)
+        : (speedKey === 'fast' ? 1400 : speedKey === 'slow' ? 3000 : 2000);
+
+      // 1. Overlay fades in — dark stage
+      gsap.to(overlay, { opacity: 1, duration: 0.35, ease: 'power2.out', onComplete: () => {
+
+        // 2. Pick label appears
+        gsap.to(labelEl, { opacity: 1, duration: 0.4, ease: 'power2.out' });
+
+        // 3. Suspense pulse on overlay background
+        gsap.to(glowEl, { opacity: 1, duration: suspenseMs / 1000 * 0.5, ease: 'power2.inOut',
+          yoyo: true, repeat: 1 });
+
+        // 4. After suspense — name drops
+        setTimeout(() => {
+          nameEl.textContent = name;
+          gsap.fromTo(nameEl,
+            { opacity: 0, y: 18 },
+            { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', onComplete: () => {
+              playRevealTone();
+            }}
+          );
+          // Glow pulses with name reveal
+          gsap.to(glowEl, { opacity: 0.9, duration: 0.3, yoyo: true, repeat: 1 });
+
+          // 5. Bio fades in staggered — only if content exists
+          if (hasBio) {
+            setTimeout(() => {
+              gsap.to(bioEl, { opacity: 1, duration: 0.5, ease: 'power2.out' });
+            }, 500);
+          }
+
+          // 6. Hold for reading, then collapse
+          setTimeout(() => {
+            // Fade out spotlight
+            gsap.to(overlay, { opacity: 0, duration: 0.45, ease: 'power2.in', onComplete: () => {
+              overlay.classList.remove('active');
+              // Populate the board card
+              populateBoardCard(idx, name, tagline);
+            }});
+          }, holdMs);
+
+        }, suspenseMs);
+      }});
+    }
+
+    // ── Populate board card after spotlight collapses ──
+    function populateBoardCard(idx, name, tagline) {
       const card   = document.getElementById(`pick-card-${idx}`);
       const nameEl = document.getElementById(`pick-name-${idx}`);
+      const tagEl  = document.getElementById(`pick-tagline-${idx}`);
       const sweep  = document.getElementById(`sweep-${idx}`);
 
-      // Card activates
       card.classList.remove('waiting');
       card.classList.add('active', 'lit');
 
-      // Light sweep across surface
-      // Light sweep — slow, like a spotlight crossing a dark stage
+      // Light sweep
       gsap.fromTo(sweep,
         { left: '-65%', opacity: 1 },
-        { left: '120%', duration: 1.1, ease: 'power1.inOut',
+        { left: '120%', duration: 0.9, ease: 'power1.inOut',
           onComplete: () => { gsap.to(sweep, { opacity: 0, duration: 0.3 }); }
         }
       );
 
-      // After hold — name appears clean, no movement
+      nameEl.textContent = name;
+      gsap.fromTo(nameEl, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' });
+
+      if (tagline) {
+        tagEl.textContent = `"${tagline}"`;
+        gsap.fromTo(tagEl, { opacity: 0 }, { opacity: 1, duration: 0.4, delay: 0.25, ease: 'power2.out' });
+      }
+
       setTimeout(() => {
-        nameEl.textContent = name.toUpperCase();
-        // Name slides up gently from below and fades in — weighted, deliberate
-        gsap.fromTo(nameEl,
-          { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out',
-            onComplete: () => {
-              playRevealTone();
-              // Card stays fully active for a moment so the name can be read
-              setTimeout(() => {
-                card.classList.remove('active');
-                card.classList.add('revealed');
-              }, 600);
-            }
-          }
-        );
-      }, holdBeforeName);
+        card.classList.remove('active');
+        card.classList.add('revealed');
+      }, 700);
     }
 
     // ── All revealed — house lights up ──
     function onAllRevealed() {
-      // Stop the ambient pulse — house lights taking over
       document.getElementById('board').classList.remove('pulsing');
+      document.getElementById('pick-counter').classList.remove('visible');
       playApplause();
-      // All cards brighten together
-      // House lights: staggered left-to-right, each card brightens like a bulb warming up
       gsap.to('.pick-card.revealed', {
         borderColor: 'rgba(139,105,20,0.52)',
         boxShadow: '0 0 22px rgba(139,105,20,0.22)',
         duration: 1.4, ease: 'power2.out', stagger: 0.05
       });
-      // Board final glow — richer than ambient pulse
       gsap.to('#board', {
         boxShadow: '0 0 70px rgba(139,105,20,0.45), 0 0 130px rgba(139,105,20,0.18), inset 0 1px 0 rgba(139,105,20,0.3)',
         duration: 1.6, ease: 'power2.out'
@@ -1028,7 +1245,30 @@
       gsap.to('#end-btns', { opacity: 1, duration: 0.8, delay: 1.2 });
     }
 
-    // ── Share image ──
+    // ── Reset ──
+    function resetTool() {
+      shuffledOrder = [];
+      if (applauseAudio) { applauseAudio.pause(); applauseAudio.currentTime = 0; }
+
+      // Reset spotlight
+      const spotOverlay = document.getElementById('spotlight-overlay');
+      gsap.set(spotOverlay, { opacity: 0 });
+      spotOverlay.classList.remove('active');
+
+      // Reset pick counter
+      document.getElementById('pick-counter').classList.remove('visible');
+
+      document.body.classList.remove('reveal-mode');
+      document.body.classList.add('input-mode');
+      document.getElementById('reveal-state').style.display = 'none';
+      document.getElementById('picks-grid').innerHTML = '';
+      gsap.set('#end-btns', { opacity: 0 });
+      gsap.set('#board', { clearProps: 'boxShadow' });
+      const inputState = document.getElementById('input-state');
+      inputState.style.display = 'block';
+      gsap.fromTo(inputState, { opacity: 0 }, { opacity: 1, duration: 0.5 });
+      checkRunButton();
+    }
     function shareImage() {
       const leagueName = document.getElementById('league-name')?.value.trim() || 'CommishHub Draft Lottery';
       const canvas = document.createElement('canvas');
@@ -1061,7 +1301,8 @@
       const cardW = (1200 - padX * 2 - gapX) / 2;
       const cardH = Math.max(60, Math.min(82, (630 - padY - 54 - (rows - 1) * gapY) / rows));
 
-      shuffledOrder.forEach((name, i) => {
+      shuffledOrder.forEach((team, i) => {
+        const name = (team.name || team).toUpperCase();
         const col = i % cols, row = Math.floor(i / cols);
         const x = padX + col * (cardW + gapX), y = padY + row * (cardH + gapY);
         ctx.fillStyle = '#0D0906'; roundRect(ctx, x, y, cardW, cardH, 5); ctx.fill();
@@ -1071,7 +1312,7 @@
         const isLong = name.length > 14;
         ctx.fillStyle = '#FAF7F0';
         ctx.font = `700 ${isLong ? Math.min(18, cardH * 0.38) : Math.min(23, cardH * 0.46)}px "Lora", serif`;
-        ctx.fillText(name.toUpperCase(), x + 16, y + cardH - 16);
+        ctx.fillText(name, x + 16, y + cardH - 16);
       });
 
       ctx.fillStyle = 'rgba(139,105,20,0.38)'; ctx.font = '500 11px "DM Sans", sans-serif';
@@ -1090,22 +1331,6 @@
       ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y); ctx.closePath();
     }
 
-    // ── Reset ──
-    function resetTool() {
-      shuffledOrder = [];
-      if (applauseAudio) { applauseAudio.pause(); applauseAudio.currentTime = 0; }
-      document.body.classList.remove('reveal-mode');
-      document.body.classList.add('input-mode');
-      document.body.classList.add('input-mode');
-      document.getElementById('reveal-state').style.display = 'none';
-      document.getElementById('picks-grid').innerHTML = '';
-      gsap.set('#end-btns', { opacity: 0 });
-      gsap.set('#board', { clearProps: 'boxShadow' });
-      const inputState = document.getElementById('input-state');
-      inputState.style.display = 'block';
-      gsap.fromTo(inputState, { opacity: 0 }, { opacity: 1, duration: 0.5 });
-      checkRunButton();
-    }
   </script>
 
   <script type="application/ld+json">
