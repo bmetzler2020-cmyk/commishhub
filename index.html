@@ -92,6 +92,30 @@
     .tool-arrow { font-size: .85rem; font-weight: 600; color: var(--gold); display: inline-flex; align-items: center; gap: 6px; transition: gap .15s; }
     .tool-card.live:hover .tool-arrow { gap: 10px; }
 
+    /* ── FEATURED POST ── */
+    .featured-post-section { padding: 64px 28px; }
+    .featured-post-card {
+      display: block;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--gold);
+      border-radius: 12px;
+      padding: 32px 36px;
+      max-width: 680px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      transition: box-shadow .2s, transform .2s, border-color .2s;
+      text-decoration: none;
+    }
+    .featured-post-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,.1); transform: translateY(-3px); border-color: var(--gold); }
+    .featured-post-read-time { font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .featured-post-title { font-family: 'Lora', serif; font-size: clamp(1.2rem, 2.5vw, 1.55rem); font-weight: 700; color: var(--brown); line-height: 1.25; margin-bottom: 10px; }
+    .featured-post-desc { font-size: .92rem; color: var(--muted); line-height: 1.65; margin-bottom: 18px; }
+    .featured-post-cta { font-size: .88rem; font-weight: 600; color: var(--gold); }
+    .featured-post-footer { margin-top: 16px; }
+    .featured-post-all { font-size: .85rem; font-weight: 600; color: var(--muted); transition: color .15s; }
+    .featured-post-all:hover { color: var(--gold); }
+    @media (max-width: 600px) { .featured-post-section { padding: 48px 20px; } .featured-post-card { padding: 24px 20px; } }
+
     /* ── DYNASTY ── */
     .dynasty-section { background: var(--brown); padding: 80px 28px; }
     .dynasty-inner { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 1fr 400px; gap: 64px; align-items: center; }
@@ -305,6 +329,26 @@
 
     <hr class="rule" />
 
+    <!-- FEATURED POST -->
+    <section class="featured-post-section">
+      <div class="wrap">
+        <p class="section-eyebrow">From the Blog</p>
+        <a href="/blog/how-to-be-a-fantasy-football-commissioner/" class="featured-post-card">
+          <div class="featured-post-body">
+            <p class="featured-post-read-time">8 min read</p>
+            <h2 class="featured-post-title">How to Be a Fantasy Football Commissioner</h2>
+            <p class="featured-post-desc">Everything you need to set up, run, and survive your first season as commish.</p>
+            <span class="featured-post-cta">Read it →</span>
+          </div>
+        </a>
+        <div class="featured-post-footer">
+          <a href="/blog/" class="featured-post-all">View all posts →</a>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
     <!-- DYNASTY TEASER -->
     <section class="dynasty-section" id="find-league">
       <div class="dynasty-inner">
@@ -334,52 +378,52 @@
   <!-- ═══ FOOTER — hardcoded for SEO. To update: edit this block in all HTML files.
        Source of truth for copy/paste: footer.html in repo root. ═══ -->
   <footer>
-  <div class="footer-inner">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <a class="logo" href="/">Commish <span>Hub</span></a>
-        <p>Free tools for fantasy football commissioners and the leagues they keep running against their better judgment.</p>
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="logo" href="/">Commish <span>Hub</span></a>
+          <p>Free tools for fantasy football commissioners and the leagues they keep running against their better judgment.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Tools</h4>
+          <ul>
+            <li><a href="/trash-talk-generator/">Trash Talk Generator</a></li>
+            <li><a href="/draft-order-randomizer/">Draft Order Randomizer</a></li>
+            <li><a href="/punishment-wheel/">Punishment Wheel</a></li>
+            <li><a href="/player-nickname-generator/">Nickname Generator</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Commissioner</h4>
+          <ul>
+            <li><a href="/new-commissioner-guide/">New Commissioner Wizard</a></li>
+            <li><a href="/league-rules-generator/">Rules Generator</a></li>
+            <li><a href="/commissioner-ruling-assistant/">Ruling Assistant</a></li>
+            <li><a href="/fantasy-football-platform-comparison/">Platform Comparison</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="/fantasy-football-glossary/">FF Glossary</a></li>
+            <li><a href="/blog/">Blog</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Dynasty</h4>
+          <ul>
+            <li><a href="/dynasty-league-finder/">League Finder</a></li>
+            <li><a href="/orphan-team-matchmaker/">Orphan Matchmaker</a></li>
+            <li><a href="/small-league-dynasty-formats/">Small League Formats</a></li>
+          </ul>
+        </div>
       </div>
-      <div class="footer-col">
-        <h4>Tools</h4>
-        <ul>
-          <li><a href="/trash-talk-generator/">Trash Talk Generator</a></li>
-          <li><a href="/draft-order-randomizer/">Draft Order Randomizer</a></li>
-          <li><a href="/punishment-wheel/">Punishment Wheel</a></li>
-          <li><a href="/player-nickname-generator/">Nickname Generator</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Commissioner</h4>
-        <ul>
-          <li><a href="/new-commissioner-guide/">New Commissioner Wizard</a></li>
-          <li><a href="/league-rules-generator/">Rules Generator</a></li>
-          <li><a href="/commissioner-ruling-assistant/">Ruling Assistant</a></li>
-          <li><a href="/fantasy-football-platform-comparison/">Platform Comparison</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Resources</h4>
-        <ul>
-          <li><a href="/fantasy-football-glossary/">Fantasy Football Glossary</a></li>
-          <li><a href="/blog/">Blog</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Dynasty</h4>
-        <ul>
-          <li><a href="/dynasty-league-finder/">League Finder</a></li>
-          <li><a href="/orphan-team-matchmaker/">Orphan Matchmaker</a></li>
-          <li><a href="/small-league-dynasty-formats/">Small League Formats</a></li>
-        </ul>
+      <div class="footer-bottom">
+        <span>© 2026 Commish Hub. All rights reserved.</span>
+        <span>Built for the league, not the algorithm.</span>
       </div>
     </div>
-    <div class="footer-bottom">
-      <span>© 2026 Commish Hub. All rights reserved.</span>
-      <span>Built for the league, not the algorithm.</span>
-    </div>
-  </div>
-</footer>
+  </footer>
 
   <script>
     (function() {
