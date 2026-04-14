@@ -36,18 +36,21 @@ exports.handler = async function(event, context) {
   const isReady  = now >= revealAt;
 
   if (isReady) {
-    // Normalize shuffled entries — handles old string-array format gracefully
-    // so reveals created before the bio update still work
+    // Normalize stored entries — handles all historical formats:
+    //   string        → { name, bio: '' }
+    //   { name, bio } → pass through
+    //   { name, hometown, record, tagline } → collapse to bio
     const shuffled = (data.shuffled || []).map(entry => {
       if (typeof entry === 'string') {
-        return { name: entry, hometown: '', record: '', tagline: '' };
+        return { name: entry, bio: '' };
       }
-      return {
-        name:     entry.name     || '',
-        hometown: entry.hometown || '',
-        record:   entry.record   || '',
-        tagline:  entry.tagline  || ''
-      };
+      if (entry.bio !== undefined) {
+        return { name: entry.name || '', bio: entry.bio || '' };
+      }
+      // Old multi-field format
+      const parts = [entry.hometown, entry.record, entry.tagline]
+        .filter(Boolean).map(s => s.trim());
+      return { name: entry.name || '', bio: parts.join('  ·  ') };
     });
 
     return {

@@ -115,35 +115,49 @@
       padding: 40px 24px;
       pointer-events: none; opacity: 0;
     }
+    /* Radial vignette — darkens edges, focuses center */
+    #spotlight-overlay::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.55) 100%);
+      z-index: 0;
+    }
+    #spotlight-overlay > * { position: relative; z-index: 1; }
     #spotlight-overlay.active { pointer-events: auto; }
     .spotlight-pick-label {
-      font-size: .7rem; font-weight: 600; letter-spacing: .14em;
-      text-transform: uppercase; color: rgba(139,105,20,0.55);
-      margin-bottom: 28px; opacity: 0;
+      font-size: .68rem; font-weight: 600; letter-spacing: .16em;
+      text-transform: uppercase; color: rgba(139,105,20,0.6);
+      margin-bottom: 32px; opacity: 0; text-align: center;
+    }
+    .spotlight-name-wrap {
+      display: flex; flex-direction: column; align-items: center;
     }
     .spotlight-name {
       font-family: 'Lora', serif;
-      font-size: clamp(2.8rem, 8vw, 5.2rem);
+      font-size: clamp(2.6rem, 9vw, 5.2rem);
       font-weight: 700; color: #FAF7F0;
       letter-spacing: .02em; line-height: 1.1;
       text-align: center; opacity: 0;
     }
+    /* Gold underline draws in after name lands */
+    #spotlight-underline {
+      height: 2px; width: 100%; max-width: 480px;
+      background: linear-gradient(90deg, transparent, rgba(139,105,20,0.7), transparent);
+      margin-top: 14px; transform-origin: left center; transform: scaleX(0);
+    }
     .spotlight-bio {
-      margin-top: 28px; text-align: center;
-      display: flex; flex-direction: column; gap: 10px; opacity: 0;
+      margin-top: 32px; text-align: center;
+      display: flex; flex-direction: column; gap: 8px; opacity: 0;
+      max-width: min(600px, 88vw);
     }
     .spotlight-bio-line {
-      font-size: clamp(.88rem, 2.2vw, 1.05rem);
-      color: rgba(250,247,240,0.5); line-height: 1.5;
-    }
-    .spotlight-bio-tagline {
       font-size: clamp(.9rem, 2.4vw, 1.1rem);
-      color: rgba(240,208,128,0.75); font-style: italic; line-height: 1.5;
+      color: rgba(250,247,240,0.55); line-height: 1.6;
     }
     .spotlight-glow {
       position: absolute; inset: 0; pointer-events: none;
-      background: radial-gradient(ellipse at 50% 40%, rgba(139,105,20,0.08) 0%, transparent 65%);
-      opacity: 0;
+      background: radial-gradient(ellipse at 50% 42%, rgba(139,105,20,0.12) 0%, transparent 60%);
+      opacity: 0; z-index: 0;
     }
 
     /* Countdown idle pulse on board border */
@@ -275,8 +289,11 @@
   <div id="spotlight-overlay" aria-live="polite">
     <div class="spotlight-glow" id="spotlight-glow"></div>
     <p class="spotlight-pick-label" id="spotlight-pick-label">Pick 1</p>
-    <p class="spotlight-name"      id="spotlight-name"></p>
-    <div class="spotlight-bio"     id="spotlight-bio"></div>
+    <div class="spotlight-name-wrap">
+      <p class="spotlight-name" id="spotlight-name"></p>
+      <div id="spotlight-underline"></div>
+    </div>
+    <div class="spotlight-bio" id="spotlight-bio"></div>
   </div>
 
   <div class="atmo-left"  aria-hidden="true"></div>
@@ -534,12 +551,12 @@
 
       // Calculate per-pick total duration so we can schedule accurately
       function pickDuration(team) {
-        const hasBio = (team.hometown || team.record || team.tagline);
+        const hasBio = !!(team.bio);
         const holdMs = hasBio
-          ? (speedKey === 'fast' ? 2200 : speedKey === 'slow' ? 4500 : 3200)
-          : (speedKey === 'fast' ? 1400 : speedKey === 'slow' ? 3000 : 2000);
-        // total: fade-in(350ms) + suspense + name-anim(600ms) + hold + fade-out(450ms) + board(400ms) + gap
-        return 350 + suspenseMs + 600 + holdMs + 450 + 400 + (delay * 0.3);
+          ? (speedKey === 'fast' ? 3000 : speedKey === 'slow' ? 6000 : 4200)
+          : (speedKey === 'fast' ? 1800 : speedKey === 'slow' ? 4000 : 2800);
+        // fade-in + suspense + name-anim + bio-delay + hold + fade-out + board-settle + gap
+        return 400 + suspenseMs + 700 + (hasBio ? 700 : 0) + holdMs + 500 + 700 + 400;
       }
 
       let elapsed = 0;
@@ -556,11 +573,9 @@
     }
 
     function revealPick(idx, team, speedKey) {
-      const name     = (team.name || team).toUpperCase();
-      const hometown = team.hometown || '';
-      const record   = team.record   || '';
-      const tagline  = team.tagline  || '';
-      const hasBio   = hometown || record || tagline;
+      const name   = (team.name || team).toUpperCase();
+      const bio    = team.bio || '';
+      const hasBio = bio.length > 0;
 
       const overlay  = document.getElementById('spotlight-overlay');
       const labelEl  = document.getElementById('spotlight-pick-label');
@@ -572,48 +587,49 @@
       labelEl.textContent = `Pick ${idx + 1} of ${totalPicks}`;
 
       bioEl.innerHTML = '';
-      if (hometown || record) {
+      if (hasBio) {
         const line = document.createElement('p');
         line.className = 'spotlight-bio-line';
-        line.textContent = [hometown, record].filter(Boolean).join('  ·  ');
+        line.textContent = bio;
         bioEl.appendChild(line);
-      }
-      if (tagline) {
-        const tl = document.createElement('p');
-        tl.className = 'spotlight-bio-tagline';
-        tl.textContent = `"${tagline}"`;
-        bioEl.appendChild(tl);
       }
 
       nameEl.textContent = '';
       gsap.set([overlay, labelEl, nameEl, bioEl, glowEl], { opacity: 0 });
+      gsap.set('#spotlight-underline', { scaleX: 0 });
       overlay.classList.add('active');
 
-      const suspenseMs = speedKey === 'fast' ? 1200 : speedKey === 'slow' ? 3200 : 2000;
+      const suspenseMs = speedKey === 'fast' ? 1600 : speedKey === 'slow' ? 4000 : 2400;
       const holdMs = hasBio
-        ? (speedKey === 'fast' ? 2200 : speedKey === 'slow' ? 4500 : 3200)
-        : (speedKey === 'fast' ? 1400 : speedKey === 'slow' ? 3000 : 2000);
+        ? (speedKey === 'fast' ? 3000 : speedKey === 'slow' ? 6000 : 4200)
+        : (speedKey === 'fast' ? 1800 : speedKey === 'slow' ? 4000 : 2800);
 
-      gsap.to(overlay, { opacity: 1, duration: 0.35, ease: 'power2.out', onComplete: () => {
-        gsap.to(labelEl, { opacity: 1, duration: 0.4 });
-        gsap.to(glowEl,  { opacity: 1, duration: suspenseMs / 1000 * 0.5, ease: 'power2.inOut', yoyo: true, repeat: 1 });
+      gsap.to(overlay, { opacity: 1, duration: 0.4, ease: 'power2.out', onComplete: () => {
+        gsap.to(labelEl, { opacity: 1, duration: 0.5 });
+        gsap.to(glowEl,  { opacity: 1, duration: suspenseMs / 1000 * 0.5, ease: 'sine.inOut', yoyo: true, repeat: 1 });
 
         setTimeout(() => {
           nameEl.textContent = name;
           gsap.fromTo(nameEl,
-            { opacity: 0, y: 18 },
-            { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', onComplete: () => { playRevealTone(); } }
+            { opacity: 0, y: 22 },
+            { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', onComplete: () => {
+              playRevealTone();
+              gsap.fromTo('#spotlight-underline', { scaleX: 0 }, { scaleX: 1, duration: 0.55, ease: 'power2.out' });
+            }}
           );
-          gsap.to(glowEl, { opacity: 0.9, duration: 0.3, yoyo: true, repeat: 1 });
+          gsap.to(glowEl, { opacity: 1, duration: 0.4, yoyo: true, repeat: 1 });
 
           if (hasBio) {
-            setTimeout(() => { gsap.to(bioEl, { opacity: 1, duration: 0.5, ease: 'power2.out' }); }, 500);
+            setTimeout(() => {
+              gsap.to(bioEl, { opacity: 1, duration: 0.6, ease: 'power2.out' });
+            }, 700);
           }
 
           setTimeout(() => {
-            gsap.to(overlay, { opacity: 0, duration: 0.45, ease: 'power2.in', onComplete: () => {
+            gsap.to(overlay, { opacity: 0, duration: 0.5, ease: 'power2.in', onComplete: () => {
               overlay.classList.remove('active');
-              populateBoardCard(idx, name, tagline);
+              gsap.set('#spotlight-underline', { scaleX: 0 });
+              populateBoardCard(idx, name, bio);
             }});
           }, holdMs);
 
@@ -621,7 +637,7 @@
       }});
     }
 
-    function populateBoardCard(idx, name, tagline) {
+    function populateBoardCard(idx, name, bio) {
       const card   = document.getElementById(`pick-card-${idx}`);
       const nameEl = document.getElementById(`pick-name-${idx}`);
       const tagEl  = document.getElementById(`pick-tagline-${idx}`);
@@ -640,9 +656,9 @@
       nameEl.textContent = name;
       gsap.fromTo(nameEl, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' });
 
-      if (tagline) {
-        tagEl.textContent = `"${tagline}"`;
-        gsap.fromTo(tagEl, { opacity: 0 }, { opacity: 1, duration: 0.4, delay: 0.25, ease: 'power2.out' });
+      if (bio) {
+        tagEl.textContent = bio;
+        gsap.fromTo(tagEl, { opacity: 0 }, { opacity: 0.55, duration: 0.4, delay: 0.25, ease: 'power2.out' });
       }
 
       setTimeout(() => {

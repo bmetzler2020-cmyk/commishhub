@@ -11,7 +11,6 @@ function shuffle(arr) {
   return a;
 }
 
-// Weighted shuffle returns full team objects, not just names
 function weightedShuffle(teams) {
   const pool = [];
   teams.forEach(t => {
@@ -24,27 +23,21 @@ function weightedShuffle(teams) {
   }
   const seen = new Set(), result = [];
   for (const team of pool) {
-    if (!seen.has(team.name)) {
-      seen.add(team.name);
-      result.push(team);
-    }
+    if (!seen.has(team.name)) { seen.add(team.name); result.push(team); }
   }
   return result;
 }
 
-// Normalize a team entry into a full bio object
-// Handles both old string format and new object format gracefully
+// Normalize any incoming team shape into { name, bio, balls }
+// Handles old multi-field format so any in-flight reveals still work
 function normalizeTeam(t) {
-  if (typeof t === 'string') {
-    return { name: t, hometown: '', record: '', tagline: '' };
+  if (typeof t === 'string') return { name: t.trim(), bio: '', balls: 1 };
+  if (t.bio !== undefined) {
+    return { name: (t.name || '').trim(), bio: (t.bio || '').trim(), balls: t.balls || 1 };
   }
-  return {
-    name:     (t.name     || '').trim(),
-    hometown: (t.hometown || '').trim(),
-    record:   (t.record   || '').trim(),
-    tagline:  (t.tagline  || '').trim(),
-    balls:    t.balls
-  };
+  // Old format: collapse hometown / record / tagline into one line
+  const parts = [t.hometown, t.record, t.tagline].filter(Boolean).map(s => s.trim());
+  return { name: (t.name || '').trim(), bio: parts.join('  ·  '), balls: t.balls || 1 };
 }
 
 exports.handler = async function(event, context) {
@@ -65,7 +58,6 @@ exports.handler = async function(event, context) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Email and reveal time required' }) };
   }
 
-  // Normalize all teams to full objects before shuffling
   const normalizedTeams = teams.map(normalizeTeam);
 
   let shuffled;
@@ -75,12 +67,10 @@ exports.handler = async function(event, context) {
     shuffled = shuffle(normalizedTeams);
   }
 
-  // Strip balls field from stored payload — not needed after shuffle
-  shuffled = shuffled.map(({ name, hometown, record, tagline }) => ({
-    name, hometown, record, tagline
-  }));
+  // Strip balls from stored payload
+  shuffled = shuffled.map(({ name, bio }) => ({ name, bio }));
 
-  // Convert local datetime string to UTC using the browser's offset
+  // Convert local datetime to UTC
   let revealTimeUTC = revealTime;
   try {
     if (revealTime && typeof utcOffsetMin === 'number') {
@@ -115,7 +105,7 @@ exports.handler = async function(event, context) {
     return { statusCode: 500, body: JSON.stringify({ error: 'Failed to store reveal data', detail: err.message }) };
   }
 
-  // Save email for future outreach — non-fatal if it fails
+  // Save email — non-fatal if it fails
   try {
     const emailStore = getStore({
       name: 'email-signups',
@@ -130,7 +120,6 @@ exports.handler = async function(event, context) {
       metadata:  { leagueName: leagueName || null, revealId },
       createdAt: new Date().toISOString()
     }));
-    console.log(`Email saved for future outreach: ${email}`);
   } catch (err) {
     console.error('Email save error (non-fatal):', err.message);
   }
