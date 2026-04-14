@@ -224,13 +224,15 @@
     .weighted-badge {
       display: inline-block; margin-left: 10px;
       font-family: 'DM Sans', sans-serif; font-size: .6rem; font-weight: 700;
-      letter-spacing: .08em; text-transform: uppercase;
-      background: rgba(139,105,20,0.18); color: rgba(139,105,20,0.85);
-      border: 1px solid rgba(139,105,20,0.3); border-radius: 100px;
+      letter-spacing: .06em; text-transform: uppercase;
+      background: rgba(139,105,20,0.22); color: #8B6914;
+      border: 1px solid rgba(139,105,20,0.4); border-radius: 100px;
       padding: 2px 8px; vertical-align: middle;
-      opacity: 0; transition: opacity .3s;
+      /* Use visibility instead of opacity so parent opacity doesn't multiply down */
+      visibility: hidden;
+      transition: visibility 0s;
     }
-    .weighted-badge.visible { opacity: 1; }
+    .weighted-badge.visible { visibility: visible; }
 
     /* Card state transitions */
     .pick-card.waiting  { opacity: 1; border-color: rgba(139,105,20,0.12); box-shadow: none; }
@@ -300,22 +302,6 @@
     .more-card-arrow { font-size:.8rem;font-weight:600;color:#8B6914; }
     .badge-live { background:rgba(240,208,128,0.15);color:#F0D080;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:100px;width:fit-content; }
     .badge-soon { background:rgba(255,255,255,0.06);color:rgba(250,247,240,0.35);font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:100px;width:fit-content; }
-
-    /* After reveal — board stays dark even when page returns to light */
-    body.input-mode .board.post-reveal {
-      background: #1A0F07 !important;
-      border-color: rgba(139,105,20,0.6) !important;
-    }
-    body.input-mode .pick-card.revealed {
-      background: #0D0906 !important;
-    }
-    body.input-mode .pick-name,
-    body.input-mode .pick-tagline,
-    body.input-mode .pick-num,
-    body.input-mode .end-reveal-inner,
-    body.input-mode .end-reveal-league,
-    body.input-mode .end-reveal-name,
-    body.input-mode .end-reveal-num { color: inherit !important; }
 
     footer { position:relative;z-index:2; }
 
@@ -620,7 +606,7 @@
     <h1 class="seo-h1">Fantasy Football Draft Order Randomizer</h1>
 
     <div class="above-board">
-      <p class="above-board-text" id="board-title">CommishHub Draft Lottery<span class="weighted-badge" id="weighted-badge">Weighted</span></p>
+      <p class="above-board-text" id="board-title"><span id="board-title-text">CommishHub Draft Lottery</span><span class="weighted-badge" id="weighted-badge">Weighted</span></p>
     </div>
 
     <div class="board-wrap">
@@ -927,7 +913,7 @@
     }
 
     function updateBoardTitle() {
-      document.getElementById('board-title').textContent = document.getElementById('league-name').value.trim() || 'CommishHub Draft Lottery';
+      document.getElementById('board-title-text').textContent = document.getElementById('league-name').value.trim() || 'CommishHub Draft Lottery';
     }
 
     function setSpeed(btn) {
@@ -1326,7 +1312,6 @@
     function onAllRevealed() {
       const board = document.getElementById('board');
       board.classList.remove('pulsing');
-      board.classList.add('post-reveal');
       document.getElementById('pick-counter').classList.remove('visible');
       playApplause();
       gsap.to('.pick-card.revealed', {
@@ -1342,17 +1327,6 @@
       setTimeout(() => {
         buildEndCard();
         gsap.to('#end-btns', { opacity: 1, duration: 0.9, ease: 'power2.out' });
-
-        // After the end card is up and applause is settling,
-        // fade the page back to light mode — board/picks stay dark.
-        // Feels like house lights coming up after the show.
-        setTimeout(() => {
-          document.body.classList.add('returning-to-light');
-          document.body.classList.remove('reveal-mode');
-          document.body.classList.add('input-mode');
-          // Clean up transition class after it completes
-          setTimeout(() => document.body.classList.remove('returning-to-light'), 2000);
-        }, 3200);
       }, 1600);
     }
 
@@ -1395,9 +1369,6 @@
 
       // Reset pick counter
       document.getElementById('pick-counter').classList.remove('visible');
-
-      // Clear post-reveal board state
-      document.getElementById('board').classList.remove('post-reveal');
 
       document.body.classList.remove('reveal-mode');
       document.body.classList.add('input-mode');
