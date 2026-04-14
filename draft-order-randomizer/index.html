@@ -208,16 +208,16 @@
       font-size: clamp(1.6rem, 3.8vw, 2.4rem);
       color: #FAF7F0; line-height: 1.15; letter-spacing: .01em;
       min-height: 1.3em; opacity: 0;
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-      padding-right: 8px;
+      word-break: break-word; overflow-wrap: break-word;
     }
-    .pick-name.long-name { font-size: clamp(1.2rem, 2.8vw, 1.8rem); }
+    .pick-name.long-name  { font-size: clamp(1.1rem, 2.8vw, 1.8rem); }
+    .pick-name.xlong-name { font-size: clamp(.85rem, 2.2vw, 1.3rem); }
 
     .pick-tagline {
       font-size: .75rem; color: rgba(250,247,240,0.5);
       font-style: italic; margin-top: 7px; line-height: 1.45;
-      opacity: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-      padding-right: 8px;
+      opacity: 0;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
 
     /* Weighted badge — shown on board title when weighted mode is on */
@@ -260,6 +260,7 @@
     .end-reveal-row {
       display: flex; align-items: baseline; gap: 8px;
       padding: 5px 0; border-bottom: 1px solid rgba(139,105,20,0.07);
+      min-width: 0;
     }
     .end-reveal-num {
       font-size: .62rem; font-weight: 700; letter-spacing: .1em;
@@ -267,11 +268,13 @@
     }
     .end-reveal-name {
       font-family: 'Lora', serif; font-size: .9rem; color: #FAF7F0; line-height: 1.3;
+      min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .end-reveal-bio {
       display: block; font-family: 'DM Sans', sans-serif;
       font-size: .68rem; color: rgba(250,247,240,0.35);
       font-style: italic; font-weight: 400; margin-top: 1px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .end-reveal-actions {
       display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;
@@ -1171,10 +1174,11 @@
         const card = document.createElement('div');
         card.className = 'pick-card waiting';
         card.id = `pick-card-${i}`;
+        const nameClass = name.length > 28 ? ' xlong-name' : name.length > 14 ? ' long-name' : '';
         card.innerHTML = `
           <div class="pick-card-sweep" id="sweep-${i}"></div>
           <div class="pick-num" id="pick-num-${i}">Pick ${i + 1}</div>
-          <div class="pick-name${name.length > 14 ? ' long-name' : ''}" id="pick-name-${i}"></div>
+          <div class="pick-name${nameClass}" id="pick-name-${i}"></div>
           <div class="pick-tagline" id="pick-tagline-${i}"></div>`;
         grid.appendChild(card);
       });
@@ -1350,7 +1354,7 @@
         row.className = 'end-reveal-row';
         row.innerHTML = `
           <span class="end-reveal-num">P${i + 1}</span>
-          <span class="end-reveal-name">${name}${bio ? `<span class="end-reveal-bio">${bio}</span>` : ''}</span>`;
+          <span class="end-reveal-name">${name}${bio ? `<span class="end-reveal-bio" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;">${bio}</span>` : ''}</span>`;
         grid.appendChild(row);
       });
 

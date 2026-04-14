@@ -87,11 +87,14 @@
     .pick-name {
       font-family: 'Lora', serif; font-size: clamp(1.6rem, 3.8vw, 2.4rem);
       color: #FAF7F0; line-height: 1.15; letter-spacing: .01em; min-height: 1.3em; opacity: 0;
+      word-break: break-word; overflow-wrap: break-word;
     }
-    .pick-name.long-name { font-size: clamp(1.2rem, 2.8vw, 1.8rem); }
+    .pick-name.long-name  { font-size: clamp(1.1rem, 2.8vw, 1.8rem); }
+    .pick-name.xlong-name { font-size: clamp(.85rem, 2.2vw, 1.3rem); }
     .pick-tagline {
-      font-size: .72rem; color: rgba(250,247,240,0.3);
-      font-style: italic; margin-top: 6px; line-height: 1.4; opacity: 0;
+      font-size: .75rem; color: rgba(250,247,240,0.5);
+      font-style: italic; margin-top: 7px; line-height: 1.45; opacity: 0;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .pick-card.waiting  { opacity: 1; border-color: rgba(139,105,20,0.12); box-shadow: none; }
     .pick-card.active   { border-color: rgba(139,105,20,0.65); box-shadow: 0 0 22px rgba(139,105,20,0.28), inset 0 0 20px rgba(139,105,20,0.04); }
@@ -215,6 +218,7 @@
     .end-card-pick-row {
       display: flex; align-items: baseline; gap: 10px;
       padding: 6px 0; border-bottom: 1px solid rgba(139,105,20,0.08);
+      min-width: 0;
     }
     .end-card-pick-num {
       font-size: .68rem; font-weight: 700; letter-spacing: .09em;
@@ -224,6 +228,7 @@
     .end-card-pick-name {
       font-family: 'Lora', serif; font-size: .95rem;
       color: #FAF7F0; line-height: 1.3;
+      min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .end-card-actions {
       display: flex; flex-direction: column; align-items: center; gap: 14px;
@@ -596,10 +601,11 @@
         const card = document.createElement('div');
         card.className = 'pick-card waiting';
         card.id = `pick-card-${i}`;
+        const nameClass = name.length > 28 ? ' xlong-name' : name.length > 14 ? ' long-name' : '';
         card.innerHTML = `
           <div class="pick-card-sweep" id="sweep-${i}"></div>
           <div class="pick-num" id="pick-num-${i}">Pick ${i + 1}</div>
-          <div class="pick-name${name.length > 14 ? ' long-name' : ''}" id="pick-name-${i}"></div>
+          <div class="pick-name${nameClass}" id="pick-name-${i}"></div>
           <div class="pick-tagline" id="pick-tagline-${i}"></div>`;
         grid.appendChild(card);
       });
@@ -754,7 +760,7 @@
           row.className = 'end-card-pick-row';
           row.innerHTML = `
             <span class="end-card-pick-num">Pick ${i + 1}</span>
-            <span class="end-card-pick-name">${name}${bio ? `<span style="display:block;font-family:'DM Sans',sans-serif;font-size:.72rem;color:rgba(250,247,240,0.3);font-style:italic;font-weight:400;margin-top:2px;">${bio}</span>` : ''}</span>`;
+            <span class="end-card-pick-name">${name}${bio ? `<span style="display:block;font-family:'DM Sans',sans-serif;font-size:.72rem;color:rgba(250,247,240,0.3);font-style:italic;font-weight:400;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${bio}</span>` : ''}</span>`;
           picksContainer.appendChild(row);
         });
 
