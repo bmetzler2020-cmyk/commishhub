@@ -60,7 +60,8 @@ exports.handler = async function(event, context) {
         ready: true,
         shuffled,
         leagueName: data.leagueName,
-        speed: data.speed
+        speed: data.speed,
+        weighted: !!data.weighted
       })
     };
   } else {

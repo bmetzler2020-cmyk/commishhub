@@ -167,6 +167,16 @@
     }
     .board.countdown-idle { animation: countdownBorderPulse 4s ease-in-out infinite; }
 
+    /* Weighted badge */
+    .weighted-badge {
+      display: inline-block; margin-left: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: .6rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      background: rgba(139,105,20,0.2); color: rgba(240,208,128,0.8);
+      border: 1px solid rgba(139,105,20,0.35); border-radius: 100px;
+      padding: 2px 8px; vertical-align: middle;
+    }
+
     /* Loading */
     #loading-state { position:relative;z-index:1;text-align:center;color:rgba(250,247,240,0.3);font-size:.88rem;font-style:italic; }
 
@@ -442,16 +452,25 @@
       document.getElementById('board-wrap').style.display = 'block';
       document.getElementById('picks-grid').style.display = 'grid';
 
-      // User gesture — audio context and all audio will now work
       ensureAudioCtx();
       document.getElementById('board').classList.add('pulsing');
       playRumble(1600);
       setTimeout(() => {
-        playChime();
-        const chimeWait = chimeAudio
-          ? Math.ceil((chimeAudio.duration || 1.5) * 1000) + 2000
-          : 3500;
-        setTimeout(() => startRevealSequence(shuffled, speed), chimeWait);
+        const onChimeDone = () => {
+          chimeAudio.removeEventListener('ended', onChimeDone);
+          setTimeout(() => startRevealSequence(shuffled, speed), 1800);
+        };
+        if (chimeAudio) {
+          chimeAudio.addEventListener('ended', onChimeDone);
+          playChime();
+          // Safety fallback
+          setTimeout(() => {
+            chimeAudio.removeEventListener('ended', onChimeDone);
+            startRevealSequence(shuffled, speed);
+          }, 4000);
+        } else {
+          setTimeout(() => startRevealSequence(shuffled, speed), 3500);
+        }
       }, 900);
     }
 
@@ -470,12 +489,17 @@
         document.getElementById('board-wrap').style.display    = 'block';
 
         if (data.ready) {
-          revealData    = data.shuffled; // store for end card
+          revealData    = data.shuffled;
           pendingReveal = { shuffled: data.shuffled, speed: data.speed || 'default' };
           buildPickCards(data.shuffled);
-          // Show tap overlay (hides board until user taps)
           const tapLeague = document.getElementById('tap-league-name');
           if (data.leagueName) tapLeague.textContent = data.leagueName;
+          // Show weighted badge if this was a weighted lottery
+          if (data.weighted) {
+            const leagueEl = document.getElementById('league-name-display');
+            leagueEl.innerHTML = leagueEl.textContent + ' <span class="weighted-badge">Weighted</span>';
+            if (tapLeague) tapLeague.innerHTML = tapLeague.textContent + ' <span class="weighted-badge" style="opacity:.6;">Weighted</span>';
+          }
           document.getElementById('loading-state').style.display = 'none';
           document.getElementById('board-wrap').style.display    = 'none';
           document.getElementById('tap-overlay').classList.add('visible');

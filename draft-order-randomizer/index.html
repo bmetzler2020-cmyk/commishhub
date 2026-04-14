@@ -138,14 +138,27 @@
     .speed-btn { flex:1;padding:6px 10px;border-radius:100px;border:1px solid rgba(139,105,20,0.25);background:transparent;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;color:rgba(250,247,240,0.4);cursor:pointer;transition:all .15s;text-align:center; }
     .speed-btn:hover { border-color:rgba(139,105,20,0.5);color:rgba(250,247,240,0.7); }
     .speed-btn.active { background:rgba(139,105,20,0.25);border-color:rgba(139,105,20,0.6);color:#FAF7F0; }
-    .run-btn-wrap { text-align:center;margin-bottom:20px; }
+    .run-btn-wrap { text-align:center;margin-bottom:12px; }
     .run-btn { background:#8B6914;color:#fff;font-family:'Lora',serif;font-size:1.15rem;font-weight:700;padding:16px 52px;border-radius:8px;border:none;cursor:pointer;letter-spacing:.02em;box-shadow:0 2px 20px rgba(139,105,20,0.3);transition:background .15s,transform .12s,box-shadow .15s,opacity .15s; }
     .run-btn:hover:not(:disabled) { background:#a07820;transform:translateY(-2px);box-shadow:0 6px 28px rgba(139,105,20,0.4); }
     .run-btn:disabled { opacity:.4;cursor:not-allowed;transform:none; }
-    .schedule-toggle-wrap { text-align:center;margin-bottom:8px; }
-    .schedule-toggle-btn { background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.78rem;color:rgba(139,105,20,0.55);text-decoration:underline;text-underline-offset:3px;transition:color .15s; }
-    .schedule-toggle-btn:hover { color:rgba(139,105,20,0.9); }
-    .schedule-panel { display:none;margin-top:16px;padding:20px;background:rgba(0,0,0,0.25);border:1px solid rgba(139,105,20,0.2);border-radius:6px; }
+    .btn-divider { text-align:center;margin:10px 0;font-size:.7rem;color:rgba(250,247,240,0.2);letter-spacing:.08em;text-transform:uppercase; }
+    body.input-mode .btn-divider { color:rgba(44,26,14,0.2); }
+    .schedule-reveal-btn {
+      display: block; width: 100%; text-align: center;
+      background: transparent;
+      border: 1.5px solid rgba(139,105,20,0.35);
+      color: rgba(139,105,20,0.85);
+      font-family: 'DM Sans', sans-serif; font-size: .92rem; font-weight: 600;
+      padding: 13px 24px; border-radius: 8px; cursor: pointer;
+      margin-bottom: 8px;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    .schedule-reveal-btn:hover { background: rgba(139,105,20,0.08); border-color: rgba(139,105,20,0.65); color: #8B6914; }
+    .schedule-reveal-btn.open { background: rgba(139,105,20,0.08); border-color: rgba(139,105,20,0.5); }
+    .schedule-reveal-hint { text-align:center;font-size:.72rem;color:rgba(250,247,240,0.3);margin-bottom:16px;line-height:1.5; }
+    body.input-mode .schedule-reveal-hint { color:rgba(44,26,14,0.35); }
+    .schedule-panel { display:none;margin-top:4px;padding:20px;background:rgba(0,0,0,0.25);border:1px solid rgba(139,105,20,0.2);border-radius:6px; }
     .schedule-panel.open { display:block; }
     .schedule-row { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px; }
     .schedule-input { width:100%;background:#0F0807;border:1px solid rgba(139,105,20,0.25);border-radius:6px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:rgba(250,247,240,0.8);outline:none;transition:border-color .15s;color-scheme:dark; }
@@ -195,14 +208,29 @@
       font-size: clamp(1.6rem, 3.8vw, 2.4rem);
       color: #FAF7F0; line-height: 1.15; letter-spacing: .01em;
       min-height: 1.3em; opacity: 0;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      padding-right: 8px;
     }
     .pick-name.long-name { font-size: clamp(1.2rem, 2.8vw, 1.8rem); }
 
     .pick-tagline {
-      font-size: .72rem; color: rgba(250,247,240,0.3);
-      font-style: italic; margin-top: 6px; line-height: 1.4;
-      opacity: 0;
+      font-size: .75rem; color: rgba(250,247,240,0.5);
+      font-style: italic; margin-top: 7px; line-height: 1.45;
+      opacity: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      padding-right: 8px;
     }
+
+    /* Weighted badge — shown on board title when weighted mode is on */
+    .weighted-badge {
+      display: inline-block; margin-left: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: .6rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      background: rgba(139,105,20,0.18); color: rgba(139,105,20,0.85);
+      border: 1px solid rgba(139,105,20,0.3); border-radius: 100px;
+      padding: 2px 8px; vertical-align: middle;
+      opacity: 0; transition: opacity .3s;
+    }
+    .weighted-badge.visible { opacity: 1; }
 
     /* Card state transitions */
     .pick-card.waiting  { opacity: 1; border-color: rgba(139,105,20,0.12); box-shadow: none; }
@@ -272,6 +300,22 @@
     .more-card-arrow { font-size:.8rem;font-weight:600;color:#8B6914; }
     .badge-live { background:rgba(240,208,128,0.15);color:#F0D080;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:100px;width:fit-content; }
     .badge-soon { background:rgba(255,255,255,0.06);color:rgba(250,247,240,0.35);font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:100px;width:fit-content; }
+
+    /* After reveal — board stays dark even when page returns to light */
+    body.input-mode .board.post-reveal {
+      background: #1A0F07 !important;
+      border-color: rgba(139,105,20,0.6) !important;
+    }
+    body.input-mode .pick-card.revealed {
+      background: #0D0906 !important;
+    }
+    body.input-mode .pick-name,
+    body.input-mode .pick-tagline,
+    body.input-mode .pick-num,
+    body.input-mode .end-reveal-inner,
+    body.input-mode .end-reveal-league,
+    body.input-mode .end-reveal-name,
+    body.input-mode .end-reveal-num { color: inherit !important; }
 
     footer { position:relative;z-index:2; }
 
@@ -576,7 +620,7 @@
     <h1 class="seo-h1">Fantasy Football Draft Order Randomizer</h1>
 
     <div class="above-board">
-      <p class="above-board-text" id="board-title">CommishHub Draft Lottery</p>
+      <p class="above-board-text" id="board-title">CommishHub Draft Lottery<span class="weighted-badge" id="weighted-badge">Weighted</span></p>
     </div>
 
     <div class="board-wrap">
@@ -610,7 +654,7 @@
                 <div class="toggle-switch" id="weighted-switch" onclick="toggleWeighted()"><div class="toggle-knob"></div></div>
                 <span class="weighted-label">Weighted lottery</span>
               </div>
-              <p class="weighted-helper">Give last place more lottery balls for better draft position odds. Set ball counts per team below.</p>
+              <p class="weighted-helper">Give teams more chances at a top pick. Set extra chances per team below — last place typically gets the most.</p>
             </div>
           </div>
           <div class="teams-grid" id="teams-grid"></div>
@@ -631,9 +675,9 @@
           <div class="run-btn-wrap">
             <button class="run-btn" id="run-btn" onclick="runLottery()" disabled>Run the Lottery</button>
           </div>
-          <div class="schedule-toggle-wrap">
-            <button class="schedule-toggle-btn" id="schedule-toggle-btn" onclick="toggleSchedule()">Want to reveal this with your league later? Schedule a reveal →</button>
-          </div>
+          <div class="btn-divider">or</div>
+          <button class="schedule-reveal-btn" id="schedule-toggle-btn" onclick="toggleSchedule()">📅 Schedule a Reveal for Your League</button>
+          <p class="schedule-reveal-hint">Lock the order now. Share a link. Everyone sees it at the same time.</p>
           <div class="schedule-panel" id="schedule-panel">
             <span class="input-label" style="margin-bottom:12px;">Schedule your reveal</span>
             <div class="schedule-row">
@@ -828,10 +872,10 @@
           <input class="team-input" type="text" id="team-${i}" placeholder="Team ${i}" maxlength="20" oninput="onTeamInput(${i},this)" autocomplete="off" />
           <div class="balls-input-wrap ${isWeighted ? 'visible' : ''}" id="balls-wrap-${i}">
             <input class="balls-input" type="number" id="balls-${i}" min="1" max="20" value="1" />
-            <span class="balls-label">lottery balls</span>
+            <span class="balls-label">extra chances</span>
           </div>
           <div class="bio-fields" id="bio-fields-${i}">
-            <input class="bio-input" type="text" id="bio-line-${i}" placeholder="Hometown · record · trash talk" maxlength="60" autocomplete="off" />
+            <input class="bio-input" type="text" id="bio-line-${i}" placeholder="Shown during their pick reveal — city, record, anything" maxlength="60" autocomplete="off" />
           </div>`;
         grid.appendChild(slot);
       }
@@ -905,13 +949,15 @@
       isWeighted = !isWeighted;
       document.getElementById('weighted-switch').classList.toggle('on', isWeighted);
       document.querySelectorAll('[id^="balls-wrap-"]').forEach(w => w.classList.toggle('visible', isWeighted));
+      document.getElementById('weighted-badge').classList.toggle('visible', isWeighted);
     }
 
     function toggleSchedule() {
       const panel  = document.getElementById('schedule-panel');
       const btn    = document.getElementById('schedule-toggle-btn');
       const isOpen = panel.classList.toggle('open');
-      btn.textContent = isOpen ? '× Close' : 'Want to reveal this with your league later? Schedule a reveal →';
+      btn.classList.toggle('open', isOpen);
+      btn.textContent = isOpen ? '× Close Scheduler' : '📅 Schedule a Reveal for Your League';
     }
 
     async function scheduleReveal() {
@@ -1112,11 +1158,24 @@
         document.getElementById('board').classList.add('pulsing');
         playRumble(1600);
         setTimeout(() => {
-          playChime();
-          const chimeWait = chimeAudio
-            ? Math.ceil((chimeAudio.duration || 1.5) * 1000) + 2000
-            : 3500;
-          setTimeout(startRevealSequence, chimeWait);
+          // Wait for chime to fully finish before starting the sequence.
+          // Using the 'ended' event avoids the clunk caused by guessing duration.
+          const onChimeDone = () => {
+            chimeAudio.removeEventListener('ended', onChimeDone);
+            // Brief dramatic pause after chime lands, then go
+            setTimeout(startRevealSequence, 1800);
+          };
+          if (chimeAudio) {
+            chimeAudio.addEventListener('ended', onChimeDone);
+            playChime();
+            // Safety fallback — if ended never fires (e.g. muted/failed), start after 4s
+            setTimeout(() => {
+              chimeAudio.removeEventListener('ended', onChimeDone);
+              startRevealSequence();
+            }, 4000);
+          } else {
+            setTimeout(startRevealSequence, 3500);
+          }
         }, 900);
       }, 850);
     }
@@ -1285,6 +1344,17 @@
       setTimeout(() => {
         buildEndCard();
         gsap.to('#end-btns', { opacity: 1, duration: 0.9, ease: 'power2.out' });
+
+        // After the end card is up and applause is settling,
+        // fade the page back to light mode — board/picks stay dark.
+        // Feels like house lights coming up after the show.
+        setTimeout(() => {
+          document.body.classList.add('returning-to-light');
+          document.body.classList.remove('reveal-mode');
+          document.body.classList.add('input-mode');
+          // Clean up transition class after it completes
+          setTimeout(() => document.body.classList.remove('returning-to-light'), 2000);
+        }, 3200);
       }, 1600);
     }
 

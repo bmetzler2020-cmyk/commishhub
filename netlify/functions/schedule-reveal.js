@@ -98,6 +98,7 @@ exports.handler = async function(event, context) {
       leagueName: leagueName || 'CommishHub Draft Lottery',
       revealTime: revealTimeUTC,
       speed: speed || 'default',
+      weighted: !!weighted,
       createdAt: new Date().toISOString()
     }));
   } catch (err) {
