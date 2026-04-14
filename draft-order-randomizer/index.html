@@ -831,7 +831,7 @@
             <span class="balls-label">lottery balls</span>
           </div>
           <div class="bio-fields" id="bio-fields-${i}">
-            <input class="bio-input" type="text" id="bio-line-${i}" placeholder="One line about this team — hometown, record, trash talk…" maxlength="100" autocomplete="off" />
+            <input class="bio-input" type="text" id="bio-line-${i}" placeholder="Hometown · record · trash talk" maxlength="60" autocomplete="off" />
           </div>`;
         grid.appendChild(slot);
       }
@@ -1145,27 +1145,20 @@
       const counter  = document.getElementById('pick-counter');
       counter.classList.add('visible');
 
-      const suspenseMs = speedKey === 'fast' ? 1600 : speedKey === 'slow' ? 4000 : 2400;
-
-      function pickDuration(team) {
-        const hasBio = !!(team.bio || team.tagline);
-        const holdMs = hasBio
-          ? (speedKey === 'fast' ? 3000 : speedKey === 'slow' ? 6000 : 4200)
-          : (speedKey === 'fast' ? 1800 : speedKey === 'slow' ? 4000 : 2800);
-        // fade-in + suspense + name-anim + bio-delay + hold + fade-out + board-settle + gap
-        return 400 + suspenseMs + 700 + (hasBio ? 700 : 0) + holdMs + 500 + 700 + 300;
+      // Use a callback chain instead of pre-scheduled setTimeouts.
+      // This means the sequence pauses naturally when the tab loses focus
+      // and resumes cleanly — no stacked timeouts firing on return.
+      function runPick(i) {
+        if (i >= shuffledOrder.length) {
+          // Small settle gap after the last board card populates, then finish
+          setTimeout(onAllRevealed, 800);
+          return;
+        }
+        updatePickCounter(i + 1, shuffledOrder.length);
+        revealPick(i, shuffledOrder[i], () => runPick(i + 1));
       }
 
-      let elapsed = 0;
-      shuffledOrder.forEach((team, i) => {
-        setTimeout(() => {
-          updatePickCounter(i + 1, shuffledOrder.length);
-          revealPick(i, team);
-        }, elapsed);
-        elapsed += pickDuration(team);
-      });
-
-      setTimeout(onAllRevealed, elapsed + 800);
+      runPick(0);
     }
 
     function updatePickCounter(current, total) {
@@ -1174,10 +1167,18 @@
     }
 
     // ── Spotlight reveal — fires for each pick ──
-    function revealPick(idx, team) {
+    function revealPick(idx, team, done) {
       const name   = (team.name || team).toUpperCase();
-      const bio    = team.bio || team.tagline || [team.hometown, team.record, team.tagline].filter(Boolean).join('  ·  ') || '';
+      const bio    = team.bio || team.tagline || '';
       const hasBio = bio.length > 0;
+
+      const speedKey   = selectedSpeed || 'default';
+      const suspenseMs = speedKey === 'fast' ? 1600 : speedKey === 'slow' ? 4000 : 2400;
+      const holdMs     = hasBio
+        ? (speedKey === 'fast' ? 3000 : speedKey === 'slow' ? 6000 : 4200)
+        : (speedKey === 'fast' ? 1800 : speedKey === 'slow' ? 4000 : 2800);
+      // Gap between spotlight collapse and next pick firing
+      const gapMs = speedKey === 'fast' ? 400 : speedKey === 'slow' ? 900 : 600;
 
       const overlay  = document.getElementById('spotlight-overlay');
       const labelEl  = document.getElementById('spotlight-pick-label');
@@ -1197,13 +1198,8 @@
 
       nameEl.textContent = '';
       gsap.set([overlay, labelEl, nameEl, bioEl, glowEl], { opacity: 0 });
+      gsap.set('#spotlight-underline', { scaleX: 0 });
       overlay.classList.add('active');
-
-      const speedKey   = selectedSpeed || 'default';
-      const suspenseMs = speedKey === 'fast' ? 1600 : speedKey === 'slow' ? 4000 : 2400;
-      const holdMs     = hasBio
-        ? (speedKey === 'fast' ? 3000 : speedKey === 'slow' ? 6000 : 4200)
-        : (speedKey === 'fast' ? 1800 : speedKey === 'slow' ? 4000 : 2800);
 
       gsap.to(overlay, { opacity: 1, duration: 0.4, ease: 'power2.out', onComplete: () => {
         gsap.to(labelEl, { opacity: 1, duration: 0.5 });
@@ -1215,7 +1211,6 @@
             { opacity: 0, y: 22 },
             { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', onComplete: () => {
               playRevealTone();
-              // Gold underline draws in after name lands
               gsap.fromTo('#spotlight-underline', { scaleX: 0 }, { scaleX: 1, duration: 0.55, ease: 'power2.out' });
             }}
           );
@@ -1232,6 +1227,8 @@
               overlay.classList.remove('active');
               gsap.set('#spotlight-underline', { scaleX: 0 });
               populateBoardCard(idx, name, bio);
+              // Fire next pick after board card settles + gap
+              setTimeout(done, 700 + gapMs);
             }});
           }, holdMs);
 

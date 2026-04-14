@@ -312,7 +312,7 @@
       <div id="countdown-overlay">
         <p class="countdown-label">Reveal begins in</p>
         <div class="countdown-display" id="countdown-timer">--:--:--</div>
-        <p class="countdown-sub">The pick is in. Hang tight.</p>
+        <p class="countdown-sub" id="countdown-sub">The pick is in. Hang tight.</p>
       </div>
 
       <!-- Pick cards — built by JS when ready -->
@@ -347,7 +347,8 @@
     let chimeAudio    = null;
     let applauseAudio = null;
     let isMuted       = false;
-    let pendingReveal = null; // set when data loads, consumed on tap
+    let pendingReveal = null;
+    let revealData    = null; // source of truth for end card — never read from DOM
 
     // Preload audio
     chimeAudio    = new Audio('/audio/chime.mp3');
@@ -469,7 +470,7 @@
         document.getElementById('board-wrap').style.display    = 'block';
 
         if (data.ready) {
-          // Store for tap — audio requires a direct user gesture first
+          revealData    = data.shuffled; // store for end card
           pendingReveal = { shuffled: data.shuffled, speed: data.speed || 'default' };
           buildPickCards(data.shuffled);
           // Show tap overlay (hides board until user taps)
@@ -490,27 +491,75 @@
     }
 
     // ── Countdown ──
+    // Messages keyed by how far out the reveal is. Rotates every 12s after the first.
+    const countdownMessages = {
+      far:    [ // > 1 hour
+        "The pick is in. Your league doesn't know it yet.",
+        "Locked and sealed. Share the link when you're ready.",
+        "The order exists. It's just classified right now.",
+        "Someone's getting pick one. They don't know it yet either."
+      ],
+      medium: [ // 10 min – 1 hour
+        "Not long now. Start the group chat.",
+        "The pick is in. Hang tight.",
+        "Tell everyone to open the link.",
+        "Almost time. No peeking."
+      ],
+      close:  [ // < 10 minutes
+        "Almost time.",
+        "Get everyone on the link.",
+        "This is it.",
+        "Don't close the tab."
+      ]
+    };
+
+    function getMessageSet(remainingMs) {
+      if (remainingMs > 60 * 60 * 1000) return countdownMessages.far;
+      if (remainingMs > 10 * 60 * 1000) return countdownMessages.medium;
+      return countdownMessages.close;
+    }
+
     function startCountdown(revealTimeUTC) {
       const revealAt = new Date(revealTimeUTC).getTime();
       const timerEl  = document.getElementById('countdown-timer');
+      const subEl    = document.getElementById('countdown-sub');
 
       if (isNaN(revealAt)) { showError(); return; }
       if (Date.now() >= revealAt) { loadReveal(); return; }
 
-      // Idle animation — slow breathing glow while waiting
       document.getElementById('board').classList.add('countdown-idle');
 
+      let msgIndex = 0;
+      let lastMsgSet = null;
+
+      function updateMessage(remainingMs) {
+        const msgSet = getMessageSet(remainingMs);
+        // Reset index if we just crossed into a new message set
+        if (msgSet !== lastMsgSet) { msgIndex = 0; lastMsgSet = msgSet; }
+        subEl.textContent = msgSet[msgIndex % msgSet.length];
+      }
+
+      // Rotate message every 12 seconds
+      let msgTick = 0;
       function tick() {
         const remaining = revealAt - Date.now();
         if (remaining <= 0) {
           timerEl.textContent = '00:00:00';
-          setTimeout(loadReveal, 500);
+          subEl.textContent = "It's time.";
+          setTimeout(loadReveal, 800);
           return;
         }
         const h = Math.floor(remaining / 3600000);
         const m = Math.floor((remaining % 3600000) / 60000);
         const s = Math.floor((remaining % 60000) / 1000);
         timerEl.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+        // Update message on first tick and every 12 seconds after
+        if (msgTick % 12 === 0) {
+          if (msgTick > 0) msgIndex++;
+          updateMessage(remaining);
+        }
+        msgTick++;
         setTimeout(tick, 1000);
       }
       tick();
@@ -545,37 +594,29 @@
       const counter = document.getElementById('pick-counter');
       counter.classList.add('visible');
 
-      const delay = speedDelays[speed] || 3000;
-      const speedKey = speed || 'default';
-      const suspenseMs = speedKey === 'fast' ? 1200 : speedKey === 'slow' ? 3200 : 2000;
-
-      // Calculate per-pick total duration so we can schedule accurately
-      function pickDuration(team) {
-        const hasBio = !!(team.bio);
-        const holdMs = hasBio
-          ? (speedKey === 'fast' ? 3000 : speedKey === 'slow' ? 6000 : 4200)
-          : (speedKey === 'fast' ? 1800 : speedKey === 'slow' ? 4000 : 2800);
-        // fade-in + suspense + name-anim + bio-delay + hold + fade-out + board-settle + gap
-        return 400 + suspenseMs + 700 + (hasBio ? 700 : 0) + holdMs + 500 + 700 + 400;
+      function runPick(i) {
+        if (i >= shuffled.length) {
+          setTimeout(onAllRevealed, 800);
+          return;
+        }
+        document.getElementById('pick-counter').textContent = `Pick ${i + 1} of ${shuffled.length}`;
+        revealPick(i, shuffled[i], speed, () => runPick(i + 1));
       }
 
-      let elapsed = 0;
-      shuffled.forEach((team, i) => {
-        setTimeout(() => {
-          document.getElementById('pick-counter').textContent = `Pick ${i + 1} of ${shuffled.length}`;
-          revealPick(i, team, speedKey);
-        }, elapsed);
-        elapsed += pickDuration(team);
-      });
-
-      // After all picks finish
-      setTimeout(onAllRevealed, elapsed + 600);
+      runPick(0);
     }
 
-    function revealPick(idx, team, speedKey) {
+    function revealPick(idx, team, speed, done) {
+      const speedKey = speed || 'default';
       const name   = (team.name || team).toUpperCase();
       const bio    = team.bio || '';
       const hasBio = bio.length > 0;
+
+      const suspenseMs = speedKey === 'fast' ? 1600 : speedKey === 'slow' ? 4000 : 2400;
+      const holdMs     = hasBio
+        ? (speedKey === 'fast' ? 3000 : speedKey === 'slow' ? 6000 : 4200)
+        : (speedKey === 'fast' ? 1800 : speedKey === 'slow' ? 4000 : 2800);
+      const gapMs = speedKey === 'fast' ? 400 : speedKey === 'slow' ? 900 : 600;
 
       const overlay  = document.getElementById('spotlight-overlay');
       const labelEl  = document.getElementById('spotlight-pick-label');
@@ -598,11 +639,6 @@
       gsap.set([overlay, labelEl, nameEl, bioEl, glowEl], { opacity: 0 });
       gsap.set('#spotlight-underline', { scaleX: 0 });
       overlay.classList.add('active');
-
-      const suspenseMs = speedKey === 'fast' ? 1600 : speedKey === 'slow' ? 4000 : 2400;
-      const holdMs = hasBio
-        ? (speedKey === 'fast' ? 3000 : speedKey === 'slow' ? 6000 : 4200)
-        : (speedKey === 'fast' ? 1800 : speedKey === 'slow' ? 4000 : 2800);
 
       gsap.to(overlay, { opacity: 1, duration: 0.4, ease: 'power2.out', onComplete: () => {
         gsap.to(labelEl, { opacity: 1, duration: 0.5 });
@@ -630,6 +666,7 @@
               overlay.classList.remove('active');
               gsap.set('#spotlight-underline', { scaleX: 0 });
               populateBoardCard(idx, name, bio);
+              setTimeout(done, 700 + gapMs);
             }});
           }, holdMs);
 
@@ -681,20 +718,21 @@
         duration: 1.6, ease: 'power2.out'
       });
 
-      // Build end card from the stored reveal data
+      // Build end card from source data — not the DOM — so tab switching can't cause gaps
       setTimeout(() => {
         const endCard        = document.getElementById('end-card');
         const picksContainer = document.getElementById('end-card-picks');
         picksContainer.innerHTML = '';
 
-        document.querySelectorAll('[id^="pick-name-"]').forEach((el, i) => {
-          const tagEl  = document.getElementById(`pick-tagline-${i}`);
-          const tagText = tagEl ? tagEl.textContent : '';
-          const row = document.createElement('div');
+        const source = revealData || [];
+        source.forEach((team, i) => {
+          const name    = (team.name || team).toUpperCase();
+          const bio     = team.bio || '';
+          const row     = document.createElement('div');
           row.className = 'end-card-pick-row';
           row.innerHTML = `
             <span class="end-card-pick-num">Pick ${i + 1}</span>
-            <span class="end-card-pick-name">${el.textContent}${tagText ? `<span style="display:block;font-family:'DM Sans',sans-serif;font-size:.72rem;color:rgba(250,247,240,0.3);font-style:italic;font-weight:400;margin-top:2px;">${tagText}</span>` : ''}</span>`;
+            <span class="end-card-pick-name">${name}${bio ? `<span style="display:block;font-family:'DM Sans',sans-serif;font-size:.72rem;color:rgba(250,247,240,0.3);font-style:italic;font-weight:400;margin-top:2px;">${bio}</span>` : ''}</span>`;
           picksContainer.appendChild(row);
         });
 
