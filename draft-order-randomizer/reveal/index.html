@@ -456,18 +456,16 @@
       document.getElementById('board').classList.add('pulsing');
       playRumble(1600);
       setTimeout(() => {
-        const onChimeDone = () => {
-          chimeAudio.removeEventListener('ended', onChimeDone);
+        let sequenceStarted = false;
+        function beginSequence() {
+          if (sequenceStarted) return;
+          sequenceStarted = true;
           setTimeout(() => startRevealSequence(shuffled, speed), 1800);
-        };
+        }
         if (chimeAudio) {
-          chimeAudio.addEventListener('ended', onChimeDone);
+          chimeAudio.addEventListener('ended', beginSequence, { once: true });
           playChime();
-          // Safety fallback
-          setTimeout(() => {
-            chimeAudio.removeEventListener('ended', onChimeDone);
-            startRevealSequence(shuffled, speed);
-          }, 4000);
+          setTimeout(beginSequence, 4000);
         } else {
           setTimeout(() => startRevealSequence(shuffled, speed), 3500);
         }
