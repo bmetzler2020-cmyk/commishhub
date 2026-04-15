@@ -63,6 +63,29 @@ exports.handler = async function(event) {
   // Remove tool field before forwarding — Anthropic API doesn't know about it
   delete payload.tool;
 
+  // Payload validation — lock down what clients can actually send
+  const ALLOWED_MODELS = ['claude-sonnet-4-20250514', 'claude-sonnet-4-6'];
+  const MAX_TOKENS_CAP  = 200; // highest legitimate value across all tools is 120
+  const MAX_SYSTEM_LEN  = 4000; // longest system prompt across all tools is ~2000 chars
+  const MAX_MSG_LEN     = 2000; // user message content cap
+
+  if (!ALLOWED_MODELS.includes(payload.model)) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid model' }) };
+  }
+  if (typeof payload.max_tokens !== 'number' || payload.max_tokens > MAX_TOKENS_CAP) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid max_tokens' }) };
+  }
+  if (payload.system && payload.system.length > MAX_SYSTEM_LEN) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'System prompt too long' }) };
+  }
+  if (Array.isArray(payload.messages)) {
+    for (const msg of payload.messages) {
+      if (typeof msg.content === 'string' && msg.content.length > MAX_MSG_LEN) {
+        return { statusCode: 400, body: JSON.stringify({ error: 'Message content too long' }) };
+      }
+    }
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return { statusCode: 500, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured' }) };

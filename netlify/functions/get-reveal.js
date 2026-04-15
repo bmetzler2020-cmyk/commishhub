@@ -10,6 +10,9 @@ exports.handler = async function(event, context) {
   if (!id) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Missing id parameter' }) };
   }
+  if (!/^[a-z0-9]+$/i.test(id)) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid id parameter' }) };
+  }
 
   let data;
   try {

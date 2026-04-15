@@ -1,6 +1,27 @@
 // netlify/functions/schedule-reveal.js
+//
+// RATE LIMITING: 10 requests/hour per IP (in-memory, resets per serverless instance)
+// INPUT VALIDATION: email format, team name/bio length caps, leagueName sanitization
+
 const { getStore } = require('@netlify/blobs');
 const { Resend }   = require('resend');
+
+const ipRevealLog = {};
+const RATE_LIMIT  = 10;
+const WINDOW_MS   = 60 * 60 * 1000;
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  if (!ipRevealLog[ip]) ipRevealLog[ip] = [];
+  ipRevealLog[ip] = ipRevealLog[ip].filter(ts => now - ts < WINDOW_MS);
+  if (ipRevealLog[ip].length >= RATE_LIMIT) return true;
+  ipRevealLog[ip].push(now);
+  return false;
+}
+
+function sanitizeHtml(str) {
+  return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
 function shuffle(arr) {
   const a = [...arr];
@@ -45,6 +66,18 @@ exports.handler = async function(event, context) {
     return { statusCode: 405, body: 'Method not allowed' };
   }
 
+  const ip = event.headers['x-forwarded-for']
+    ? event.headers['x-forwarded-for'].split(',')[0].trim()
+    : event.headers['client-ip'] || 'unknown';
+
+  if (isRateLimited(ip)) {
+    return {
+      statusCode: 429,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Rate limit exceeded' })
+    };
+  }
+
   let body;
   try { body = JSON.parse(event.body); }
   catch (e) { return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
@@ -56,6 +89,28 @@ exports.handler = async function(event, context) {
   }
   if (!email || !revealTime) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Email and reveal time required' }) };
+  }
+
+  // Email format validation (consistent with save-email.js)
+  const trimmedEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+  if (!trimmedEmail.includes('@') || !trimmedEmail.includes('.')) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid email address' }) };
+  }
+
+  // Length caps
+  const MAX_TEAM_NAME = 100;
+  const MAX_BIO       = 300;
+  const MAX_LEAGUE    = 100;
+  for (const team of teams) {
+    if (typeof team === 'object' && team.name && team.name.length > MAX_TEAM_NAME) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'Team name too long (100 char max)' }) };
+    }
+    if (typeof team === 'object' && team.bio && team.bio.length > MAX_BIO) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'Team bio too long (300 char max)' }) };
+    }
+  }
+  if (leagueName && leagueName.length > MAX_LEAGUE) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'League name too long (100 char max)' }) };
   }
 
   const normalizedTeams = teams.map(normalizeTeam);
@@ -116,7 +171,7 @@ exports.handler = async function(event, context) {
     });
     const emailKey = `email-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
     await emailStore.set(emailKey, JSON.stringify({
-      email:     email.trim().toLowerCase(),
+      email:     trimmedEmail,
       source:    'draft-reveal-schedule',
       metadata:  { leagueName: leagueName || null, revealId },
       createdAt: new Date().toISOString()
@@ -126,7 +181,7 @@ exports.handler = async function(event, context) {
   }
 
   const revealUrl   = `https://commishhub.com/draft-order-randomizer/reveal/?id=${revealId}`;
-  const displayName = leagueName || 'CommishHub Draft Lottery';
+  const displayName = sanitizeHtml(leagueName || 'CommishHub Draft Lottery');
 
   let revealDisplay = revealTime;
   try {
@@ -140,7 +195,7 @@ exports.handler = async function(event, context) {
   try {
     await resend.emails.send({
       from: 'CommishHub <noreply@commishhub.com>',
-      to: email,
+      to: trimmedEmail,
       subject: `Your ${displayName} Draft Order Reveal is Scheduled`,
       html: `
         <div style="background:#0A0705;color:#FAF7F0;font-family:sans-serif;padding:48px 40px;max-width:600px;margin:0 auto;border-radius:8px;">

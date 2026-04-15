@@ -14,12 +14,39 @@
 //
 // v2 upgrade path: add Resend call here once domain is verified
 // and sending is ready. The data collection is already complete.
+//
+// RATE LIMITING: 10 requests/hour per IP (in-memory, resets per serverless instance)
 
 const { getStore } = require('@netlify/blobs');
+
+const ipEmailLog = {};
+const RATE_LIMIT = 10;
+const WINDOW_MS  = 60 * 60 * 1000;
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  if (!ipEmailLog[ip]) ipEmailLog[ip] = [];
+  ipEmailLog[ip] = ipEmailLog[ip].filter(ts => now - ts < WINDOW_MS);
+  if (ipEmailLog[ip].length >= RATE_LIMIT) return true;
+  ipEmailLog[ip].push(now);
+  return false;
+}
 
 exports.handler = async function(event) {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method not allowed' };
+  }
+
+  const ip = event.headers['x-forwarded-for']
+    ? event.headers['x-forwarded-for'].split(',')[0].trim()
+    : event.headers['client-ip'] || 'unknown';
+
+  if (isRateLimited(ip)) {
+    return {
+      statusCode: 429,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Rate limit exceeded' })
+    };
   }
 
   let body;
