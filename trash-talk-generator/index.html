@@ -434,14 +434,14 @@ The target is always the FANTASY MANAGER. The players, the team name, the moves 
 
 Tone levels:
 Trash Talk — dry, pointed, a little mean. Goes after the decisions. The kind of thing that gets three laughing emojis and one angry one in the group chat.
-Nuclear Option — no mercy. Say the quiet part out loud. Something true and slightly unfair that everyone was already thinking. Can be witty, can be a cheap shot — doesn't matter as long as it lands and stings. The only failure mode is pulling the punch.
+Nuclear Option — no mercy. Pick the sharpest thing available and throw it without apology. Sometimes that's a name pun that eviscerates them. Sometimes it's just "this guy looked exactly like his roster." Sometimes it's a cheap personal shot that has nothing to do with football and everything to do with the kind of person who makes these decisions. Don't structure it. Don't justify it. Just say it.
 
 Rules:
 - Use a player's general reputation only — never current stats, recent injuries, or specific game results.
 - Output trash talk only. Start on word one. No preamble, no explanation.
 - 1-2 sentences. 60 words maximum.
 - Never racist, never sexist, never attack things outside someone's control.`,
-            messages: [{ role: 'user', content: `Tone: ${selectedTone}\n\nRoast this fantasy manager:\nTeam name: ${opponent}\n${player ? 'Players on their team: ' + player + '\n' : ''}${context ? 'What happened: ' + context + '\n' : ''}\nThe team name and what happened are your primary material. Players are supporting evidence of the manager's bad judgment, not the subject of the roast.` }]
+            messages: [{ role: 'user', content: `Tone: ${selectedTone}\n\nRoast this fantasy manager:\nTeam name: ${opponent}\n${player ? 'Players on their team: ' + player + '\n' : ''}${context ? 'What happened: ' + context + '\n' : ''}` }]
           })
         });
 
