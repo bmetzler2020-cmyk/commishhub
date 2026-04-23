@@ -215,7 +215,7 @@
         </div>
         <span class="badge badge-gold fu" style="margin-bottom:14px; display:inline-flex;">Free Tool</span>
         <h1 class="fu">Fantasy Football Player Nickname Generator</h1>
-        <p class="fu">Every player has a nickname they don't know about yet. Some are obvious. Some are inevitable. One sounds like a job title on a very impressive resume.</p>
+        <p class="fu">Every player has a nickname they don't know about yet. Some are obvious. Some are inevitable. One sounds like it belongs on a very official business card.</p>
       </div>
     </section>
 
@@ -239,7 +239,7 @@
         <!-- Mode toggle -->
         <div class="mode-toggle" role="group" aria-label="Nickname mode">
           <button class="mode-btn active-nickname" id="btn-nickname" data-mode="nickname" onclick="setMode(this)">Nickname</button>
-          <button class="mode-btn" id="btn-linkedin" data-mode="linkedin" onclick="setMode(this)">LinkedIn Bio</button>
+          <button class="mode-btn" id="btn-linkedin" data-mode="linkedin" onclick="setMode(this)">Job Title</button>
         </div>
 
         <button class="btn-primary" id="generate-btn" onclick="generateNickname()" aria-label="Generate player nickname" style="width:100%; font-size:1rem; padding:16px;">
@@ -252,7 +252,6 @@
 
         <div class="results-section" id="results">
           <p class="nickname-display" id="result-nickname"></p>
-          <p class="nickname-explanation" id="result-explanation"></p>
           <div class="result-actions">
             <button class="copy-btn" id="copy-btn" onclick="copyNickname()" aria-label="Copy nickname to clipboard">Copy nickname →</button>
             <button class="btn-ghost" onclick="tryAnother()" style="padding:8px 16px; font-size:.82rem;">↻ Try Another</button>
@@ -260,7 +259,7 @@
           </div>
         </div>
 
-        <p class="small-print">CommishHub is not responsible for what happens when you use this in the group chat. The LinkedIn Bio mode especially.</p>
+        <p class="small-print">CommishHub is not responsible for what happens when you use this in the group chat. The Job Title mode especially.</p>
 
       </div>
     </div>
@@ -422,27 +421,20 @@
       document.getElementById('generate-btn').style.opacity = '1';
     }
 
-    function renderResult(nickname, explanation) {
-      const nicknameEl    = document.getElementById('result-nickname');
-      const explanationEl = document.getElementById('result-explanation');
-      nicknameEl.textContent    = nickname;
-      explanationEl.textContent = explanation;
-      // Reset styles in case of a previous error state
+    function renderResult(nickname) {
+      const nicknameEl = document.getElementById('result-nickname');
+      nicknameEl.textContent = nickname;
       nicknameEl.style.color    = '';
       nicknameEl.style.fontSize = '';
-      // Hide explanation element if empty — output is now nickname only
-      explanationEl.style.display = explanation ? '' : 'none';
       document.getElementById('results').classList.add('visible');
       document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function renderError(message) {
       const nicknameEl = document.getElementById('result-nickname');
-      const explanationEl = document.getElementById('result-explanation');
       nicknameEl.textContent = message;
       nicknameEl.style.color = 'var(--muted)';
       nicknameEl.style.fontSize = '1rem';
-      explanationEl.style.display = 'none';
       document.getElementById('results').classList.add('visible');
     }
 
@@ -494,7 +486,7 @@
         lastPlayerName = playerName;
         lastContext    = context;
         stopLoading();
-        renderResult(canonical.nickname, '');
+        renderResult(canonical.nickname);
         return;
       }
 
@@ -513,34 +505,43 @@
             max_tokens: 80,
             temperature: 1.0,
             system: selectedMode === 'nickname'
-              ? `You are a fantasy football nickname generator. Your job is to produce the single best nickname for an NFL player — the one that feels inevitable the moment you hear it. You have deep knowledge of NFL players, their personalities, playing styles, known controversies, public reputations, and fantasy football community perception.
+              ? `You are a fantasy football nickname generator. Your job is to produce the single best nickname for an NFL player — the one that feels inevitable the moment you hear it.
 
 Priority order:
 1. Internet consensus — what does the fantasy football community already call this player? What's the running joke or established reputation?
-2. Known controversies or defining moments — what does everyone already know about this player that defines them?
+2. Career identity, playing style, defining traits — what does everyone already know about this player that defines them at a career level?
 3. Wordplay on their name, position, or situation — only if genuinely earned. Can be witty or crudely observational. Never forced.
+
+Lean on career identity, playing style, and reputation — avoid current team, contract status, or recent season results, which go stale fast.
+
+If a player is known for underperforming, busting, or disappointing fantasy managers, that IS the angle. Don't soften it.
 
 The gold standard: "The Dick Print" for Woody Marks. Specific, observable, impossible to un-hear.
 
-CRITICAL: Output exactly one line — the nickname only. 2-5 words maximum. No quotes, no punctuation, no explanation, no preamble. Start immediately with the nickname and stop. Nothing else.
+Output the nickname only. Start on word one. No preamble, no explanation. 2-5 words maximum. No quotes, no punctuation after it. Nothing else.
 
-Rules: never racist, never sexist, never genuinely private information. Crude is fine if earned. Generic is never acceptable. "The Beast" is not a nickname. "The Dick Print" is.`
-              : `You are generating a nickname in the style of "Emerald City Route Merchant" for Jaxon Smith-Njigba — the overwrought, grandiose AI nickname format that became a joke in fantasy football circles. The format works because it combines something hyper-specific about what the player actually does on the field with unnecessarily grand language.
+Never racist, never sexist, never genuinely private information. Crude is fine if earned. Generic is never acceptable. "The Beast" is not a nickname. "The Dick Print" is.`
+              // Job Title mode (grandiose AI format — the Emerald City Route Merchant bit)
+              : `You are generating a nickname in the style of "Emerald City Route Merchant" — the overwrought, grandiose AI nickname format that became a joke in fantasy football circles. The joke is treating a football player like they have a very official, very serious professional title.
 
-The formula: [Geographic or atmospheric modifier] + [Specific football skill or trait in elevated language]
+The core move: take the ONE thing most associated with this player — their signature skill, their defining trait, what fantasy managers think when they hear the name — and describe it in the most unnecessarily formal occupational language possible.
 
-Examples of what makes this work:
-- "Route Merchant" — specific to JSN's skill set, sounds like a job title
-- "Red Zone Adjudicator" — for a goal line back
-- "Fourth Quarter Executor" — for a clutch receiver
-- "Pocket Sovereign" — for a statue QB
+What makes it work:
+- "Route Merchant" — sounds like a job title, specific to what JSN actually does
+- "Hamstring Curator" — for a player whose injuries are his whole identity
+- "Goal Line Sovereign" — for a touchdown vulture
+- "Pocket Adjudicator" — for a statue QB who never moves
+- "Fumble Technician" — for a ball-carrier who can't hold on
+- "Target Share Executor" — for a volume receiver on a bad offense
 
-Pick the ONE thing that most defines this player's football identity — their signature skill, their defining trait, what they're known for in fantasy circles — then describe it in the most unnecessarily formal language possible. 3-5 words. Commit fully to the bit.
+The geographic modifier is optional — use it when it adds something, skip it when it doesn't. The formal occupational noun is the whole joke. Let it be weird. Let it be specific. If the player is a bust or a disappointment, the title should reflect that without apology.
 
-CRITICAL: Output exactly one line — the nickname only. No explanation, no punctuation after it, just the nickname.`,
+Output the nickname only. Start on word one. No explanation, no punctuation after it. 3-5 words. Commit fully to the bit.
+
+Never racist, never sexist, never genuinely private information.`,
             messages: [{
               role: 'user',
-              content: 'Player: ' + playerName + (context ? '\nContext: ' + context : '')
+              content: 'Player: ' + playerName + (context ? '\nContext: ' + context : '') + (rerun ? '\n\nGenerate a different nickname — approach from a completely different angle than you might have before.' : '')
             }]
           })
         });
@@ -577,7 +578,7 @@ CRITICAL: Output exactly one line — the nickname only. No explanation, no punc
         if (!nickname) throw new Error('Could not parse nickname from response');
 
         stopLoading();
-        renderResult(nickname, '');
+        renderResult(nickname);
 
       } catch (err) {
         stopLoading();
