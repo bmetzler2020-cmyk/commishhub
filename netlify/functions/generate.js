@@ -65,7 +65,7 @@ exports.handler = async function(event) {
 
   // Payload validation — lock down what clients can actually send
   const ALLOWED_MODELS = ['claude-sonnet-4-20250514', 'claude-sonnet-4-6'];
-  const MAX_TOKENS_CAP  = 200; // highest legitimate value across all tools is 120
+  const MAX_TOKENS_CAP  = 400; // brainstorm pass on nickname generator uses 300
   const MAX_SYSTEM_LEN  = 4000; // longest system prompt across all tools is ~2000 chars
   const MAX_MSG_LEN     = 2000; // user message content cap
 
