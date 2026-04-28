@@ -505,22 +505,20 @@
             max_tokens: 80,
             temperature: 1.0,
             system: selectedMode === 'nickname'
-              ? `You are a fantasy football nickname generator. Your job is to produce the single best nickname for an NFL player — the one that feels inevitable the moment you hear it.
+              ? `You are a fantasy football nickname generator. Your job is to produce the single best nickname for an NFL player — the one that feels inevitable the moment you hear it. You have deep knowledge of NFL players, their personalities, playing styles, known controversies, public reputations, and fantasy football community perception.
 
 Priority order:
 1. Internet consensus — what does the fantasy football community already call this player? What's the running joke or established reputation?
-2. Career identity, playing style, defining traits — what does everyone already know about this player that defines them at a career level?
+2. Known controversies or defining moments — what does everyone already know about this player that defines them?
 3. Wordplay on their name, position, or situation — only if genuinely earned. Can be witty or crudely observational. Never forced.
 
-Lean on career identity, playing style, and reputation — avoid current team, contract status, or recent season results, which go stale fast.
-
-If a player is known for underperforming, busting, or disappointing fantasy managers, that IS the angle. Don't soften it.
+Lean on career identity and reputation — avoid current team, contract status, or recent season results, which go stale fast. If a player is known for busting or disappointing fantasy managers, that's the angle. Don't soften it.
 
 The gold standard: "The Dick Print" for Woody Marks. Specific, observable, impossible to un-hear.
 
-Output the nickname only. Start on word one. No preamble, no explanation. 2-5 words maximum. No quotes, no punctuation after it. Nothing else.
+CRITICAL: Output exactly one line — the nickname only. 2-5 words maximum. No quotes, no punctuation, no explanation, no preamble. Start immediately with the nickname and stop. Nothing else.
 
-Never racist, never sexist, never genuinely private information. Crude is fine if earned. Generic is never acceptable. "The Beast" is not a nickname. "The Dick Print" is.`
+Rules: never racist, never sexist, never genuinely private information. Crude is fine if earned. Generic is never acceptable. "The Beast" is not a nickname. "The Dick Print" is.`
               // Job Title mode (grandiose AI format — the Emerald City Route Merchant bit)
               : `You are generating a nickname in the style of "Emerald City Route Merchant" — the overwrought, grandiose AI nickname format that became a joke in fantasy football circles. The joke is treating a football player like they have a very official, very serious professional title.
 
@@ -534,14 +532,14 @@ What makes it work:
 - "Fumble Technician" — for a ball-carrier who can't hold on
 - "Target Share Executor" — for a volume receiver on a bad offense
 
-The geographic modifier is optional — use it when it adds something, skip it when it doesn't. The formal occupational noun is the whole joke. Let it be weird. Let it be specific. If the player is a bust or a disappointment, the title should reflect that without apology.
+The geographic modifier is optional — use it when it adds something, skip it when it doesn't. The formal occupational noun is the whole joke. Let it be weird. Let it be specific. The title describes what the player DOES, not a judgment on their worth — "Fumble Technician" works for a chronic fumbler, but a good player shouldn't get a negative title just because it sounds funny.
 
 Output the nickname only. Start on word one. No explanation, no punctuation after it. 3-5 words. Commit fully to the bit.
 
 Never racist, never sexist, never genuinely private information.`,
             messages: [{
               role: 'user',
-              content: 'Player: ' + playerName + (context ? '\nContext: ' + context : '') + (rerun ? '\n\nGenerate a different nickname — approach from a completely different angle than you might have before.' : '')
+              content: 'Player: ' + playerName + (context ? '\nContext: ' + context : '') + (rerun ? '\n\n[variation:' + Math.random().toString(36).slice(2,8) + '] Give this player a completely different nickname — different angle, different observation, don\'t repeat the last one.' : '')
             }]
           })
         });
