@@ -13,8 +13,8 @@
 const ipRequestLog   = {};   // key: "ip"         — general tools
 const ipNicknameLog  = {};   // key: "ip:nickname" — nickname generator only
 
-const RATE_LIMIT_GENERAL  = 20;
-const RATE_LIMIT_NICKNAME = 30;
+const RATE_LIMIT_GENERAL  = 40;
+const RATE_LIMIT_NICKNAME = 40;
 const WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
 function isRateLimited(ip, tool) {
