@@ -461,10 +461,47 @@
     }
 
     // Canonical nicknames — these fire instantly before any API call.
-    // Add players here when consensus is strong enough to hardcode.
+    // Add players here when community consensus is strong enough to hardcode.
+    // Sources: Reddit r/DynastyFF, fantasy football community.
     const CANONICAL = {
+      // JSN
       'jaxon smith-njigba': { nickname: 'Emerald City Route Merchant', mode: 'linkedin' },
-      'jsn': { nickname: 'Emerald City Route Merchant', mode: 'linkedin' },
+      'jsn':                 { nickname: 'Emerald City Route Merchant', mode: 'linkedin' },
+
+      // Community-settled nicknames
+      'josh downs':          { nickname: 'The Syndrome' },
+      'joe burrow':          { nickname: 'Better Business Burrow' },
+      'burrow':              { nickname: 'Better Business Burrow' },
+      'anthony richardson':  { nickname: 'We Have Cam Newton at Home' },
+      'dak prescott':        { nickname: 'Unsolicited Dak Picks' },
+      'dak':                 { nickname: 'Unsolicited Dak Picks' },
+      'michael penix jr':    { nickname: 'Penix Envy' },
+      'michael penix':       { nickname: 'Penix Envy' },
+      'penix':               { nickname: 'Penix Envy' },
+      'ladd mcconkey':       { nickname: 'McConkey Kong' },
+      'mcconkey':            { nickname: 'McConkey Kong' },
+      'tua tagovailoa':      { nickname: 'Gold Medalist: Fencing' },
+      'tua':                 { nickname: 'Gold Medalist: Fencing' },
+      'sam laporta':         { nickname: 'Sam LaPortaPotty' },
+      'laporta':             { nickname: 'Sam LaPortaPotty' },
+      'deshaun watson':      { nickname: 'Massage Enthusiast' },
+      'watson':              { nickname: 'Massage Enthusiast' },
+      'puka nacua':          { nickname: 'Nacua Libre' },
+      'puka':                { nickname: 'Nacua Libre' },
+      'jj mccarthy':         { nickname: 'JJ McCarthknee' },
+      'j.j. mccarthy':       { nickname: 'JJ McCarthknee' },
+      'george pickens':      { nickname: 'NFL Youngboy' },
+      'pickens':             { nickname: 'NFL Youngboy' },
+      'xavier worthy':       { nickname: 'Mjolnir' },
+      'worthy':              { nickname: 'Mjolnir' },
+      'ricky pearsall':      { nickname: 'Blicky Pearsall' },
+      'pearsall':            { nickname: 'Blicky Pearsall' },
+      'brock bowers':        { nickname: 'Brockness Monster' },
+      'bowers':              { nickname: 'Brockness Monster' },
+      'sam darnold':         { nickname: "I'm Seeing Ghosts" },
+      'darnold':             { nickname: "I'm Seeing Ghosts" },
+      'jordan addison':      { nickname: 'Crashout' },
+      'addison':             { nickname: 'Crashout' },
     };
 
     async function generateNickname(rerun) {
@@ -519,7 +556,7 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              model: 'claude-sonnet-4-20250514',
+              model: 'claude-sonnet-4-6',
               tool: 'nickname',
               max_tokens: 80,
               temperature: 1.0,
@@ -567,7 +604,7 @@ Never racist, never sexist, never genuinely private information.`,
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             tool: 'nickname',
             max_tokens: 300,
             temperature: 1.0,
@@ -598,7 +635,7 @@ Never racist, never sexist, never genuinely private information.`,
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             tool: 'nickname',
             max_tokens: 80,
             temperature: 0.3,
