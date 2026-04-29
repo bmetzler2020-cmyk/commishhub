@@ -460,21 +460,29 @@
       setTimeout(function() { el.style.borderColor = ''; el.style.animation = ''; }, 800);
     }
 
-    // Canonical nicknames — these fire instantly before any API call.
-    // Add players here when community consensus is strong enough to hardcode.
-    // Sources: Reddit r/DynastyFF, fantasy football community.
+    // Tracks last canonical shown per player — prevents rerun returning same result
+    const lastCanonicalShown = {};
+
+    // Canonical nicknames — instant return, no API call.
+    // pool: rotates on rerun (pick randomly, avoid repeat)
+    // nickname: single canonical, rerun falls through to AI
+    // Sources: Reddit r/DynastyFF, fantasy football community
     const CANONICAL = {
       // JSN
       'jaxon smith-njigba': { nickname: 'Emerald City Route Merchant', mode: 'linkedin' },
       'jsn':                 { nickname: 'Emerald City Route Merchant', mode: 'linkedin' },
 
-      // Community-settled nicknames
+      // Rotation pools — rerun cycles through these
+      'dak prescott':        { pool: ['Unsolicited Dak Picks', 'Dak in the Box', 'a Dak a Dak'] },
+      'dak':                 { pool: ['Unsolicited Dak Picks', 'Dak in the Box', 'a Dak a Dak'] },
+      'bucky irving':        { pool: ['The Winter Soldier', 'Knucky if you Bucky', 'Buck Fucks'] },
+      'bucky':               { pool: ['The Winter Soldier', 'Knucky if you Bucky', 'Buck Fucks'] },
+
+      // Single canonicals
       'josh downs':          { nickname: 'The Syndrome' },
       'joe burrow':          { nickname: 'Better Business Burrow' },
       'burrow':              { nickname: 'Better Business Burrow' },
       'anthony richardson':  { nickname: 'We Have Cam Newton at Home' },
-      'dak prescott':        { nickname: 'Unsolicited Dak Picks' },
-      'dak':                 { nickname: 'Unsolicited Dak Picks' },
       'michael penix jr':    { nickname: 'Penix Envy' },
       'michael penix':       { nickname: 'Penix Envy' },
       'penix':               { nickname: 'Penix Envy' },
@@ -502,6 +510,19 @@
       'darnold':             { nickname: "I'm Seeing Ghosts" },
       'jordan addison':      { nickname: 'Crashout' },
       'addison':             { nickname: 'Crashout' },
+      'patrick mahomes':     { nickname: 'Kermit' },
+      'mahomes':             { nickname: 'Kermit' },
+      'travis kelce':        { nickname: 'Pfizer Boy' },
+      'kelce':               { nickname: 'Pfizer Boy' },
+      'lamar jackson':       { nickname: 'Regional Manager' },
+      'lamar':               { nickname: 'Regional Manager' },
+      'brock purdy':         { nickname: 'Mr. Irrelevant' },
+      'purdy':               { nickname: 'Mr. Irrelevant' },
+      'jahmyr gibbs':        { nickname: 'Simba' },
+      'gibbs':               { nickname: 'Simba' },
+      'zach wilson':         { nickname: 'MILF Hunter' },
+      'jalen hurts':         { nickname: 'Tush Push Merchant' },
+      'hurts':               { nickname: 'Tush Push Merchant' },
     };
 
     async function generateNickname(rerun) {
@@ -510,14 +531,30 @@
 
       if (!playerName) { shakeField('player-name'); return; }
 
-      // Check canonical lookup first — instant return, no API call
-      const canonical = CANONICAL[playerName.toLowerCase().trim()];
-      if (canonical && !rerun) {
-        lastPlayerName = playerName;
-        lastContext    = context;
-        stopLoading();
-        renderResult(canonical.nickname);
-        return;
+      // Check canonical lookup
+      const canonicalKey = playerName.toLowerCase().trim();
+      const canonical = CANONICAL[canonicalKey];
+
+      if (canonical) {
+        if (canonical.pool) {
+          // Pool entry — always use canonical, rotate on rerun to avoid repeats
+          const pool = canonical.pool;
+          const last = lastCanonicalShown[canonicalKey];
+          const options = pool.filter(function(n) { return n !== last; });
+          const pick = options[Math.floor(Math.random() * options.length)];
+          lastCanonicalShown[canonicalKey] = pick;
+          lastPlayerName = playerName;
+          lastContext    = context;
+          renderResult(pick);
+          return;
+        } else if (!rerun) {
+          // Single canonical — fire on first gen only, rerun falls through to AI
+          lastPlayerName = playerName;
+          lastContext    = context;
+          lastCanonicalShown[canonicalKey] = canonical.nickname;
+          renderResult(canonical.nickname);
+          return;
+        }
       }
 
       lastPlayerName = playerName;
@@ -608,7 +645,17 @@ Never racist, never sexist, never genuinely private information.`,
             tool: 'nickname',
             max_tokens: 300,
             temperature: 1.0,
-            system: `You are a fantasy football nickname brainstormer. Generate 5 different nickname candidates for an NFL player. Do not filter or evaluate — just generate. Cover different approaches across the 5: at least one comparison to another player or cultural figure, one unexpected cultural reference, one purely observational, one name or position wordplay. The fifth can be anything. Be willing to go weird, crude, or unexpected. Lean on career identity and reputation over current team or recent season results. Output exactly 5 nicknames, one per line, numbered 1–5. Nothing else.`,
+            system: `You are a fantasy football nickname brainstormer. Generate 5 different nickname candidates for an NFL player. Do not filter or evaluate — just generate. Be willing to go weird, crude, or unexpected.
+
+What makes a nickname great — it comes from a real observation, not the first association. Examples of the register you're going for:
+- Anthony Richardson → "We Have Cam Newton at Home" (comparison that's funny because it's accurate)
+- Joe Burrow → "Better Business Burrow" (name pun with a second layer, not just a pun)
+- Josh Downs → "The Syndrome" (unexpected cultural reference — the collision is the joke)
+- Bucky Irving → "The Winter Soldier" (cultural reference that just fits)
+- Tua Tagovailoa → "Gold Medalist: Fencing" (observational, the fencing reference earns it)
+- Dak Prescott → "Unsolicited Dak Picks" (plays on the name AND the reputation simultaneously)
+
+Cover different approaches across your 5: at least one comparison to another player or cultural figure, one unexpected cultural reference, one observational, one name/wordplay only if it has a second layer. The fifth can be anything. Lean on career identity and reputation over current team or recent season results. Output exactly 5 nicknames, one per line, numbered 1–5. Nothing else.`,
             messages: [{
               role: 'user',
               content: 'Player: ' + playerName + (context ? '\nContext: ' + context : '') + (rerun ? '\n\n[variation:' + Math.random().toString(36).slice(2,8) + '] Fresh set — different angles than before.' : '')
@@ -639,7 +686,11 @@ Never racist, never sexist, never genuinely private information.`,
             tool: 'nickname',
             max_tokens: 80,
             temperature: 0.3,
-            system: `You are editing fantasy football nicknames. You will receive a list of candidates for an NFL player. Pick the single funniest one. Ask yourself: is it unexpected? Does it have a second layer — a collision of ideas, a comparison that cuts, a reference that just fits? Would someone screenshot this and send it to their league chat? Generic is the enemy. Safe name puns are a last resort. Output only the winning nickname — no number, no explanation, no preamble. Start on word one and stop.`,
+            system: `You are editing fantasy football nicknames. You will receive a list of candidates for a player. Pick the single funniest one.
+
+The bar: would someone screenshot this and send it to their league chat? Does it have a second layer — a collision of ideas, a comparison that cuts, a reference that just fits? "We Have Cam Newton at Home" passes. "Captain [Position]" fails. "Gold Medalist: Fencing" passes. Anything with "Captain," "The General," or a generic sports metaphor fails. Safe name puns are a last resort — only pick one if nothing better exists.
+
+Output only the winning nickname. No number, no explanation, no preamble. Start on word one and stop.`,
             messages: [{
               role: 'user',
               content: 'Player: ' + playerName + '\n\nCandidates:\n' + candidates
